@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Key components of Bash · devops-bash · ai|</title>
+<link rel="stylesheet" href="style.css?v=1">
+<script>
+  (function() {
+    var t = localStorage.getItem('b1-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+    var f = localStorage.getItem('b1-font');
+    if (f) document.documentElement.setAttribute('data-font', f);
+  })();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand-group">
+    <a class="home" href="index-en.html">
+      <span class="badge-ai">ai|</span>
+      <span class="sub-brand">devops-bash</span>
+    </a>
+    <div class="three" aria-hidden="true">tools · <span class="topic">Bash</span> · practice · 150 questions</div>
+  </div>
+  <div class="utility-tray" role="toolbar" aria-label="Display settings and language">
+    <div class="lang-switcher" aria-label="Language">
+      <a href="01-en.html" class="active" aria-current="page">EN</a>
+      <a href="01.html">RU</a>
+      <a href="01-uk.html">UK</a>
+      <a href="01-de.html">DE</a>
+    </div>
+    <div class="font-scaler" role="group" aria-label="Font size">
+      <button type="button" class="font-btn font-s" data-size="s" title="Small text" aria-label="Small text">А</button>
+      <button type="button" class="font-btn font-m active" data-size="m" title="Default text" aria-label="Default text">A</button>
+      <button type="button" class="font-btn font-l" data-size="l" title="Large text" aria-label="Large text">A</button>
+    </div>
+    <button type="button" class="theme-toggle" id="themeToggle" title="Switch theme (day/night)" aria-label="Switch theme day/night">
+      <span class="theme-icon" aria-hidden="true">☼</span>
+    </button>
+  </div>
+</header>
+
+<div class="cols">
+
+  <nav class="sessions" aria-label="Site sections">
+    <ol>
+      <li><a href="01-en.html" aria-current="page"><span class="num">1</span>Key components</a></li>
+      <li><span class="later"><span class="num">2</span>Writing scripts</span></li>
+      <li><span class="later"><span class="num">3</span>The strength of Bash</span></li>
+      <li><span class="later"><span class="num">4</span>Weaknesses and limits</span></li>
+      <li><span class="later"><span class="num">5</span>Interconnections</span></li>
+      <li><span class="later"><span class="num">6</span>Practices in an AI context</span></li>
+      <li><span class="later"><span class="num">7</span>Practices in the cloud</span></li>
+      <li><span class="later"><span class="num">8</span>DevOps practices</span></li>
+      <li><span class="later"><span class="num">9</span>Examples · Noob</span></li>
+      <li><span class="later"><span class="num">10</span>Examples · Pro</span></li>
+      <li><span class="later"><span class="num">11</span>Examples · IGL</span></li>
+      <li><span class="later"><span class="num">12</span>Questions · Noob</span></li>
+      <li><span class="later"><span class="num">13</span>Questions · Pro</span></li>
+      <li><span class="later"><span class="num">14</span>Questions · IGL</span></li>
+    </ol>
+    <div class="nav-extra">
+      <a href="glossary-en.html">📖 Glossary</a>
+    </div>
+    <div class="page-toc" id="pageToc" aria-label="Sections on this page" hidden>
+      <div class="toc-title">On this page</div>
+      <ul class="toc-list" id="tocList"></ul>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Key components of Bash</h1>
+    <p class="lead">The six mechanisms every script is built from. Knowing the order they run in
+    is what separates an engineer who fixes a script in a minute from one who edits it by guess.</p>
+
+    <div class="box key" id="key-idea">
+      <h2>The key idea of this page <a class="yakor" href="#key-idea" aria-label="link to this block">#</a></h2>
+      <p>Bash is not a language of commands but a pipeline that processes one line of text, and
+      nearly all of its “oddities” follow from the order of that processing. The shell first splits
+      the line into tokens, then performs expansions in a strictly defined sequence, cuts the result
+      into words, expands filename patterns, and only then starts processes. That is why a path with
+      a space breaks a command, why quotes change meaning, and why a failure in the middle of a
+      pipeline disappears. The six sections below are the six places where scripts actually break.
+      Assessments ask about exactly these, because the answer shows whether you understand the
+      mechanism or merely remember a recipe.</p>
+    </div>
+
+    <h2 id="parsing">1 · Parsing the command line <a class="yakor" href="#parsing">#</a></h2>
+    <p>The shell reads the line, splits it into tokens on operators (<code>|</code>, <code>;</code>,
+    <code>&amp;&amp;</code>, <code>&gt;</code>), and only then starts expanding. The order is fixed,
+    and it is the single most asked question:</p>
+<pre><code>1. brace expansion    {a,b}
+2. tilde              ~
+3. parameters         $var ${var}
+4. command subst.     $(cmd)
+5. arithmetic         $((1+2))
+6. word splitting     on IFS
+7. filename globbing  *.txt
+8. quote removal</code></pre>
+    <p>Two consequences. Globbing runs <em>after</em> parameter expansion, so
+    <code>f="*.txt"; echo $f</code> prints a file list while <code>echo "$f"</code> prints the
+    asterisk. And the reverse: <code>{1..3}</code> expands before parameters, which is why
+    <code>{1..$n}</code> does not work.</p>
+    <div class="prints"><strong>Typical question:</strong> “in what order does Bash perform
+    expansions, and why does the result of <code>echo $f</code> depend on quoting?”</div>
+
+    <h2 id="splitting">2 · Expansion and word splitting <a class="yakor" href="#splitting">#</a></h2>
+    <p>After substitution Bash cuts the result into words on the characters in <code>IFS</code> —
+    by default space, tab and newline. Quotes suppress that split, and that is their only real
+    job.</p>
+<pre><code>f="My File.txt"
+rm $f     # two targets: My and File.txt
+rm "$f"   # one target, correct</code></pre>
+    <p>The same difference applies to argument lists: <code>"$@"</code> expands to separate
+    arguments with their boundaries intact, while <code>$@</code> and <code>"$*"</code> do not.
+    The rule is simple: an unquoted expansion must be a deliberate decision, never a default.</p>
+    <div class="prints"><strong>Typical question:</strong> “how do <code>"$@"</code>,
+    <code>$@</code> and <code>"$*"</code> differ, and what breaks on paths with spaces?”</div>
+
+    <h2 id="processes">3 · Processes and redirection <a class="yakor" href="#processes">#</a></h2>
+    <p>A process has three open descriptors: <code>0</code> input, <code>1</code> output,
+    <code>2</code> errors. Redirections are applied left to right, and the order changes the
+    result:</p>
+<pre><code>cmd &gt;log 2&gt;&amp;1   # both streams to the file
+cmd 2&gt;&amp;1 &gt;log   # errors stay on the terminal</code></pre>
+    <p>In the second case <code>2</code> copies the <em>current</em> destination of <code>1</code> —
+    the terminal — and only afterwards does <code>1</code> move to the file. The same area covers
+    <code>&lt;&lt;EOF</code> (here-document), <code>&lt;&lt;&lt;</code> (here-string) and
+    <code>exec 3&gt;file</code> for long-lived descriptors.</p>
+    <div class="prints"><strong>Typical question:</strong> “why do <code>2&gt;&amp;1 &gt;log</code>
+    and <code>&gt;log 2&gt;&amp;1</code> produce different results?”</div>
+
+    <h2 id="pipelines">4 · Pipelines and exit codes <a class="yakor" href="#pipelines">#</a></h2>
+    <p>Pipeline stages start simultaneously, each in its own process. By default the pipeline's exit
+    code is the last stage's, so a failure in the first stage is lost silently:</p>
+<pre><code>false | tee out
+echo $?                  # 0
+echo "${PIPESTATUS[@]}"  # 1 0
+set -o pipefail
+false | tee out
+echo $?                  # 1</code></pre>
+    <p>This also explains why <code>set -e</code> does not save you: it reacts to a command's code,
+    and here the command is the whole pipeline. And why a variable changed in a loop after
+    <code>|</code> is empty afterwards: the loop ran in a subshell.</p>
+    <div class="prints"><strong>Typical question:</strong> “how do you get the exit code of one
+    specific pipeline stage, and why does <code>set -e</code> not fire here?”</div>
+
+    <h2 id="variables">5 · Variables and scope <a class="yakor" href="#variables">#</a></h2>
+    <p>A shell variable is visible only to the shell itself; <code>export</code> marks it for
+    handing down to child processes. A subshell inherits values but never returns its changes —
+    braces, unlike parentheses, do not create a subshell:</p>
+<pre><code>x=1; ( x=2 ); echo $x   # 1
+x=1; { x=2; }; echo $x  # 2</code></pre>
+    <p>Inside a function a variable is global by default — <code>local</code> is mandatory, or the
+    function silently overwrites someone else's value. Safe defaults:
+    <code>${var:-fallback}</code> instead of an empty string, and <code>set -u</code> so that a typo
+    in a name stops the script rather than continuing with nothing.</p>
+    <div class="prints"><strong>Typical question:</strong> “how does <code>export</code> differ from
+    a plain assignment, and why is a function without <code>local</code> dangerous?”</div>
+
+    <h2 id="signals">6 · Signals and traps <a class="yakor" href="#signals">#</a></h2>
+    <p>A signal is an asynchronous message to a process. <code>trap</code> installs a handler, and
+    the only reliable way to clean up after yourself is a trap on <code>EXIT</code>: it fires on
+    every termination, including errors and interrupts:</p>
+<pre><code>tmp=$(mktemp)
+trap 'rm -f "$tmp"' EXIT
+trap 'echo interrupted; exit 130' INT</code></pre>
+    <p>A script killed by signal N exits with <code>128+N</code>: 130 for Ctrl+C
+    (<code>SIGINT</code>), 143 for <code>SIGTERM</code>. <code>SIGKILL</code> (9) can never be
+    caught — so “reliable cleanup on kill -9” does not exist, and that is a deliberate property of
+    the system rather than a gap in it.</p>
+    <div class="prints"><strong>Typical question:</strong> “how do you guarantee a temporary file is
+    removed on any termination, and why can <code>SIGKILL</code> not be trapped?”</div>
+
+    <h2 id="artifacts">Artifacts: what you have after this page <a class="yakor" href="#artifacts">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Reading &gt;&gt; Your quantum of life's time · A partnership of dignity with AI · Rewiring your neural network</p>
+      <p><strong>Six mechanisms instead of six recipes.</strong> The time was well spent if you now
+      explain a script's behaviour by the order in which the line is processed, rather than by a
+      list of exceptions. That is the rewiring: a recipe is gone in a month, an understood mechanism
+      stays and carries over to any shell.</p>
+    </div>
+    <ol>
+      <li><strong>The expansion order</strong> — eight steps that explain most of the “oddities”.</li>
+      <li><strong>The quoting rule:</strong> an unquoted expansion is a decision, not a default.</li>
+      <li><strong>Redirection order</strong> and why <code>2&gt;&amp;1</code> cannot go just anywhere.</li>
+      <li><strong><code>PIPESTATUS</code> and <code>pipefail</code></strong> — how not to lose a failure in a pipeline.</li>
+      <li><strong>Process boundaries:</strong> subshell, <code>export</code>, <code>local</code>.</li>
+      <li><strong>A trap on <code>EXIT</code></strong> as the only reliable cleanup.</li>
+    </ol>
+
+    <footer>
+      Next page: practices for using Bash in an AI context. What was deferred, and why, is in
+      <a href="potom.md">potom.md</a>.
+    </footer>
+  </main>
+
+</div>
+</div>
+<script src="swa.js"></script>
+<script src="terms.js"></script>
+</body>
+</html>
