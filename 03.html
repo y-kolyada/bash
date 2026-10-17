@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Сила Bash · devops-bash · ai|</title>
+<link rel="stylesheet" href="style.css?v=1">
+<script>
+  (function() {
+    var t = localStorage.getItem('b1-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+    var f = localStorage.getItem('b1-font');
+    if (f) document.documentElement.setAttribute('data-font', f);
+  })();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand-group">
+    <a class="home" href="index.html">
+      <span class="badge-ai">ai|</span>
+      <span class="sub-brand">devops-bash</span>
+    </a>
+    <div class="three" aria-hidden="true">инструменты · <span class="topic">Bash</span> · практика · 150 вопросов</div>
+  </div>
+  <div class="utility-tray" role="toolbar" aria-label="Настройки отображения и язык">
+    <div class="lang-switcher" aria-label="Выбор языка">
+      <a href="03-en.html">EN</a>
+      <a href="03.html" class="active" aria-current="page">RU</a>
+      <a href="03-uk.html">UK</a>
+      <a href="03-de.html">DE</a>
+    </div>
+    <div class="font-scaler" role="group" aria-label="Размер шрифта">
+      <button type="button" class="font-btn font-s" data-size="s" title="Мелкий шрифт" aria-label="Мелкий шрифт">А</button>
+      <button type="button" class="font-btn font-m active" data-size="m" title="Стандартный шрифт" aria-label="Стандартный шрифт">A</button>
+      <button type="button" class="font-btn font-l" data-size="l" title="Крупный шрифт" aria-label="Крупный шрифт">A</button>
+    </div>
+    <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему (День/Ночь)" aria-label="Сменить тему день/ночь">
+      <span class="theme-icon" aria-hidden="true">☼</span>
+    </button>
+  </div>
+</header>
+
+<div class="cols">
+
+  <nav class="sessions" aria-label="Разделы сайта">
+    <ol>
+      <li><a href="01.html"><span class="num">1</span>Ключевые компоненты</a></li>
+      <li><a href="02.html"><span class="num">2</span>Написание скриптов</a></li>
+      <li><a href="03.html" aria-current="page"><span class="num">3</span>Сила Bash</a></li>
+      <li><a href="04.html"><span class="num">4</span>Слабости и границы</a></li>
+      <li><a href="05.html"><span class="num">5</span>Взаимосвязи</a></li>
+      <li><a href="06.html"><span class="num">6</span>Практики в контексте AI</a></li>
+      <li><a href="07.html"><span class="num">7</span>Практики в Clouds</a></li>
+      <li><a href="08.html"><span class="num">8</span>Практики DevOps</a></li>
+      <li><a href="09.html"><span class="num">9</span>Примеры · Noob</a></li>
+      <li><a href="10.html"><span class="num">10</span>Примеры · Pro</a></li>
+      <li><a href="11.html"><span class="num">11</span>Примеры · IGL</a></li>
+      <li><a href="12.html"><span class="num">12</span>Вопросы · Noob</a></li>
+      <li><a href="13.html"><span class="num">13</span>Вопросы · Pro</a></li>
+      <li><a href="14.html"><span class="num">14</span>Вопросы · IGL</a></li>
+    </ol>
+    <div class="nav-extra">
+      <a href="glossary.html">📖 Словарь понятий</a>
+    </div>
+    <div class="page-toc" id="pageToc" aria-label="Разделы этой страницы" hidden>
+      <div class="toc-title">На этой странице</div>
+      <ul class="toc-list" id="tocList"></ul>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Сила Bash</h1>
+    <p class="lead">Почему язык, которому сорок лет, не вытеснили ни Python, ни Go, ни одна из оболочек, придуманных ему на смену. Раздел существует, чтобы сравнение со слабостями было честным.</p>
+
+    <div class="box key" id="glavnaya-mysl">
+      <h2>Главная мысль страницы <a class="yakor" href="#glavnaya-mysl" aria-label="ссылка на этот блок">#</a></h2>
+      <p>Bash держится не по инерции и не из-за привычки администраторов. У него есть четыре преимущества, которые нечем заменить: он уже установлен везде, куда вы придёте; он стартует за миллисекунды; управление процессами и файлами встроено в его синтаксис, а не вынесено в библиотеку; и он позволяет превратить проверенную руками команду в работающую программу без единой правки. Пятое приходит от экосистемы: сам он умеет мало, но соединяет сорок лет утилит с общим интерфейсом. Всё это не отменяет его слабостей - им отведён следующий раздел, и он такой же честный, как этот.</p>
+    </div>
+
+    <h2 id="vezde">1 · Он уже стоит там, куда вы придёте <a class="yakor" href="#vezde">#</a></h2>
+    <p>Главная сила Bash не техническая, а логистическая: <strong>его не нужно устанавливать.</strong>
+    Он есть в любом дистрибутиве Linux, в образах Docker, на узлах CI, внутри Git-хуков, в
+    <code>cloud-init</code> у только что созданной виртуальной машины. Исполняемый файл - единицы
+    мегабайт, и никакой среды выполнения рядом не требуется.</p>
+<pre><code>ls -lh /bin/bash
+# ~1.4M, и это всё
+
+docker run --rm debian bash -c 'echo ok'
+# ok   - без установки чего-либо</code></pre>
+    <p>Сравните с ценой входа у альтернатив: Python нужной версии, виртуальное окружение,
+    зависимости из сети, иногда компилятор. На вашем ноутбуке это пятнадцать минут, на тысяче
+    узлов - отдельный проект. <strong>Скрипт на Bash работает там, где ещё ничего нет</strong>, -
+    и именно поэтому им написано то, что запускается первым: установщики, точки входа контейнеров,
+    стартовые скрипты облачных машин.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Почему провижининг и точки входа контейнеров до сих пор пишут на shell, а не на Python?»</div>
+
+    <h2 id="start">2 · Цена запуска измеряется миллисекундами <a class="yakor" href="#start">#</a></h2>
+    <p>Bash стартует почти мгновенно, потому что ему нечего загружать. Там, где скрипт вызывается
+    тысячи раз - в хуке на каждый коммит, в цикле по файлам, в тесте - это разница не косметическая.</p>
+<pre><code>time bash -c 'exit'
+# real ~0m0.003s
+
+time python3 -c 'pass'
+# real ~0m0.030s</code></pre>
+    <p>Десять раз - не повод для выбора языка. <strong>Десять тысяч раз в цикле CI - повод.</strong>
+    Та же логика работает в обратную сторону и честно названа на странице слабостей: каждая внешняя
+    команда в Bash - это тоже новый процесс, и цикл на сто тысяч итераций с
+    <code>grep</code> внутри будет медленнее любого интерпретатора.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Когда скорость запуска важнее скорости выполнения?»</div>
+
+    <h2 id="os">3 · Прямой доступ к системе, без прослойки <a class="yakor" href="#os">#</a></h2>
+    <p>Для Bash процессы, файлы, потоки и права - не библиотека, а <strong>синтаксис</strong>.
+    То, что в других языках требует импорта и десятка строк, здесь занимает одну.</p>
+<pre><code># перенаправление, конвейер, фон,
+# ожидание, код возврата - в одной строке
+cmd &gt;out 2&gt;err &amp;
+pid=$!
+wait "$pid" || echo "упал: $?"</code></pre>
+    <p>Это язык, созданный ровно для одной задачи - управлять другими программами, - и в этой
+    задаче он до сих пор выразительнее универсальных языков. <code>subprocess</code> в Python
+    описывает то же самое втрое длиннее и с большим числом мест, где можно ошибиться.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Почему запуск и связывание процессов в shell короче, чем в языке общего назначения?»</div>
+
+    <h2 id="kley">4 · Клей: сила не в нём, а в том, что он соединяет <a class="yakor" href="#kley">#</a></h2>
+    <p>Bash почти ничего не умеет сам - и это его архитектурное решение, а не недостаток. Он умеет
+    <strong>соединять</strong> программы, каждая из которых делает одно дело хорошо.</p>
+<pre><code>grep -h ERROR app-*.log \
+  | awk '{print $4}' \
+  | sort | uniq -c | sort -rn \
+  | head -5</code></pre>
+    <p>Четыре строки дают топ источников ошибок из гигабайтов логов - и ни одна из них не написана
+    вами. <strong>Выразительность здесь не в языке, а в экосистеме</strong>: сорок лет утилит,
+    у которых общий интерфейс - текстовый поток. Заменить этот конвейер кодом на любом языке можно,
+    но он будет длиннее, и в нём появятся ваши собственные ошибки там, где сейчас их нет.</p>
+    <p><strong>Набор утилит обновляется, и конвейер от этого выигрывает.</strong>
+    <code>ripgrep</code> вместо <code>grep -r</code>, <code>fd</code> рядом с <code>find</code>,
+    <code>sd</code> вместо <code>sed</code> для простых замен, <code>hyperfine</code> для
+    замеров, <code>delta</code> для чтения диффов. Большинство из них написаны на Rust и
+    заметно быстрее классических на больших деревьях - но интерфейс у них тот же: текст на
+    вход, текст на выход, честный код возврата.</p>
+    <p><strong>Это и есть доказательство, что сила здесь в архитектуре, а не в конкретных
+    программах:</strong> экосистему можно обновить наполовину, не меняя ни язык, ни ваши
+    скрипты. Язык, который ничего не умеет сам, пережил своё поколение утилит именно потому,
+    что ничего о них не знал - кроме того, что они читают и пишут текст.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Что такое философия Unix на практике и как она проявляется в конвейере?»</div>
+
+    <h2 id="odin-yazyk">5 · Один язык от терминала до продакшна <a class="yakor" href="#odin-yazyk">#</a></h2>
+    <p>Уникальное свойство, которого нет ни у одного другого языка: <strong>то, что вы набрали
+    руками и проверили глазами, становится программой без переписывания.</strong></p>
+<pre><code># проверили в терминале:
+curl -fsS "$URL/health" | jq -e .ok
+
+# ровно это - в скрипт, в хук,
+# в шаг CI, в systemd-юнит</code></pre>
+    <p>Путь от «я разобрался руками» до «это работает само» здесь - копирование строки. В любом
+    другом языке между ними лежит перевод из одной формы в другую, и каждый такой перевод - место,
+    где поведение меняется незаметно.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Чем ценно то, что команда из терминала и строка скрипта - это один и тот же текст?»</div>
+
+    <h2 id="zhivoy">6 · Он не застыл: язык развивается <a class="yakor" href="#zhivoy">#</a></h2>
+    <p>Представление о Bash как о чём-то из восьмидесятых не выдерживает проверки. Пятая версия
+    принесла ассоциативные массивы, <code>mapfile</code>, безопасное цитирование и ожидание любого
+    из фоновых процессов.</p>
+<pre><code>declare -A cfg
+cfg[port]=8080
+
+mapfile -t lines &lt; file.txt
+echo "${#lines[@]}"
+
+wait -n          # первый завершившийся
+echo "${cfg[port]@Q}"</code></pre>
+    <p><code>mapfile</code> читает файл в массив без цикла и без подводных камней со
+    словоделением. <code>${var@Q}</code> печатает значение в форме, которую можно безопасно
+    вставить обратно в скрипт. <code>wait -n</code> делает выполнимым то, что раньше требовало
+    костылей, - реакцию на первое завершившееся задание.</p>
+    <p class="dim">Проверить версию: <code>bash --version</code>. В macOS по умолчанию стоит
+    3.2 - по лицензионным причинам, и это не признак того, что язык не развивается.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Что появилось в Bash 4 и 5 и почему на macOS по умолчанию до сих пор версия 3.2?»</div>
+
+    <h2 id="artefakty">Артефакты: что у вас есть после этой страницы <a class="yakor" href="#artefakty">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Чтение &gt;&gt; Ваш квант времени жизни · Партнёрство достоинства вместе с AI · Перестройка вашей нейросети</p>
+      <p><strong>Аргументы вместо ощущения.</strong> Время потрачено не зря, если на вопрос «зачем вообще bash, когда есть Python» вы отвечаете не «так принято», а называете конкретное свойство: нулевую установку, цену запуска, встроенное управление процессами или путь от терминала до продакшна без переписывания. Это и есть перестройка нейросети: вы перестаёте выбирать инструмент по привычке и начинаете выбирать по цене решения.</p>
+    </div>
+    <ol>
+      <li><strong>Нулевая установка</strong> как причина, по которой shell запускается первым.</li>
+      <li><strong>Цена запуска:</strong> миллисекунды против десятков миллисекунд, и когда это решает.</li>
+      <li><strong>Процессы как синтаксис</strong>, а не как библиотека.</li>
+      <li><strong>Конвейер как композиция</strong> сорока лет чужой работы - и то, что этот набор обновляется (<code>ripgrep</code>, <code>fd</code>, <code>sd</code>) без правки ваших скриптов.</li>
+      <li><strong>Терминал → скрипт → CI без перевода</strong> - свойство, которого нет у других языков.</li>
+      <li><strong>Что принесли Bash 4 и 5:</strong> ассоциативные массивы, <code>mapfile</code>, <code>wait -n</code>, <code>${var@Q}</code>.</li>
+    </ol>
+
+    <footer>
+      Следующая страница - слабости и границы, написанные так же прямо. Что отложено и почему - в <a href="potom.md">potom.md</a>.
+    </footer>
+  </main>
+
+</div>
+</div>
+<script src="swa.js"></script>
+<script src="terms.js"></script>
+<script src="cp.js"></script>
+</body>
+</html>
