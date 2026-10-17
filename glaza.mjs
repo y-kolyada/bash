@@ -68,7 +68,7 @@ console.log(report.overflowing.length ? 'за край вылезло: ' + repor
 for (const el of report.overflowing.slice(0, 5)) console.log('  ' + el);
 
 await page.screenshot({ path: 'telefon.png', fullPage: true });
-console.log('снимок: telefon.png - посмотри на него сам');
+console.log('снимок: telefon.png - посмотрите на него своими глазами');
 
 await browser.close();
 process.exit(report.overflowing.length ? 1 : 0);
