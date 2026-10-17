@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Словарь понятий · Bash · ai|</title>
+<link rel="stylesheet" href="style.css?v=1">
+<script>
+  (function() {
+    var t = localStorage.getItem('b1-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+    var f = localStorage.getItem('b1-font');
+    if (f) document.documentElement.setAttribute('data-font', f);
+  })();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand-group">
+    <a class="home" href="./">
+      <span class="badge-ai">ai|</span>
+      <span class="sub-brand">devops-bash</span>
+    </a>
+    <div class="three" aria-hidden="true">инструменты · практика · 150 вопросов</div>
+  </div>
+  <div class="utility-tray" role="toolbar" aria-label="Настройки отображения и язык">
+    <div class="lang-switcher" aria-label="Выбор языка">
+      <a href="glossary.html" class="active" aria-current="page">RU</a>
+      <a href="glossary-en.html">EN</a>
+    </div>
+    <div class="font-scaler" role="group" aria-label="Размер шрифта">
+      <button type="button" class="font-btn font-s" data-size="s" title="Мелкий шрифт" aria-label="Мелкий шрифт">А</button>
+      <button type="button" class="font-btn font-m active" data-size="m" title="Стандартный шрифт" aria-label="Стандартный шрифт">A</button>
+      <button type="button" class="font-btn font-l" data-size="l" title="Крупный шрифт" aria-label="Крупный шрифт">A</button>
+    </div>
+    <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему (День/Ночь)" aria-label="Сменить тему день/ночь">
+      <span class="theme-icon" aria-hidden="true">☼</span>
+    </button>
+  </div>
+</header>
+
+<div class="cols">
+
+  <nav class="sessions" aria-label="Разделы сайта">
+    <ol>
+      <li><span class="later"><span class="num">1</span>Ключевые компоненты</span></li>
+      <li><span class="later"><span class="num">2</span>Практики в контексте AI</span></li>
+      <li><span class="later"><span class="num">3</span>Взаимосвязи</span></li>
+      <li><span class="later"><span class="num">4</span>Слабости и границы</span></li>
+      <li><span class="later"><span class="num">5</span>Примеры · Noob</span></li>
+      <li><span class="later"><span class="num">6</span>Примеры · Pro</span></li>
+      <li><span class="later"><span class="num">7</span>Примеры · IGL</span></li>
+      <li><span class="later"><span class="num">8</span>Вопросы · Noob</span></li>
+      <li><span class="later"><span class="num">9</span>Вопросы · Pro</span></li>
+      <li><span class="later"><span class="num">10</span>Вопросы · IGL</span></li>
+    </ol>
+    <div class="nav-extra">
+      <a href="glossary.html" aria-current="page">📖 Словарь понятий</a>
+    </div>
+    <div class="page-toc" id="pageToc" aria-label="Разделы этой страницы" hidden>
+      <div class="toc-title">На этой странице</div>
+      <ul class="toc-list" id="tocList"></ul>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Словарь понятий</h1>
+    <p class="lead">Шесть слов, которые на остальных страницах уже не объясняются.
+    Каждое — не определение для экзамена, а механика, незнание которой стоит инцидента.</p>
+
+    <div class="box key" id="glavnaya-mysl">
+      <h2>Главная мысль словаря <a class="yakor" href="#glavnaya-mysl" aria-label="ссылка на этот блок">#</a></h2>
+      <p>Словарь здесь нужен не для заучивания, а для устранения двусмысленности: пока «ошибка» и
+      «ненулевой код возврата» для вас разные вещи, спорить о надёжности скрипта бессмысленно.
+      В каждой карточке три слоя: одна фраза для узнавания, абзац механики и строка о том, где это
+      встретилось впервые. Карточки намеренно короткие — плотность важнее полноты, а полное
+      описание есть в <code>man bash</code>.</p>
+    </div>
+
+    <div class="glossary-term" id="shebang">
+      <h2>
+        <span class="glossary-title">Shebang</span>
+        <code class="glossary-object">#!/usr/bin/env bash</code>
+        <a class="yakor" href="#shebang">#</a>
+      </h2>
+      <p class="glossary-lead">Первая строка скрипта, указывающая ядру, каким интерпретатором его запускать.</p>
+      <p>Без неё скрипт выполнит та оболочка, из которой его вызвали, — и на машине с <code>dash</code>
+      вместо <code>bash</code> массивы и <code>[[ ]]</code> перестанут работать. Форма через
+      <code>env</code> ищет <code>bash</code> в <code>PATH</code>, а не только в <code>/bin</code>:
+      на macOS и в BSD он лежит в другом месте.</p>
+      <div class="glossary-meta">
+        🎯 <strong>Где встретилось впервые:</strong> <a href="index.html#osnastka">Вход · Оснастка</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="kod-vozvrata">
+      <h2>
+        <span class="glossary-title">Код возврата</span>
+        <code class="glossary-object">$?</code>
+        <a class="yakor" href="#kod-vozvrata">#</a>
+      </h2>
+      <p class="glossary-lead">Число от 0 до 255, которым команда сообщает об успехе (0) или об ошибке (не 0).</p>
+      <p>Это единственный машинный признак провала: текст в stderr — для человека, код возврата —
+      для автоматики. Отсюда правило: сообщение об ошибке без ненулевого кода означает, что
+      CI увидит зелёное. <code>./check.sh</code> на этом и построен.</p>
+      <div class="glossary-meta">
+        🎯 <strong>Где встретилось впервые:</strong> <a href="index.html#seven-goals">Вход · Семь целей</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="konveyer">
+      <h2>
+        <span class="glossary-title">Конвейер</span>
+        <code class="glossary-object">a | b</code>
+        <a class="yakor" href="#konveyer">#</a>
+      </h2>
+      <p class="glossary-lead">Цепочка команд, где вывод одной становится вводом следующей.</p>
+      <p>Звенья запускаются одновременно, а не по очереди, и каждое живёт в своём процессе. Код
+      возврата конвейера по умолчанию берётся только у последнего звена — поэтому
+      <code>ложная_команда | tee log</code> вернёт 0. Весь набор кодов лежит в
+      <code>${PIPESTATUS[@]}</code>.</p>
+      <div class="glossary-meta">
+        🎯 <strong>Где встретилось впервые:</strong> <a href="index.html#urovni">Вход · Три уровня</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="pipefail">
+      <h2>
+        <span class="glossary-title">Строгий режим</span>
+        <code class="glossary-object">set -euo pipefail</code>
+        <a class="yakor" href="#pipefail">#</a>
+      </h2>
+      <p class="glossary-lead">Три предохранителя: падать на ошибке, падать на необъявленной переменной, не терять ошибку в конвейере.</p>
+      <p><code>-e</code> — выход при ненулевом коде, но не внутри условий, <code>&amp;&amp;</code> и
+      функций, вызванных в условии. <code>-u</code> превращает опечатку в имени переменной в
+      остановку, а не в пустую строку. <code>-o pipefail</code> отдаёт код первого упавшего звена
+      конвейера. Это минимум гигиены, а не гарантия надёжности.</p>
+      <div class="glossary-meta">
+        🎯 <strong>Где встретилось впервые:</strong> <a href="index.html#urovni">Вход · Три уровня</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="slovodelenie">
+      <h2>
+        <span class="glossary-title">Словоделение</span>
+        <code class="glossary-object">"$var"</code>
+        <a class="yakor" href="#slovodelenie">#</a>
+      </h2>
+      <p class="glossary-lead">Разбиение результата подстановки на отдельные слова по пробелам и переводам строк.</p>
+      <p>Bash подставляет значение переменной, а затем режет его. Поэтому путь
+      <code>/home/My Files/a.txt</code> без кавычек превращается в два аргумента, и команда
+      удаления удалит не то, что вы имели в виду. Кавычки вокруг подстановки — не стиль,
+      а защита: это же первая ошибка, которую регулярно делают ИИ-агенты.</p>
+      <div class="glossary-meta">
+        🎯 <strong>Где встретилось впервые:</strong> <a href="index.html#seven-goals">Вход · Семь целей</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="sabshell">
+      <h2>
+        <span class="glossary-title">Сабшелл</span>
+        <code class="glossary-object">( ... )</code>
+        <a class="yakor" href="#sabshell">#</a>
+      </h2>
+      <p class="glossary-lead">Дочерний процесс оболочки: он наследует окружение, но его изменения наружу не возвращаются.</p>
+      <p>Отсюда классическая загадка: цикл после конвейера считает строки, а после его завершения
+      переменная снова пуста — цикл выполнялся в сабшелле. Понимание границы процесса объясняет
+      половину «мистических» поломок в скриптах, включая потерянный <code>cd</code>.</p>
+      <div class="glossary-meta">
+        🎯 <strong>Где встретилось впервые:</strong> <a href="index.html#artefakty">Вход · Артефакты</a>
+      </div>
+    </div>
+
+    <h2 id="artefakty">Артефакты: что у вас есть после словаря <a class="yakor" href="#artefakty">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Чтение &gt;&gt; Ваш квант времени жизни · Партнёрство достоинства вместе с AI · Перестройка вашей нейросети</p>
+      <p><strong>Шесть понятых механик вместо шести выученных определений.</strong> Время на эту
+      страницу потрачено не зря, если вы теперь видите разницу между сообщением об ошибке и кодом
+      возврата, и если кавычки вокруг переменной стали для вас рефлексом. Это и есть перестройка
+      нейросети: она остаётся с вами и после того, как сайт будет закрыт.</p>
+    </div>
+
+    <footer>
+      Словарь пополняется вместе с разделами сайта. Полное описание механик — в <code>man bash</code>.
+    </footer>
+  </main>
+
+</div>
+</div>
+<script src="swa.js"></script>
+<script src="terms.js"></script>
+</body>
+</html>

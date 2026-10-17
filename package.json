@@ -1,0 +1,14 @@
+{
+  "name": "devops-bash",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Сайт-ассессмент по Bash из серии AI Factory. Simple Web Architecture: без бэкенда, без сборки.",
+  "type": "module",
+  "scripts": {
+    "glaza": "node glaza.mjs index.html"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "playwright": "^1.64.0"
+  }
+}

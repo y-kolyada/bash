@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bash · components, practices and 150 questions · ai|</title>
+<link rel="stylesheet" href="style.css?v=1">
+<script>
+  (function() {
+    var t = localStorage.getItem('b1-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+    var f = localStorage.getItem('b1-font');
+    if (f) document.documentElement.setAttribute('data-font', f);
+  })();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand-group">
+    <a class="home" href="index-en.html">
+      <span class="badge-ai">ai|</span>
+      <span class="sub-brand">devops-bash</span>
+    </a>
+    <div class="three" aria-hidden="true">tools · practice · 150 questions</div>
+  </div>
+  <div class="utility-tray" role="toolbar" aria-label="Display settings and language">
+    <div class="lang-switcher" aria-label="Language">
+      <a href="index.html">RU</a>
+      <a href="index-en.html" class="active" aria-current="page">EN</a>
+    </div>
+    <div class="font-scaler" role="group" aria-label="Font size">
+      <button type="button" class="font-btn font-s" data-size="s" title="Small text" aria-label="Small text">А</button>
+      <button type="button" class="font-btn font-m active" data-size="m" title="Default text" aria-label="Default text">A</button>
+      <button type="button" class="font-btn font-l" data-size="l" title="Large text" aria-label="Large text">A</button>
+    </div>
+    <button type="button" class="theme-toggle" id="themeToggle" title="Switch theme (day/night)" aria-label="Switch theme day/night">
+      <span class="theme-icon" aria-hidden="true">☼</span>
+    </button>
+  </div>
+</header>
+
+<div class="cols">
+
+  <nav class="sessions" aria-label="Site sections">
+    <ol>
+      <li><span class="later"><span class="num">1</span>Key components</span></li>
+      <li><span class="later"><span class="num">2</span>Practices in an AI context</span></li>
+      <li><span class="later"><span class="num">3</span>Interconnections</span></li>
+      <li><span class="later"><span class="num">4</span>Weaknesses and limits</span></li>
+      <li><span class="later"><span class="num">5</span>Examples · Noob</span></li>
+      <li><span class="later"><span class="num">6</span>Examples · Pro</span></li>
+      <li><span class="later"><span class="num">7</span>Examples · IGL</span></li>
+      <li><span class="later"><span class="num">8</span>Questions · Noob</span></li>
+      <li><span class="later"><span class="num">9</span>Questions · Pro</span></li>
+      <li><span class="later"><span class="num">10</span>Questions · IGL</span></li>
+    </ol>
+    <div class="nav-extra">
+      <a href="glossary-en.html">📖 Glossary</a>
+    </div>
+    <div class="page-toc" id="pageToc" aria-label="Sections on this page" hidden>
+      <div class="toc-title">On this page</div>
+      <ul class="toc-list" id="tocList"></ul>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Bash: what the assessment asks, and what production needs</h1>
+    <p class="lead">A Bash reference and assessment site for engineers preparing for a certification,
+    a technical interview, or simply done with guessing. Six sections, three maturity levels,
+    150 questions with answers.</p>
+
+    <div class="box key" id="key-idea">
+      <h3>The key idea of this site <a class="yakor" href="#key-idea" aria-label="link to this block">#</a></h3>
+      <p>Everyone knows Bash and almost nobody does — it looks simple right up to the first production
+      incident where a script silently swallowed an error and exited zero. This site treats Bash as a
+      system rather than a list of commands: what it is made of, where its seams with other tools are,
+      where it is weaker than the alternatives, and which of its defaults are dangerous. A separate
+      thread runs through it: working on Bash together with AI agents. A model writes shell scripts
+      confidently and drops quoting, word splitting and exit codes just as confidently, so reading its
+      output stays your job. The material is organised by three maturity levels — Noob, Pro, IGL — so
+      you see not only the answer but your next horizon. Everything is kept short: a paragraph either
+      changes a decision of yours, or it is not here.</p>
+    </div>
+
+    <h2 id="seven-goals">Seven goals: what this site holds <a class="yakor" href="#seven-goals">#</a></h2>
+    <p>The structure is identical across the whole series. Sections marked “coming soon” are not
+    written yet — that is an honest state, not decoration.</p>
+    <ol>
+      <li><strong>Key components</strong> <span class="dim">· coming soon</span><br>
+      The anatomy of Bash: command-line parsing, expansion and
+      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">word splitting</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Word splitting</strong><button type="button" class="term-close" aria-label="Close">×</button></span><span class="term-desc">Splitting the result of an expansion into words on whitespace — the cause of most breakage on paths with spaces.</span><span class="term-links"><a href="glossary-en.html#word-splitting">Open in glossary 📖</a></span></span></span>,
+      processes and redirection,
+      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">pipelines</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Pipeline</strong><button type="button" class="term-close" aria-label="Close">×</button></span><span class="term-desc">A chain of commands joined by <code>|</code>: each one's output is the next one's input. All stages start at once.</span><span class="term-links"><a href="glossary-en.html#pipeline">Open in glossary 📖</a></span></span></span>,
+      variables and scope,
+      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">exit codes</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Exit code</strong><button type="button" class="term-close" aria-label="Close">×</button></span><span class="term-desc">A number 0–255 by which a command reports success (0) or failure (non-zero). The only machine-readable sign of failure.</span><span class="term-links"><a href="glossary-en.html#exit-code">Open in glossary 📖</a></span></span></span>,
+      signals and traps.</li>
+
+      <li><strong>Practices in an AI context</strong> <span class="dim">· coming soon</span><br>
+      How to hand an agent a shell-script task and how to verify the result; why
+      <code>shellcheck</code> inside the agent's loop is worth more than any prompt; where a script
+      is the right tool for an AI, and where it must be stopped.</li>
+
+      <li><strong>Interconnections</strong> <span class="dim">· coming soon</span><br>
+      Seams with Git hooks, CI (GitHub Actions), Docker (<code>ENTRYPOINT</code>, no init),
+      systemd, Ansible, cron, Make and Python: where Bash is the glue, and where its zone ends.</li>
+
+      <li><strong>Weaknesses and limits</strong> <span class="dim">· coming soon</span><br>
+      An honest comparison with Python, Go and zsh/fish. What Bash genuinely does badly: error
+      handling, arrays, floating-point maths, parallelism, readability past 300 lines.</li>
+
+      <li><strong>Examples by maturity level</strong> <span class="dim">· three pages · coming soon</span><br>
+      <strong>Noob</strong> — the foundation without magic: a first script, permissions,
+      <code>$?</code>, quoting.
+      <strong>Pro</strong> — the real thing: <code>set -euo pipefail</code>, <code>trap</code>,
+      idempotence, safe <code>mktemp</code>, logging.
+      <strong>IGL</strong> — architectural: where a script must die and give way to a proper tool,
+      ownership boundaries, resilience and recovery.</li>
+
+      <li><strong>A bank of 150 questions and answers</strong> <span class="dim">· three pages · coming soon</span><br>
+      Fifty per level. Short format: the question, an answer in one or two sentences, and why it
+      gets asked.</li>
+
+      <li><strong>Extreme brevity</strong> <span class="dim">· applies everywhere</span><br>
+      Not a section but a rule of writing: density over volume. If a paragraph does not change
+      a decision of yours, it is not here.</li>
+    </ol>
+
+    <h2 id="levels">Three levels, and why they are kept apart <a class="yakor" href="#levels">#</a></h2>
+    <p><strong>Noob</strong> — you run scripts and occasionally edit them. The level's job: remove the magic.<br>
+    <strong>Pro</strong> — you write scripts that run on other people's machines. The level's job:
+    remove silent failures.<br>
+    <strong>IGL</strong> — you decide whether a script should exist at all. The level's job: see the
+    cost of that decision a year ahead.</p>
+    <p>The same question has different correct answers at different levels. That is why the questions
+    are separated rather than merely sorted by difficulty.</p>
+
+    <div class="box">
+      <h3>Why levels are not the same as difficulty</h3>
+      <p>Question: “what does <code>set -e</code> do?”</p>
+      <p><strong>Noob:</strong> it aborts the script on the first error. <strong>Pro:</strong> it aborts —
+      but not inside a
+      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">pipeline</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Pipeline</strong><button type="button" class="term-close" aria-label="Close">×</button></span><span class="term-desc">A chain of commands joined by <code>|</code>. By default the exit code comes from the last stage only — the first stage's failure is lost.</span><span class="term-links"><a href="glossary-en.html#pipeline">Open in glossary 📖</a></span></span></span>
+      and not in a condition, which is why you need
+      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">pipefail</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">set -euo pipefail</strong><button type="button" class="term-close" aria-label="Close">×</button></span><span class="term-desc">Three fuses: fail on error, fail on an unset variable, do not lose a failure inside a pipeline.</span><span class="term-links"><a href="glossary-en.html#strict-mode">Open in glossary 📖</a></span></span></span>.
+      <strong>IGL:</strong> it grants a false sense of safety — on long logic that is the signal to
+      move to a language with real exceptions.</p>
+    </div>
+
+    <h2 id="toolchain">The toolchain this site is built with <a class="yakor" href="#toolchain">#</a></h2>
+    <p>Simple Web Architecture: static HTML and CSS, around 160 lines of vanilla JavaScript, zero
+    backend, zero build step. Pages sit flat in the repository root, with no subfolders — that way
+    links do not break on static hosting.</p>
+    <p>The site has its own task, written <em>before</em> the AI did any work —
+    <a href="zadanie-1.md">zadanie-1.md</a>; a record of what actually happened —
+    <a href="zapis-1.md">zapis-1.md</a>; and a list of what was deferred, with a reason per line —
+    <a href="potom.md">potom.md</a>. The check is <code>./check.sh</code>, and it answers GREEN or RED.
+    Phone width is measured by <code>node glaza.mjs index.html</code>: it finds whatever overflows the
+    right edge and returns an exit code, which makes it usable as an automated check.</p>
+    <p class="dim">Every
+    <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">shebang</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Shebang</strong><button type="button" class="term-close" aria-label="Close">×</button></span><span class="term-desc">A script's first line, <code>#!/usr/bin/env bash</code>: it tells the kernel which interpreter to run it with.</span><span class="term-links"><a href="glossary-en.html#shebang">Open in glossary 📖</a></span></span></span>
+    in this repository is <code>#!/usr/bin/env bash</code>, and that is not taste: it finds the Bash
+    the user actually has, not only the one in <code>/bin</code>.</p>
+
+    <h2 id="artifacts">Artifacts: what you have after this page <a class="yakor" href="#artifacts">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Reading &gt;&gt; Your quantum of life's time · A partnership of dignity with AI · Rewiring your neural network</p>
+      <p><strong>The time spent on this page is unrecoverable.</strong> So it owes you more than it
+      took: not an impression, but a changed decision. “You” means every single person who invested
+      attention here — the engineer before an assessment, the author, the teacher. And “artifacts”
+      are not only files and commits but the reader's rewired neural network: word splitting, once
+      genuinely understood, stays with you long after this site is closed.</p>
+    </div>
+    <ol>
+      <li><strong>A map of the subject:</strong> the six areas of Bash you will be asked about, and a
+      sense of which one of them is your weak side.</li>
+      <li><strong>A level framework:</strong> Noob / Pro / IGL as a scale of your own maturity, not
+      as a label.</li>
+      <li><strong>Six terms</strong> that are not explained again anywhere else: shebang, exit code,
+      pipeline, <code>set -euo pipefail</code>, word splitting, subshell.</li>
+      <li><strong>The toolchain in hand:</strong> an understanding of how this site checks itself —
+      <code>./check.sh</code> and <code>glaza.mjs</code>.</li>
+    </ol>
+
+    <footer>
+      Part of the AI Factory series. Built with the same toolchain as the rest: plain HTML and CSS,
+      a bash check, published through GitHub Pages.
+    </footer>
+  </main>
+
+</div>
+</div>
+<script src="swa.js"></script>
+<script src="terms.js"></script>
+</body>
+</html>

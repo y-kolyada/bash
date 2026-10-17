@@ -1,0 +1,732 @@
+/* Сайт курса AI Bootcamp. Обычный CSS, без сборки: всё, что здесь есть,
+   участник может повторить у себя. Телефон первым, потом широкий экран. */
+
+:root {
+  --bg: #fbfbfa; --fg: #1a1a18; --dim: #6b6b66; --line: #e4e4e0;
+  --acc: #1d4ed8; --ok: #126b2f; --warn: #8a5a00; --code: #f1f1ee;
+  --term-accent: #db8b0e; --term-bg-hover: rgba(252, 189, 74, 0.28);
+  --step-target-bg: rgba(252, 189, 74, 0.12); --step-target-border: rgba(219, 139, 14, 0.55);
+  --base-font-size: 16px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #f0f0ee; --dim: #9a9a95; --line: #2e2e34;
+    --acc: #8ab0ff; --ok: #6fd48c; --warn: #e0b45a; --code: #22222a;
+    --term-accent: #fcbd4a; --term-bg-hover: rgba(252, 189, 74, 0.22);
+    --step-target-bg: rgba(252, 189, 74, 0.08); --step-target-border: rgba(252, 189, 74, 0.45);
+  }
+}
+/* Ручное переключение темы */
+html[data-theme="dark"] {
+  --bg: #16161a; --fg: #f0f0ee; --dim: #9a9a95; --line: #2e2e34;
+  --acc: #8ab0ff; --ok: #6fd48c; --warn: #e0b45a; --code: #22222a;
+  --term-accent: #fcbd4a; --term-bg-hover: rgba(252, 189, 74, 0.22);
+  --step-target-bg: rgba(252, 189, 74, 0.08); --step-target-border: rgba(252, 189, 74, 0.45);
+}
+html[data-theme="light"] {
+  --bg: #fbfbfa; --fg: #1a1a18; --dim: #6b6b66; --line: #e4e4e0;
+  --acc: #1d4ed8; --ok: #126b2f; --warn: #8a5a00; --code: #f1f1ee;
+  --term-accent: #db8b0e; --term-bg-hover: rgba(252, 189, 74, 0.28);
+  --step-target-bg: rgba(252, 189, 74, 0.12); --step-target-border: rgba(219, 139, 14, 0.55);
+}
+
+/* Масштабы шрифта */
+html[data-font="s"] { --base-font-size: 14px; }
+html[data-font="m"] { --base-font-size: 16px; }
+html[data-font="l"] { --base-font-size: 18px; }
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--fg);
+  font: var(--base-font-size)/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.wrap { max-width: 68rem; margin: 0 auto; padding: 24px 16px 64px; }
+
+/* --- шапка и двухуровневый логотип --- */
+header.top {
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.brand-group {
+  display: flex;
+  flex-direction: column;
+}
+header.top a.home {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.badge-ai {
+  display: inline-block;
+  width: 44px;
+  height: 26px;
+  background: url('imgs/ai-badge.png') no-repeat center / contain;
+  font-size: 0;
+  color: transparent;
+  vertical-align: middle;
+  flex: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+  border-radius: 4px;
+  transition: box-shadow 0.15s ease;
+}
+/* Инверсия цветов логотипа в ночном режиме */
+html[data-theme="dark"] .badge-ai {
+  background-image: url('imgs/ai-badge-invert.png');
+  box-shadow: 0 0 12px rgba(252, 189, 74, 0.35);
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) .badge-ai {
+    background-image: url('imgs/ai-badge-invert.png');
+    box-shadow: 0 0 12px rgba(252, 189, 74, 0.35);
+  }
+}
+.sub-brand {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--fg);
+}
+header.top .three {
+  color: var(--dim);
+  font-size: .85rem;
+  margin-top: 3px;
+}
+
+/* --- сервисная планка (Utility Tray) --- */
+.utility-tray {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--code);
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  max-width: 100%;
+}
+.lang-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+.lang-switcher a {
+  color: var(--dim);
+  text-decoration: none;
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 3px 5px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+.lang-switcher a:hover {
+  color: var(--fg);
+  background: rgba(0,0,0,0.06);
+}
+.lang-switcher a.active {
+  color: var(--fg);
+  background: var(--bg);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+
+.font-scaler {
+  display: inline-flex;
+  align-items: center;
+  border-left: 1px solid var(--line);
+  padding-left: 8px;
+  gap: 2px;
+}
+.font-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--dim);
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 4px;
+  line-height: 1;
+}
+.font-btn:hover {
+  color: var(--fg);
+  background: rgba(0,0,0,0.06);
+}
+.font-btn.active {
+  color: var(--fg);
+  background: var(--bg);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.font-s { font-size: 0.75rem; }
+.font-m { font-size: 0.9rem; }
+.font-l { font-size: 1.05rem; }
+
+.theme-toggle {
+  background: none;
+  border: none;
+  border-left: 1px solid var(--line);
+  padding: 2px 6px 2px 8px;
+  cursor: pointer;
+  color: var(--fg);
+  font-size: 1rem;
+  line-height: 1;
+  border-radius: 4px;
+}
+.theme-toggle:hover {
+  opacity: 0.8;
+}
+
+@media (max-width: 48rem) {
+  .utility-tray {
+    width: 100%;
+    justify-content: space-between;
+    padding: 4px 6px;
+    gap: 4px;
+  }
+  .lang-switcher {
+    gap: 1px;
+    flex-wrap: nowrap;
+  }
+  .lang-switcher a {
+    padding: 3px 3px;
+    font-size: 0.72rem;
+  }
+  .font-scaler {
+    padding-left: 4px;
+    gap: 1px;
+  }
+  .font-btn {
+    padding: 2px 3px;
+  }
+  .theme-toggle {
+    padding: 2px 3px 2px 4px;
+  }
+}
+
+/* --- две колонки на широком экране, одна на телефоне --- */
+.cols { display: block; }
+nav.sessions { margin: 0 0 28px; padding: 0; }
+nav.sessions ol { list-style: none; margin: 0; padding: 0; }
+nav.sessions li { margin: 0 0 2px; }
+/* ПРЯМЫЕ ДЕТИ li, И ЭТО ИСПРАВЛЕНИЕ, А НЕ СТИЛЬ. Было написано
+   `nav.sessions span`, и этот селектор ловил ещё и <span class="num"> с
+   номером ВНУТРИ ссылки: номер становился блоком со своими отступами, и к
+   нему приклеивалось " · будет". Слова наезжали друг на друга. Нашёл тренер
+   глазами на телефоне за минуту - проверка из девяти строк этого не видит.
+   Чтобы не повторилось, ненаписанные занятия помечены классом .later, а не
+   типом элемента, и проверка считает их. */
+nav.sessions li > a, nav.sessions li > .later {
+  display: block; padding: 7px 10px; border-radius: 7px; text-decoration: none;
+  font-size: .95rem; border: 1px solid transparent;
+}
+nav.sessions li > a { color: var(--fg); }
+nav.sessions li > a:hover { background: var(--code); }
+nav.sessions li > a[aria-current="page"] { border-color: var(--line); background: var(--code); font-weight: 600; }
+nav.sessions li > .later { color: var(--dim); text-wrap: pretty; }
+nav.sessions li > .later::after { content: " · будет"; font-size: .85em; }
+html[lang="uk"] nav.sessions li > .later::after { content: " · буде"; }
+html[lang="be"] nav.sessions li > .later::after { content: " · будзе"; }
+html[lang="kk"] nav.sessions li > .later::after { content: " · болады"; }
+html[lang="ky"] nav.sessions li > .later::after { content: " · болот"; }
+html[lang="ka"] nav.sessions li > .later::after { content: " · იქნება"; }
+html[lang="en"] nav.sessions li > .later::after { content: " · coming soon"; }
+html[lang="de"] nav.sessions li > .later::after { content: " · folgt"; }
+nav.sessions .num { display: inline-block; width: 1.4em; color: var(--dim); flex: none; }
+
+@media (min-width: 56rem) {
+  .cols { display: grid; grid-template-columns: 15rem 1fr; gap: 36px; align-items: start; }
+  nav.sessions {
+    position: sticky;
+    top: 18px;
+    max-height: calc(100vh - 36px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin: 0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  nav.sessions::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* --- текст --- */
+h1 { font-size: 1.7rem; line-height: 1.2; margin: 0 0 .4rem; }
+h2 { font-size: 1.25rem; margin: 2.2rem 0 .6rem; }
+h3 { font-size: 1.02rem; margin: 1.4rem 0 .4rem; }
+p, ul, ol { margin: 0 0 .9rem; }
+.lead { color: var(--dim); margin-bottom: 1.4rem; }
+.dim { color: var(--dim); }
+a { color: var(--acc); }
+
+code, kbd {
+  background: var(--code); padding: .12em .35em; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .9em;
+  overflow-wrap: anywhere;
+}
+pre {
+  background: var(--code); border: 1px solid var(--line); border-radius: 8px;
+  padding: 12px 14px; overflow-x: auto; margin: 0 0 .7rem;
+}
+/* ПЕРЕНОС, А НЕ ГОРИЗОНТАЛЬНАЯ ПРОКРУТКА. Замер headless-браузером на ширине
+   390px показал семь элементов, уезжающих за край внутри своих рамок: длинные
+   команды и адреса. Страница при этом не прокручивалась, то есть предикат
+   формально держался - а команду на телефоне было не прочитать целиком.
+   `pre-wrap` сохраняет настоящие переводы строк и переносит только длинные:
+   при копировании команда остаётся одной строкой. */
+pre code {
+  background: none; padding: 0; font-size: .88rem;
+  white-space: pre-wrap; overflow-wrap: anywhere;
+}
+
+/* --- шаг: открыт один, остальные свёрнуты. Без JavaScript --- */
+details.step {
+  border: 1px solid var(--line); border-radius: 10px; margin: 0 0 10px; background: var(--bg);
+}
+details.step > summary {
+  cursor: pointer; padding: 12px 14px; font-weight: 600; list-style: none;
+  display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap;
+}
+details.step > summary::-webkit-details-marker { display: none; }
+details.step > summary::before { content: "▸"; color: var(--dim); font-weight: 400; }
+details.step[open] > summary::before { content: "▾"; }
+details.step[open] > summary { border-bottom: 1px solid var(--line); }
+details.step .body { padding: 14px; }
+details.step .n { color: var(--dim); font-variant-numeric: tabular-nums; }
+/* В заголовке шага команда не разрывается посередине: на ширине 390px
+   `git diff` переносился между словами и читался как два разных. */
+details.step > summary code { white-space: nowrap; }
+
+/* --- после шага существует --- */
+.after {
+  border-left: 3px solid var(--ok); background: var(--code);
+  padding: 8px 12px; border-radius: 0 7px 7px 0; margin: 0 0 .8rem;
+}
+.after b { color: var(--ok); }
+
+.prints { border-left: 3px solid var(--line); padding: 2px 12px; margin: 0 0 .8rem; color: var(--dim); }
+
+.box { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin: 1.4rem 0; }
+.box.warn { border-left: 3px solid var(--warn); }
+.box.key { border-left: 4px solid var(--term-accent); background: var(--code); }
+.box.key .artifacts-slogan { font-size: 1.05rem; font-weight: 700; color: var(--fg); margin: 0 0 10px; line-height: 1.45; }
+.box h2, .box h3 { margin-top: 0; }
+.box.key h2 { font-size: 1.15rem; margin-bottom: 8px; }
+
+.soon { color: var(--dim); }
+footer { margin-top: 48px; border-top: 1px solid var(--line); padding-top: 14px; color: var(--dim); font-size: .9rem; }
+
+/* --- якоря: ссылка на конкретный шаг, а не на страницу целиком --- */
+/* ВИДИМЫ ВСЕГДА, А НЕ ПО НАВЕДЕНИЮ. На телефоне наведения не существует,
+   а ссылку на шаг чаще всего нужно взять именно с телефона. */
+.yakor {
+  color: var(--dim); text-decoration: none; font-weight: 400;
+  padding: 0 .35em; opacity: .45;
+}
+.yakor:hover, .yakor:focus { opacity: 1; color: var(--acc); }
+/* Куда пришли по ссылке - подсвечивается, иначе на длинной странице
+   непонятно, то ли это место. */
+:target { scroll-margin-top: 14px; }
+/* Якорь шага стоит на СОДЕРЖИМОМ - только так браузер раскрывает свёрнутый
+   шаг сам, без JavaScript (проверено). Но тогда заголовок шага уезжает за
+   верх экрана, и непонятно, куда ты попал. Отступ возвращает его в кадр. */
+details.step .body:target { scroll-margin-top: 124px; }
+@media (min-width: 56rem) { details.step .body:target { scroll-margin-top: 64px; } }
+details.step .body:target { background: var(--step-target-bg); border-radius: 0 0 9px 9px; }
+details.step:has(.body:target) { border-color: var(--step-target-border); }
+details.step:has(.body:target) > summary { border-bottom-color: var(--step-target-border); }
+h2:target, h3:target { background: var(--step-target-bg); border-radius: 6px; }
+
+/* --- «свернуть всё»: видна всегда, даже когда уехали вниз --- */
+/* Низ справа - под большой палец на телефоне и подальше от текста на широком. */
+.svernut {
+  position: fixed; right: 14px; bottom: 14px; z-index: 10;
+  background: var(--bg); color: var(--fg); border: 1px solid var(--line);
+  border-radius: 999px; padding: 10px 16px; font-size: .9rem; text-decoration: none;
+  box-shadow: 0 2px 10px rgba(0,0,0,.12);
+}
+.svernut:hover, .svernut:focus { border-color: var(--acc); color: var(--acc); }
+/* Чтобы кнопка не накрывала последние строки страницы. */
+body { padding-bottom: 72px; }
+
+/* --- Интерактивные термины курса --- */
+.term {
+  position: relative;
+  display: inline-block;
+  white-space: normal;
+}
+.term-btn {
+  background: none;
+  border: none;
+  padding: 1px 4px;
+  margin: -1px -4px;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border-bottom: 2px dashed var(--term-accent);
+  border-radius: 4px;
+  outline: none;
+  transition: background .15s ease, border-color .15s ease;
+}
+.term-btn:hover,
+.term-btn:focus-visible,
+.term[data-open] .term-btn,
+.term-btn[aria-expanded="true"] {
+  background: var(--term-bg-hover) !important;
+  border-bottom: 2px solid var(--term-accent) !important;
+}
+.term-card {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  width: 290px;
+  max-width: 82vw;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.15), 0 4px 6px rgba(0,0,0,.08);
+  padding: 12px 14px;
+  font-size: .88rem;
+  line-height: 1.45;
+  color: var(--fg);
+  text-align: left;
+}
+.term-card[hidden] {
+  display: none !important;
+}
+.term[data-open] .term-card,
+.term-card:not([hidden]) {
+  display: block;
+}
+.term-card::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -6px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: var(--line) transparent transparent transparent;
+}
+.term-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.term-title {
+  display: inline-block;
+  font-weight: 600;
+  color: var(--fg);
+}
+.term-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--dim);
+  cursor: pointer;
+  padding: 0 4px;
+  border-radius: 4px;
+}
+.term-close:hover {
+  color: var(--fg);
+  background: var(--code);
+}
+.term-desc {
+  display: block;
+  color: var(--fg);
+  margin-bottom: 8px;
+}
+.term-links {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-size: .82rem;
+}
+.term-links a {
+  color: var(--acc);
+  text-decoration: none;
+}
+.term-links a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .term-card {
+    position: fixed;
+    bottom: 20px;
+    left: 16px;
+    right: 16px;
+    width: auto;
+    max-width: none;
+    transform: none;
+    z-index: 1000;
+    box-shadow: 0 12px 32px rgba(0,0,0,.3);
+  }
+  .term-card::after {
+    display: none;
+  }
+}
+
+/* Ссылка на словарь в боковом меню */
+nav.sessions .nav-extra {
+  margin-top: 14px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border-top: 1px solid var(--line);
+}
+nav.sessions .nav-extra a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  text-decoration: none;
+  font-size: .95rem;
+  color: var(--fg);
+  border: 1px solid transparent;
+}
+nav.sessions .nav-extra a:hover {
+  background: var(--code);
+}
+nav.sessions .nav-extra a[aria-current="page"] {
+  border-color: var(--line);
+  background: var(--code);
+  font-weight: 600;
+}
+
+/* --- Карточки в глоссарии --- */
+.glossary-term {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin: 0 0 16px;
+  background: var(--bg);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.glossary-term:target {
+  border-color: var(--term-accent);
+  box-shadow: 0 0 0 1px var(--term-accent), 0 4px 16px rgba(252, 189, 74, 0.2);
+  scroll-margin-top: 24px;
+}
+.glossary-term h2,
+.glossary-term h3 {
+  margin: 0 0 10px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.glossary-title {
+  color: var(--fg);
+}
+.glossary-object {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--warn);
+  background: rgba(252, 189, 74, 0.16);
+  border: 1px solid rgba(219, 139, 14, 0.35);
+  padding: 2px 8px;
+  border-radius: 5px;
+  letter-spacing: 0.02em;
+}
+.glossary-term h2 .yakor,
+.glossary-term h3 .yakor {
+  margin-left: auto;
+  font-size: 1rem;
+}
+.glossary-lead {
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.48;
+  color: var(--fg);
+  margin: 0 0 10px;
+}
+.glossary-term p {
+  margin: 0 0 8px;
+}
+.glossary-meta {
+  color: var(--dim);
+  font-size: .9rem;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+/* --- динамический навигатор по странице (In-Page TOC) --- */
+.page-toc {
+  margin-top: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+@media (max-width: 56rem) {
+  .page-toc {
+    display: none;
+  }
+}
+.toc-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--dim);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.toc-list li { margin: 0 0 3px; }
+.toc-list a {
+  display: block;
+  color: var(--dim);
+  font-size: 0.85rem;
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 5px;
+  border-left: 2px solid transparent;
+  text-wrap: pretty;
+  transition: all 0.15s ease;
+}
+.toc-list a:hover {
+  color: var(--fg);
+  background: var(--code);
+}
+.toc-list a.active {
+  color: var(--fg);
+  font-weight: 600;
+  border-left-color: var(--term-accent);
+  background: var(--term-bg-hover);
+}
+
+/* --- карточка-заглушка для не-RU языков --- */
+.stub-card {
+  padding: 24px;
+  margin: 20px 0 32px;
+  border-left: 4px solid var(--term-accent);
+  background: var(--code);
+  border-radius: 8px;
+}
+.stub-card h2, .stub-card h3 {
+  margin-top: 0;
+  color: var(--fg);
+}
+.stub-card p {
+  color: var(--fg);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+.stub-actions {
+  margin-top: 20px;
+}
+.btn-primary {
+  display: inline-block;
+  background: var(--term-accent);
+  color: #111827;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 10px 18px;
+  border-radius: 7px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.18);
+}
+
+/* --- режим чтения и печати (Machine Reading / Accessibility / PDF Export) --- */
+@media print {
+  nav.sessions, .utility-tray, .page-toc, .yakor, .svernut, .term-card {
+    display: none !important;
+  }
+  .cols {
+    display: block !important;
+  }
+  .wrap {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  body {
+    background: #fff !important;
+    color: #111 !important;
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+  h1, h2, h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+    color: #000 !important;
+  }
+  details.step {
+    display: block !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin: 0 0 12pt !important;
+    border: 1px solid #ddd !important;
+    background: #fff !important;
+  }
+  details.step > summary {
+    list-style: none !important;
+    font-weight: 700 !important;
+    padding: 8pt 10pt !important;
+  }
+  details.step > summary::-webkit-details-marker {
+    display: none !important;
+  }
+  pre {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    background: #f8f8f8 !important;
+    border: 1px solid #ddd !important;
+    white-space: pre-wrap !important;
+    padding: 8pt 10pt !important;
+    margin: 0 0 8pt !important;
+  }
+  code, kbd {
+    background: #f5f5f5 !important;
+    color: #111 !important;
+  }
+  .box {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    background: #fafafa !important;
+    border: 1px solid #ddd !important;
+  }
+  .box.key {
+    background: #fafafa !important;
+    border-left: 3pt solid #db8b0e !important;
+  }
+  .box.warn {
+    border-left: 3pt solid #8a5a00 !important;
+  }
+  footer {
+    margin-top: 24pt !important;
+    border-top: 1px solid #ddd !important;
+    color: #666 !important;
+    font-size: 9pt !important;
+  }
+}
+
+
+

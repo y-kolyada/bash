@@ -3,44 +3,192 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Замени этот заголовок</title>
-<style>
-  :root { --bg: #fbfbfa; --fg: #1a1a18; --dim: #6b6b66; --line: #e4e4e0; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg: #16161a; --fg: #f0f0ee; --dim: #9a9a95; --line: #2e2e34; }
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; padding: 48px 16px; background: var(--bg); color: var(--fg);
-    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    display: flex; justify-content: center;
-  }
-  main { max-width: 34rem; width: 100%; }
-  h1 { font-size: 1.75rem; line-height: 1.2; margin: 0 0 .75rem; }
-  p { margin: 0 0 1rem; }
-  .dim { color: var(--dim); }
-  .box { border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin-top: 28px; }
-  code { background: var(--line); padding: .1em .35em; border-radius: 4px; font-size: .9em; }
-</style>
+<title>Bash · компоненты, практики и 150 вопросов · ai|</title>
+<link rel="stylesheet" href="style.css?v=1">
+<script>
+  (function() {
+    var t = localStorage.getItem('b1-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+    var f = localStorage.getItem('b1-font');
+    if (f) document.documentElement.setAttribute('data-font', f);
+  })();
+</script>
 </head>
 <body>
-<main>
+<div class="wrap">
 
-  <h1>Страница работает</h1>
-
-  <p>Если ты это читаешь в интернете, а не у себя на компьютере, — значит весь путь уже собран:
-  репозиторий есть, страница опубликована, ссылку можно кинуть другу.</p>
-
-  <p class="dim">Это всё, что здесь должно быть. Содержимое придумаешь ты, а сделает ИИ.</p>
-
-  <div class="box">
-    <p><strong>Твой следующий ход.</strong></p>
-    <p>Открой <code>zadanie-1.md</code> и напиши, какую страницу ты хочешь — <strong>до того</strong>, как попросишь ИИ.
-    Потом попроси. Потом запусти <code>./check.sh</code>.</p>
-    <p class="dim">Проверка сейчас краснеет на заголовке этой страницы: он так и называется
-    «Замени этот заголовок». Это нарочно.</p>
+<header class="top">
+  <div class="brand-group">
+    <a class="home" href="./">
+      <span class="badge-ai">ai|</span>
+      <span class="sub-brand">devops-bash</span>
+    </a>
+    <div class="three" aria-hidden="true">инструменты · практика · 150 вопросов</div>
   </div>
+  <div class="utility-tray" role="toolbar" aria-label="Настройки отображения и язык">
+    <div class="lang-switcher" aria-label="Выбор языка">
+      <a href="index.html" class="active" aria-current="page">RU</a>
+      <a href="index-en.html">EN</a>
+    </div>
+    <div class="font-scaler" role="group" aria-label="Размер шрифта">
+      <button type="button" class="font-btn font-s" data-size="s" title="Мелкий шрифт" aria-label="Мелкий шрифт">А</button>
+      <button type="button" class="font-btn font-m active" data-size="m" title="Стандартный шрифт" aria-label="Стандартный шрифт">A</button>
+      <button type="button" class="font-btn font-l" data-size="l" title="Крупный шрифт" aria-label="Крупный шрифт">A</button>
+    </div>
+    <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему (День/Ночь)" aria-label="Сменить тему день/ночь">
+      <span class="theme-icon" aria-hidden="true">☼</span>
+    </button>
+  </div>
+</header>
 
-</main>
+<div class="cols">
+
+  <nav class="sessions" aria-label="Разделы сайта">
+    <ol>
+      <li><span class="later"><span class="num">1</span>Ключевые компоненты</span></li>
+      <li><span class="later"><span class="num">2</span>Практики в контексте AI</span></li>
+      <li><span class="later"><span class="num">3</span>Взаимосвязи</span></li>
+      <li><span class="later"><span class="num">4</span>Слабости и границы</span></li>
+      <li><span class="later"><span class="num">5</span>Примеры · Noob</span></li>
+      <li><span class="later"><span class="num">6</span>Примеры · Pro</span></li>
+      <li><span class="later"><span class="num">7</span>Примеры · IGL</span></li>
+      <li><span class="later"><span class="num">8</span>Вопросы · Noob</span></li>
+      <li><span class="later"><span class="num">9</span>Вопросы · Pro</span></li>
+      <li><span class="later"><span class="num">10</span>Вопросы · IGL</span></li>
+    </ol>
+    <div class="nav-extra">
+      <a href="glossary.html">📖 Словарь понятий</a>
+    </div>
+    <div class="page-toc" id="pageToc" aria-label="Разделы этой страницы" hidden>
+      <div class="toc-title">На этой странице</div>
+      <ul class="toc-list" id="tocList"></ul>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Bash: то, что спросят на ассессменте, и то, что понадобится в проде</h1>
+    <p class="lead">Справочник-ассессмент по Bash для инженера, который готовится к сертификации,
+    техническому интервью или просто хочет перестать гадать. Шесть разделов, три уровня зрелости,
+    150 вопросов с ответами.</p>
+
+    <div class="box key" id="glavnaya-mysl">
+      <h3>Главная мысль сайта <a class="yakor" href="#glavnaya-mysl" aria-label="ссылка на этот блок">#</a></h3>
+      <p>Bash знают все и почти никто — он выглядит простым ровно до первого продакшн-инцидента, где
+      скрипт молча проглотил ошибку и вернул ноль. Этот сайт разбирает Bash не как набор команд, а как
+      систему: из каких частей он состоит, где у него швы с другими инструментами, где он слабее
+      альтернатив и какие его поведения по умолчанию опасны. Отдельная линия — работа с Bash вместе с
+      ИИ-агентами: модель уверенно пишет скрипты и так же уверенно пропускает кавычки, словоделение и
+      коды возврата, поэтому читать её вывод придётся вам. Материал выстроен по трём уровням зрелости:
+      Noob, Pro, IGL — чтобы вы видели не только ответ, но и свой следующий горизонт. Всё изложено
+      предельно коротко: каждая формулировка либо меняет ваше решение, либо её здесь нет.</p>
+    </div>
+
+    <h2 id="seven-goals">Семь целей: что на этом сайте есть <a class="yakor" href="#seven-goals">#</a></h2>
+    <p>Структура одинакова для всех сайтов серии. Разделы со значком «будет» ещё не написаны —
+    это честное состояние, а не оформительская заглушка.</p>
+    <ol>
+      <li><strong>Ключевые компоненты</strong> <span class="dim">· будет</span><br>
+      Анатомия Bash: разбор командной строки, раскрытие и
+      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">словоделение</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Словоделение</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Разбиение результата подстановки на слова по пробелам — причина большинства поломок на путях с пробелами.</span><span class="term-links"><a href="glossary.html#slovodelenie">В словарь понятий 📖</a></span></span></span>,
+      процессы и перенаправления,
+      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">конвейер</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Конвейер</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Цепочка команд через <code>|</code>: вывод одной становится вводом следующей. Все звенья запускаются одновременно.</span><span class="term-links"><a href="glossary.html#konveyer">В словарь понятий 📖</a></span></span></span>,
+      переменные и области видимости,
+      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">коды возврата</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Код возврата</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Число 0–255, которым команда сообщает об успехе (0) или об ошибке (не 0). Единственный машинный признак провала.</span><span class="term-links"><a href="glossary.html#kod-vozvrata">В словарь понятий 📖</a></span></span></span>,
+      сигналы и ловушки.</li>
+
+      <li><strong>Практики в контексте AI</strong> <span class="dim">· будет</span><br>
+      Как давать агенту задание на shell-скрипт и как проверять результат; почему
+      <code>shellcheck</code> в петле агента стоит дороже любого промпта; где скрипт — правильный
+      инструмент для ИИ, а где его надо остановить.</li>
+
+      <li><strong>Взаимосвязи</strong> <span class="dim">· будет</span><br>
+      Швы с Git-хуками, CI (GitHub Actions), Docker (<code>ENTRYPOINT</code>, отсутствие init),
+      systemd, Ansible, cron, Make и Python: где Bash — клей, а где его зона заканчивается.</li>
+
+      <li><strong>Слабости и границы</strong> <span class="dim">· будет</span><br>
+      Честное сравнение с Python, Go и zsh/fish. Что в Bash устроено плохо: обработка ошибок,
+      массивы, числа с плавающей точкой, параллелизм, читаемость на 300 строках.</li>
+
+      <li><strong>Примеры по уровням зрелости</strong> <span class="dim">· три страницы · будет</span><br>
+      <strong>Noob</strong> — фундамент без магии: первый скрипт, права, <code>$?</code>, кавычки.
+      <strong>Pro</strong> — боевое: <code>set -euo pipefail</code>, <code>trap</code>, идемпотентность,
+      безопасный <code>mktemp</code>, логирование.
+      <strong>IGL</strong> — архитектурное: где скрипт обязан умереть и уступить место инструменту,
+      границы ответственности, устойчивость и восстановление.</li>
+
+      <li><strong>Банк 150 вопросов и ответов</strong> <span class="dim">· три страницы · будет</span><br>
+      По 50 на уровень. Формат короткий: вопрос — ответ одной-двумя фразами — почему это спрашивают.</li>
+
+      <li><strong>Предельная лаконичность</strong> <span class="dim">· действует везде</span><br>
+      Это не раздел, а правило изложения: плотность сути вместо объёма. Если абзац не меняет
+      ваше решение — его здесь нет.</li>
+    </ol>
+
+    <h2 id="urovni">Три уровня, и зачем они разделены <a class="yakor" href="#urovni">#</a></h2>
+    <p><strong>Noob</strong> — вы запускаете скрипты и иногда их правите. Задача уровня: убрать магию.<br>
+    <strong>Pro</strong> — вы пишете скрипты, которые работают на чужих машинах. Задача уровня: убрать
+    молчаливые отказы.<br>
+    <strong>IGL</strong> — вы решаете, появится ли скрипт вообще. Задача уровня: видеть цену решения
+    на год вперёд.</p>
+    <p>Один и тот же вопрос на разных уровнях имеет разные правильные ответы. Поэтому вопросы
+    разделены, а не отсортированы по сложности.</p>
+
+    <div class="box">
+      <h3>Пример, почему уровни не сводятся к сложности</h3>
+      <p>Вопрос: «Что делает <code>set -e</code>?»</p>
+      <p><strong>Noob:</strong> прерывает скрипт на первой ошибке. <strong>Pro:</strong> прерывает —
+      но не внутри
+      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">конвейера</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Конвейер</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Цепочка команд через <code>|</code>. Код возврата по умолчанию берётся только у последнего звена — ошибка первого теряется.</span><span class="term-links"><a href="glossary.html#konveyer">В словарь понятий 📖</a></span></span></span>
+      и не в условиях, поэтому нужен
+      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">pipefail</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">set -euo pipefail</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Три предохранителя: падать на ошибке, падать на необъявленной переменной, не терять ошибку внутри конвейера.</span><span class="term-links"><a href="glossary.html#pipefail">В словарь понятий 📖</a></span></span></span>.
+      <strong>IGL:</strong> даёт ложное чувство безопасности — на длинной логике это повод перейти
+      на язык с настоящими исключениями.</p>
+    </div>
+
+    <h2 id="osnastka">Оснастка: чем сделан этот сайт <a class="yakor" href="#osnastka">#</a></h2>
+    <p>Simple Web Architecture: статический HTML и CSS, около 160 строк ванильного JavaScript,
+    ноль бэкенда, ноль сборки. Страницы лежат плоско в корне, без подпапок — так ссылки не ломаются
+    на статическом хостинге.</p>
+    <p>У сайта есть своё задание, написанное <em>до</em> работы ИИ — <a href="zadanie-1.md">zadanie-1.md</a>,
+    запись о том, что получилось на самом деле — <a href="zapis-1.md">zapis-1.md</a>,
+    и список отложенного с причиной по каждой строке — <a href="potom.md">potom.md</a>.
+    Проверка — <code>./check.sh</code>, отвечает ЗЕЛЁНОЕ или КРАСНОЕ. Страницу на ширине телефона
+    меряет <code>node glaza.mjs index.html</code>: он находит то, что уехало за край, и возвращает
+    код возврата, поэтому годится в автоматическую проверку.</p>
+    <p class="dim">Каждый
+    <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">shebang</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Shebang</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Первая строка скрипта <code>#!/usr/bin/env bash</code>: указывает ядру, каким интерпретатором его запускать.</span><span class="term-links"><a href="glossary.html#shebang">В словарь понятий 📖</a></span></span></span>
+    в этом репозитории — <code>#!/usr/bin/env bash</code>, и это не вкусовщина: так скрипт найдёт
+    тот Bash, который стоит у пользователя, а не только тот, что лежит в <code>/bin</code>.</p>
+
+    <h2 id="artefakty">Артефакты: что у вас есть после этой страницы <a class="yakor" href="#artefakty">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Чтение &gt;&gt; Ваш квант времени жизни · Партнёрство достоинства вместе с AI · Перестройка вашей нейросети</p>
+      <p><strong>Время, потраченное на эту страницу, невосполнимо.</strong> Поэтому она обязана вернуть
+      больше, чем забрала: не впечатление, а изменённое решение. «У вас» — значит лично у каждого, кто
+      вложил сюда внимание: инженера перед ассессментом, автора материала, преподавателя. А «артефакты» —
+      это не только файлы и коммиты, но и перестроенная нейронная сеть читателя: понятая однажды
+      механика словоделения остаётся с вами и после того, как сайт будет закрыт.</p>
+    </div>
+    <ol>
+      <li><strong>Карта предмета:</strong> шесть областей Bash, по которым вас будут спрашивать, и
+      понимание, какая из них у вас слабая.</li>
+      <li><strong>Уровневая рамка:</strong> Noob / Pro / IGL как шкала собственной зрелости, а не как
+      ярлык.</li>
+      <li><strong>Шесть терминов,</strong> которые дальше не объясняются: shebang, код возврата,
+      конвейер, <code>set -euo pipefail</code>, словоделение, сабшелл.</li>
+      <li><strong>Оснастка в руках:</strong> понимание, как этот сайт проверяет себя сам —
+      <code>./check.sh</code> и <code>glaza.mjs</code>.</li>
+    </ol>
+
+    <footer>
+      Сайт серии AI Factory. Сделан той же оснасткой, что и остальные: обычный HTML и CSS,
+      проверка на bash, публикация через GitHub Pages.
+    </footer>
+  </main>
+
+</div>
+</div>
+<script src="swa.js"></script>
+<script src="terms.js"></script>
 </body>
 </html>
