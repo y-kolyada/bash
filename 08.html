@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Практики DevOps на Bash · devops-bash · ai|</title>
+<link rel="stylesheet" href="style.css?v=1">
+<script>
+  (function() {
+    var t = localStorage.getItem('b1-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+    var f = localStorage.getItem('b1-font');
+    if (f) document.documentElement.setAttribute('data-font', f);
+  })();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand-group">
+    <a class="home" href="index.html">
+      <span class="badge-ai">ai|</span>
+      <span class="sub-brand">devops-bash</span>
+    </a>
+    <div class="three" aria-hidden="true">инструменты · <span class="topic">Bash</span> · практика · 150 вопросов</div>
+  </div>
+  <div class="utility-tray" role="toolbar" aria-label="Настройки отображения и язык">
+    <div class="lang-switcher" aria-label="Выбор языка">
+      <a href="08-en.html">EN</a>
+      <a href="08.html" class="active" aria-current="page">RU</a>
+      <a href="08-uk.html">UK</a>
+      <a href="08-de.html">DE</a>
+    </div>
+    <div class="font-scaler" role="group" aria-label="Размер шрифта">
+      <button type="button" class="font-btn font-s" data-size="s" title="Мелкий шрифт" aria-label="Мелкий шрифт">А</button>
+      <button type="button" class="font-btn font-m active" data-size="m" title="Стандартный шрифт" aria-label="Стандартный шрифт">A</button>
+      <button type="button" class="font-btn font-l" data-size="l" title="Крупный шрифт" aria-label="Крупный шрифт">A</button>
+    </div>
+    <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему (День/Ночь)" aria-label="Сменить тему день/ночь">
+      <span class="theme-icon" aria-hidden="true">☼</span>
+    </button>
+  </div>
+</header>
+
+<div class="cols">
+
+  <nav class="sessions" aria-label="Разделы сайта">
+    <ol>
+      <li><a href="01.html"><span class="num">1</span>Ключевые компоненты</a></li>
+      <li><a href="02.html"><span class="num">2</span>Написание скриптов</a></li>
+      <li><a href="03.html"><span class="num">3</span>Сила Bash</a></li>
+      <li><a href="04.html"><span class="num">4</span>Слабости и границы</a></li>
+      <li><a href="05.html"><span class="num">5</span>Взаимосвязи</a></li>
+      <li><a href="06.html"><span class="num">6</span>Практики в контексте AI</a></li>
+      <li><a href="07.html"><span class="num">7</span>Практики в Clouds</a></li>
+      <li><a href="08.html" aria-current="page"><span class="num">8</span>Практики DevOps</a></li>
+      <li><a href="09.html"><span class="num">9</span>Примеры · Noob</a></li>
+      <li><a href="10.html"><span class="num">10</span>Примеры · Pro</a></li>
+      <li><a href="11.html"><span class="num">11</span>Примеры · IGL</a></li>
+      <li><a href="12.html"><span class="num">12</span>Вопросы · Noob</a></li>
+      <li><a href="13.html"><span class="num">13</span>Вопросы · Pro</a></li>
+      <li><a href="14.html"><span class="num">14</span>Вопросы · IGL</a></li>
+    </ol>
+    <div class="nav-extra">
+      <a href="glossary.html">📖 Словарь понятий</a>
+    </div>
+    <div class="page-toc" id="pageToc" aria-label="Разделы этой страницы" hidden>
+      <div class="toc-title">На этой странице</div>
+      <ul class="toc-list" id="tocList"></ul>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Практики DevOps</h1>
+    <p class="lead">Bash в конвейере поставки: сборка, среды, деплой и откат, проверки до слияния и работа с секретами. И признаки, по которым видно, что конвейер перерос скрипт.</p>
+
+    <div class="box key" id="glavnaya-mysl">
+      <h2>Главная мысль страницы <a class="yakor" href="#glavnaya-mysl" aria-label="ссылка на этот блок">#</a></h2>
+      <p>В конвейере поставки Bash встречается чаще всего и ошибок там дороже всего, потому что шаг CI - это ваш скрипт, запущенный чужим способом: с чужими ключами, в новом процессе и в сброшенном каталоге. Отсюда первое правило - шаг должен быть самодостаточным, а длинная логика жить в файле репозитория, который можно запустить локально. Второе правило про сборку: версия берётся из системы контроля, а <code>latest</code> версией не является, потому что по нему нельзя откатиться. Третье - один скрипт на все среды с обязательным аргументом, потому что умолчание рано или поздно задеплоит в прод. И четвёртое, самое спрашиваемое на собеседованиях: откат проектируют раньше деплоя.</p>
+    </div>
+
+    <h2 id="v-ci">1 · Bash в конвейере: чей это процесс <a class="yakor" href="#v-ci">#</a></h2>
+    <p>Шаг CI - это ваш скрипт, запущенный чужим способом. Три факта об этом запуске определяют
+    почти всё поведение.</p>
+<pre><code># 1. ключи задаёт CI, не вы
+#    GitHub Actions: bash -e
+set -euo pipefail   # дополняем
+
+# 2. каждый шаг - новый процесс
+echo "VER=$v" &gt;&gt; "$GITHUB_ENV"
+
+# 3. рабочий каталог сбрасывается
+cd "$GITHUB_WORKSPACE"</code></pre>
+    <p><strong>Отсюда правило: шаг должен быть самодостаточным.</strong> Он не полагается на
+    <code>export</code> из предыдущего шага, не рассчитывает на текущий каталог и объявляет свой
+    строгий режим сам. Длинную логику выносят в файл <code>.sh</code> в репозитории: его можно
+    запустить локально, проверить <code>shellcheck</code> и прочитать в diff - в отличие от
+    двадцати строк внутри YAML.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Почему переменная из одного шага CI не видна в следующем и как её передать?»</div>
+
+    <h2 id="sborka">2 · Сборка: воспроизводимость важнее скорости <a class="yakor" href="#sborka">#</a></h2>
+    <p>Скрипт сборки отвечает на один вопрос: <strong>получится ли завтра то же самое, что
+    сегодня.</strong> Всё остальное вторично.</p>
+<pre><code>ver=$(git describe --tags --always --dirty)
+sha=$(git rev-parse --short HEAD)
+
+docker build \
+  --build-arg VER="$ver" \
+  -t "app:$sha" .
+
+# артефакт называется версией,
+# а не latest</code></pre>
+    <p>Три правила, которые ловят большинство проблем. <strong>Версия берётся из системы контроля,
+    а не из переменной</strong> - её нельзя забыть обновить. <strong><code>latest</code> не
+    является версией</strong>: по нему невозможно откатиться. <strong>Суффикс
+    <code>--dirty</code></strong> показывает, что собрано из незакоммиченного дерева - это тот
+    случай, когда артефакт воспроизвести уже нельзя, и об этом лучше знать сразу.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Откуда берётся номер версии артефакта и почему нельзя деплоить <code>latest</code>?»</div>
+
+    <h2 id="sredy">3 · Среды Dev → QA → Prod: один скрипт, разные параметры <a class="yakor" href="#sredy">#</a></h2>
+    <p>Типичная ошибка - три похожих скрипта по одному на среду. Через месяц они расходятся, и
+    деплой в прод делает не то, что проверяли на QA.</p>
+<pre><code>#!/usr/bin/env bash
+set -euo pipefail
+env="${1:?dev|qa|prod}"
+cfg="deploy/$env.env"
+[ -f "$cfg" ] || { echo "нет $cfg" &gt;&amp;2; exit 2; }
+# shellcheck source=/dev/null
+source "$cfg"
+
+[ "$env" = prod ] &amp;&amp; : "${APPROVED:?нужно подтверждение}"</code></pre>
+    <p><strong>Один скрипт, конфигурация снаружи, среда - обязательный аргумент.</strong> Никаких
+    значений по умолчанию для среды: скрипт, который без аргумента деплоит в прод, рано или поздно
+    задеплоит в прод. Дополнительный гейт для продакшна делается явной переменной, а не
+    комментарием в начале файла.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Как один скрипт обслуживает три среды и как вы защищаете прод от случайного запуска?»</div>
+
+    <h2 id="otkat">4 · Деплой и откат: откат проектируют первым <a class="yakor" href="#otkat">#</a></h2>
+    <p>Вопрос, который задают на собеседовании чаще, чем про сам деплой: <strong>как вы
+    вернётесь назад.</strong> Если ответ требует новой сборки - ответ плохой.</p>
+<pre><code># релизы рядом, текущий - ссылка
+ln -sfn "/opt/app/rel/$ver" /opt/app/next
+mv -T /opt/app/next /opt/app/current
+systemctl reload app
+
+# откат = тот же шаг с прошлой версией</code></pre>
+    <p><code>ln -sfn</code> плюс <code>mv -T</code> дают <strong>атомарную замену</strong>:
+    в любой момент времени ссылка указывает либо на старый релиз, либо на новый, промежуточного
+    состояния нет. Простая запись <code>rm symlink &amp;&amp; ln -s</code> такого свойства не
+    имеет - между двумя командами ссылки не существует вовсе.</p>
+    <p>Проверка после деплоя - тоже часть скрипта: <strong>обращение к
+    <code>/health</code> с пределом попыток и автоматический возврат</strong> на прошлую версию,
+    если ответа нет.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Как сделать переключение версии атомарным и как устроен откат?»</div>
+
+    <h2 id="kachestvo">5 · Качество конвейера: проверки до слияния <a class="yakor" href="#kachestvo">#</a></h2>
+    <p>Проверка скриптов - такой же шаг CI, как тесты приложения. Стоит он секунды, а ловит то,
+    что иначе найдётся в проде.</p>
+<pre><code>- run: |
+    shopt -s globstar
+    shellcheck **/*.sh
+- run: shfmt -d -i 2 .
+- run: bats tests/</code></pre>
+    <p>Тот же набор ставят локально через <code>pre-commit</code>, чтобы красное не доезжало до
+    CI. <strong>Важно, чтобы локальная проверка и проверка в CI были одной и той же командой</strong> -
+    иначе появляется класс ошибок «у меня проходит, в CI падает», и доверие к проверке теряется.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Какие проверки shell-кода вы ставите в конвейер и почему они должны совпадать с локальными?»</div>
+
+    <h2 id="sekrety">6 · Секреты и журналы <a class="yakor" href="#sekrety">#</a></h2>
+    <p>Журнал CI - публичный для всех, у кого есть доступ к репозиторию, и он хранится дольше,
+    чем помнят про секрет.</p>
+<pre><code># нет:
+set -x               # напечатает всё
+echo "token=$TOKEN"
+curl -u "u:$PASS" …  # видно в ps
+
+# да:
+curl --netrc-file "$f" …
+printf '%s' "$TOKEN" | cmd --token-stdin</code></pre>
+    <p>Три правила. <strong>Секрет не передаётся аргументом</strong> - аргументы видны в
+    <code>ps</code> всем пользователям машины; его передают через stdin, файл или переменную
+    окружения. <strong>Трассировка не включается в шагах с секретами.</strong>
+    <strong>Маскирование CI - не гарантия:</strong> оно подменяет точное совпадение, и секрет,
+    попавший в журнал по частям или в другой кодировке, в маску не попадёт.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Почему нельзя передавать пароль аргументом команды и что делает маскирование секретов в CI?»</div>
+
+    <h2 id="kogda-ne-skript">7 · Когда конвейер перерос скрипт <a class="yakor" href="#kogda-ne-skript">#</a></h2>
+    <div class="box">
+      <p><strong>Признаки, что логику пора выносить из shell:</strong></p>
+      <ul>
+        <li>в скрипте появилось состояние, которое надо помнить между запусками;</li>
+        <li>шаги зависят друг от друга нелинейно - это задача для Make или графа CI, а не для последовательности;</li>
+        <li>одна и та же логика скопирована в три конвейера;</li>
+        <li>для понимания скрипта нужно знать, какие переменные выставляет CI.</li>
+      </ul>
+      <p>Первое лечится инструментом состояния, второе - графом зависимостей, третье - общим
+      скриптом в репозитории или своим действием CI, четвёртое - переносом логики в файл,
+      который запускается локально теми же командами.</p>
+      <p class="dim"><strong>И обратное:</strong> конвейер из пятнадцати строк на Bash, который
+      делают понятным три комментария, не нужно превращать в плагин. Сложность инструмента
+      оправдывается размером задачи, а не её важностью.</p>
+    </div>
+
+
+    <h2 id="artefakty">Артефакты: что у вас есть после этой страницы <a class="yakor" href="#artefakty">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Чтение &gt;&gt; Ваш квант времени жизни · Партнёрство достоинства вместе с AI · Перестройка вашей нейросети</p>
+      <p><strong>Понимание, что шаг CI - это чужой запуск вашего кода.</strong> Время потрачено не зря, если вы перестали удивляться тому, что в CI ведёт себя иначе, и начали спрашивать: с какими ключами запущено, в каком процессе, что с рабочим каталогом. Это и есть перестройка нейросети: конвейер перестаёт быть чёрным ящиком и становится местом, где выполняются ваши же команды.</p>
+    </div>
+    <ol>
+      <li><strong>Три факта о шаге CI:</strong> чужие ключи, новый процесс, сброшенный каталог.</li>
+      <li><strong>Версия из Git</strong> и запрет на <code>latest</code> в деплое.</li>
+      <li><strong>Один скрипт на три среды</strong> с обязательным аргументом и гейтом для прода.</li>
+      <li><strong>Атомарное переключение</strong> через <code>ln -sfn</code> и <code>mv -T</code>, откат тем же шагом.</li>
+      <li><strong>Проверки до слияния</strong>, совпадающие с локальными.</li>
+      <li><strong>Правила секретов:</strong> не аргументом, без трассировки, маскирование не гарантия.</li>
+      <li><strong>Признаки, что конвейер перерос скрипт</strong>, и чем каждый из них лечится.</li>
+    </ol>
+
+    <footer>
+      Следующие три страницы - примеры по уровням зрелости: Noob, Pro, IGL. Что отложено и почему - в <a href="potom.md">potom.md</a>.
+    </footer>
+  </main>
+
+</div>
+</div>
+<script src="swa.js"></script>
+<script src="terms.js"></script>
+<script src="cp.js"></script>
+</body>
+</html>
