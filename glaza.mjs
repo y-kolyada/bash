@@ -10,6 +10,11 @@
 // Возвращает 1, если что-то вылезло за край, и 0, если всё в порядке. Поэтому
 // из него можно сделать проверку, а не только запускать руками.
 //
+// Имена в коде английские, объяснения пока русские; комментарии переводятся
+// в конце разработки сайта (potom.md). В копии этого файла на детском сайте
+// имена оставлены русскими: там его код процитирован прямо в уроке, и
+// расхождение с уроком дороже единообразия.
+//
 // ПОЧЕМУ playwright СТАВИТСЯ ИМЕННО В ПАПКУ ПРОЕКТА. Если его там нет, node
 // идёт искать выше - в родительские папки - и может найти ЧУЖОЙ, другой
 // версии. Тогда ошибка будет про невидимый файл браузера, а не про то, что
@@ -48,22 +53,22 @@ const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
 await page.goto(url);
 
 // Всё меряется внутри страницы: этот код выполняется в самом браузере.
-const beda = await page.evaluate(() => {
-  const okno = document.documentElement.clientWidth;
-  const vylezli = [];
+const report = await page.evaluate(() => {
+  const viewport = document.documentElement.clientWidth;
+  const overflowing = [];
   for (const el of document.querySelectorAll('body *')) {
     const r = el.getBoundingClientRect();
-    if (r.right > okno + 1) vylezli.push(el.tagName + ': ' + el.textContent.trim().slice(0, 30));
+    if (r.right > viewport + 1) overflowing.push(el.tagName + ': ' + el.textContent.trim().slice(0, 30));
   }
-  return { okno, stranica: document.documentElement.scrollWidth, vylezli };
+  return { viewport, pageWidth: document.documentElement.scrollWidth, overflowing };
 });
 
-console.log('экран телефона: ' + beda.okno + 'px, страница: ' + beda.stranica + 'px');
-console.log(beda.vylezli.length ? 'за край вылезло: ' + beda.vylezli.length : 'за край ничего не вылезло');
-for (const v of beda.vylezli.slice(0, 5)) console.log('  ' + v);
+console.log('экран телефона: ' + report.viewport + 'px, страница: ' + report.pageWidth + 'px');
+console.log(report.overflowing.length ? 'за край вылезло: ' + report.overflowing.length : 'за край ничего не вылезло');
+for (const el of report.overflowing.slice(0, 5)) console.log('  ' + el);
 
 await page.screenshot({ path: 'telefon.png', fullPage: true });
 console.log('снимок: telefon.png - посмотри на него сам');
 
 await browser.close();
-process.exit(beda.vylezli.length ? 1 : 0);
+process.exit(report.overflowing.length ? 1 : 0);

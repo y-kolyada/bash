@@ -23,12 +23,14 @@
       <span class="badge-ai">ai|</span>
       <span class="sub-brand">devops-bash</span>
     </a>
-    <div class="three" aria-hidden="true">tools · practice · 150 questions</div>
+    <div class="three" aria-hidden="true">tools · <span class="topic">Bash</span> · practice · 150 questions</div>
   </div>
   <div class="utility-tray" role="toolbar" aria-label="Display settings and language">
     <div class="lang-switcher" aria-label="Language">
-      <a href="index.html">RU</a>
       <a href="index-en.html" class="active" aria-current="page">EN</a>
+      <a href="index.html">RU</a>
+      <a href="index-uk.html">UK</a>
+      <a href="index-de.html">DE</a>
     </div>
     <div class="font-scaler" role="group" aria-label="Font size">
       <button type="button" class="font-btn font-s" data-size="s" title="Small text" aria-label="Small text">А</button>
@@ -45,16 +47,20 @@
 
   <nav class="sessions" aria-label="Site sections">
     <ol>
-      <li><span class="later"><span class="num">1</span>Key components</span></li>
-      <li><span class="later"><span class="num">2</span>Practices in an AI context</span></li>
-      <li><span class="later"><span class="num">3</span>Interconnections</span></li>
+      <li><a href="01-en.html"><span class="num">1</span>Key components</a></li>
+      <li><span class="later"><span class="num">2</span>Writing scripts</span></li>
+      <li><span class="later"><span class="num">3</span>The strength of Bash</span></li>
       <li><span class="later"><span class="num">4</span>Weaknesses and limits</span></li>
-      <li><span class="later"><span class="num">5</span>Examples · Noob</span></li>
-      <li><span class="later"><span class="num">6</span>Examples · Pro</span></li>
-      <li><span class="later"><span class="num">7</span>Examples · IGL</span></li>
-      <li><span class="later"><span class="num">8</span>Questions · Noob</span></li>
-      <li><span class="later"><span class="num">9</span>Questions · Pro</span></li>
-      <li><span class="later"><span class="num">10</span>Questions · IGL</span></li>
+      <li><span class="later"><span class="num">5</span>Interconnections</span></li>
+      <li><span class="later"><span class="num">6</span>Practices in an AI context</span></li>
+      <li><span class="later"><span class="num">7</span>Practices in the cloud</span></li>
+      <li><span class="later"><span class="num">8</span>DevOps practices</span></li>
+      <li><span class="later"><span class="num">9</span>Examples · Noob</span></li>
+      <li><span class="later"><span class="num">10</span>Examples · Pro</span></li>
+      <li><span class="later"><span class="num">11</span>Examples · IGL</span></li>
+      <li><span class="later"><span class="num">12</span>Questions · Noob</span></li>
+      <li><span class="later"><span class="num">13</span>Questions · Pro</span></li>
+      <li><span class="later"><span class="num">14</span>Questions · IGL</span></li>
     </ol>
     <div class="nav-extra">
       <a href="glossary-en.html">📖 Glossary</a>
@@ -84,48 +90,68 @@
       changes a decision of yours, or it is not here.</p>
     </div>
 
-    <h2 id="seven-goals">Seven goals: what this site holds <a class="yakor" href="#seven-goals">#</a></h2>
-    <p>The structure is identical across the whole series. Sections marked “coming soon” are not
-    written yet — that is an honest state, not decoration.</p>
+    <h2 id="seven-goals">What this site holds <a class="yakor" href="#seven-goals">#</a></h2>
+    <p>Seven goals form the common frame of the whole AI Factory series: key components, practices
+    in an AI context, interconnections, weaknesses, examples by maturity level, a bank of 150
+    questions, and extreme brevity. On the Bash track they are laid out across fourteen sections.
+    Sections marked “coming soon” are not written yet — that is an honest state, not decoration.</p>
+
+    <h3>How Bash is built</h3>
     <ol>
-      <li><strong>Key components</strong> <span class="dim">· coming soon</span><br>
-      The anatomy of Bash: command-line parsing, expansion and
-      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">word splitting</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Word splitting</strong><button type="button" class="term-close" aria-label="Close">×</button></span><span class="term-desc">Splitting the result of an expansion into words on whitespace — the cause of most breakage on paths with spaces.</span><span class="term-links"><a href="glossary-en.html#word-splitting">Open in glossary 📖</a></span></span></span>,
-      processes and redirection,
-      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">pipelines</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Pipeline</strong><button type="button" class="term-close" aria-label="Close">×</button></span><span class="term-desc">A chain of commands joined by <code>|</code>: each one's output is the next one's input. All stages start at once.</span><span class="term-links"><a href="glossary-en.html#pipeline">Open in glossary 📖</a></span></span></span>,
-      variables and scope,
-      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">exit codes</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Exit code</strong><button type="button" class="term-close" aria-label="Close">×</button></span><span class="term-desc">A number 0–255 by which a command reports success (0) or failure (non-zero). The only machine-readable sign of failure.</span><span class="term-links"><a href="glossary-en.html#exit-code">Open in glossary 📖</a></span></span></span>,
-      signals and traps.</li>
-
-      <li><strong>Practices in an AI context</strong> <span class="dim">· coming soon</span><br>
-      How to hand an agent a shell-script task and how to verify the result; why
-      <code>shellcheck</code> inside the agent's loop is worth more than any prompt; where a script
-      is the right tool for an AI, and where it must be stopped.</li>
-
-      <li><strong>Interconnections</strong> <span class="dim">· coming soon</span><br>
-      Seams with Git hooks, CI (GitHub Actions), Docker (<code>ENTRYPOINT</code>, no init),
-      systemd, Ansible, cron, Make and Python: where Bash is the glue, and where its zone ends.</li>
-
-      <li><strong>Weaknesses and limits</strong> <span class="dim">· coming soon</span><br>
-      An honest comparison with Python, Go and zsh/fish. What Bash genuinely does badly: error
-      handling, arrays, floating-point maths, parallelism, readability past 300 lines.</li>
-
-      <li><strong>Examples by maturity level</strong> <span class="dim">· three pages · coming soon</span><br>
-      <strong>Noob</strong> — the foundation without magic: a first script, permissions,
-      <code>$?</code>, quoting.
-      <strong>Pro</strong> — the real thing: <code>set -euo pipefail</code>, <code>trap</code>,
-      idempotence, safe <code>mktemp</code>, logging.
-      <strong>IGL</strong> — architectural: where a script must die and give way to a proper tool,
-      ownership boundaries, resilience and recovery.</li>
-
-      <li><strong>A bank of 150 questions and answers</strong> <span class="dim">· three pages · coming soon</span><br>
-      Fifty per level. Short format: the question, an answer in one or two sentences, and why it
-      gets asked.</li>
-
-      <li><strong>Extreme brevity</strong> <span class="dim">· applies everywhere</span><br>
-      Not a section but a rule of writing: density over volume. If a paragraph does not change
-      a decision of yours, it is not here.</li>
+      <li><strong><a href="01-en.html">Key components</a></strong> <span class="dim">· done</span><br>
+      The anatomy: command-line parsing, expansion and <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">word splitting</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Word splitting</strong><button type="button" class="term-close" aria-label="Close">×</button></span><span class="term-desc">Splitting the result of an expansion into words on whitespace — the cause of most breakage on paths with spaces.</span><span class="term-links"><a href="glossary-en.html#word-splitting">Open in glossary 📖</a></span></span></span>, processes and redirection,
+      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">pipelines</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Pipeline</strong><button type="button" class="term-close" aria-label="Close">×</button></span><span class="term-desc">A chain of commands joined by <code>|</code>: each one's output is the next one's input. All stages start at once.</span><span class="term-links"><a href="glossary-en.html#pipeline">Open in glossary 📖</a></span></span></span>, variables and scope, <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">exit codes</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Exit code</strong><button type="button" class="term-close" aria-label="Close">×</button></span><span class="term-desc">A number 0–255 by which a command reports success (0) or failure (non-zero). The only machine-readable sign of failure.</span><span class="term-links"><a href="glossary-en.html#exit-code">Open in glossary 📖</a></span></span></span>, signals and traps.</li>
+      <li><strong>Writing scripts</strong> <span class="dim">· coming soon</span><br>
+      Rules and techniques: script structure, <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">shebang</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Shebang</strong><button type="button" class="term-close" aria-label="Close">×</button></span><span class="term-desc">A script's first line, <code>#!/usr/bin/env bash</code>: it tells the kernel which interpreter to run it with.</span><span class="term-links"><a href="glossary-en.html#shebang">Open in glossary 📖</a></span></span></span>, strict mode, functions and arguments,
+      idempotence, logging, <code>shellcheck</code>. Separately — <strong>the two modes of
+      Bash</strong>: the interactive shell, where a human types commands, and the script
+      interpreter, where the same language runs with nobody watching. Half of the “unexplainable”
+      differences between a terminal and a script come from that boundary.</li>
     </ol>
+
+    <h3>An honest assessment</h3>
+    <ol start="3">
+      <li><strong>The strength of Bash</strong> <span class="dim">· coming soon</span><br>
+      Why it is still everywhere: an executable of a few megabytes, present by default on any Linux
+      system, instant start-up, direct access to processes and files, and a language still being
+      developed. This section exists so that the comparison with the weaknesses is honest rather
+      than one-sided.</li>
+      <li><strong>Weaknesses and limits</strong> <span class="dim">· coming soon</span><br>
+      A comparison with Python, Go and zsh/fish. What is genuinely bad: error handling, arrays,
+      floating-point maths, parallelism, readability past three hundred lines.</li>
+      <li><strong>Interconnections</strong> <span class="dim">· coming soon</span><br>
+      Seams with Git hooks, CI, Docker (<code>ENTRYPOINT</code>, no init), systemd, Ansible, cron,
+      Make and Python: where Bash is the glue, and where its zone ends.</li>
+    </ol>
+
+    <h3>Practices: three distinct territories</h3>
+    <ol start="6">
+      <li><strong>Practices in an AI context</strong> <span class="dim">· coming soon</span><br>
+      Working with AI agents: how to specify a script task, how to verify the result, why
+      <code>shellcheck</code> inside the agent's loop is worth more than any prompt, and where the
+      model fails routinely — quoting, word splitting, exit codes.</li>
+      <li><strong>Practices in the cloud</strong> <span class="dim">· coming soon</span><br>
+      Provisioning and operating cloud resources: creating and disposing of instances, working with
+      a cloud CLI, reading logs, checking process state and troubleshooting a live machine.</li>
+      <li><strong>DevOps practices</strong> <span class="dim">· coming soon</span><br>
+      Delivery pipelines: Bash on the developer's machine, in build and deploy, in CI/CD and in
+      promotion across Dev → QA → Prod. The boundary with its neighbours: AI is about agents,
+      cloud is about resources, DevOps is about delivery.</li>
+    </ol>
+
+    <h3>Maturity levels</h3>
+    <ol start="9">
+      <li><strong>Examples · Noob / Pro / IGL</strong> <span class="dim">· three pages · coming soon</span><br>
+      <strong>Noob</strong> — the foundation without magic. <strong>Pro</strong> — the real thing:
+      <code>set -euo pipefail</code>, <code>trap</code>, idempotence, logging.
+      <strong>IGL</strong> — architectural: where a script must give way to a proper tool.</li>
+      <li><strong>Questions · Noob / Pro / IGL</strong> <span class="dim">· three pages · coming soon</span><br>
+      A bank of 150 questions, fifty per level. Short format: the question, an answer in one or two
+      sentences, and why it gets asked.</li>
+    </ol>
+
+    <p><strong>The seventh goal — extreme brevity</strong> — is not a section but a rule of writing
+    that applies to every page: a paragraph that does not change a decision of yours is removed.</p>
 
     <h2 id="levels">Three levels, and why they are kept apart <a class="yakor" href="#levels">#</a></h2>
     <p><strong>Noob</strong> — you run scripts and occasionally edit them. The level's job: remove the magic.<br>
@@ -193,5 +219,6 @@
 </div>
 <script src="swa.js"></script>
 <script src="terms.js"></script>
+<script src="cp.js"></script>
 </body>
 </html>

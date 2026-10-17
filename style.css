@@ -101,6 +101,17 @@ header.top .three {
   font-size: .85rem;
   margin-top: 3px;
 }
+/* ТЕМА САЙТА В СЛОГАНЕ. Янтарная плашка - тот же акцент, что у блока
+   «Главная мысль» и у бейджа в ночной теме, поэтому шапка читается как одно
+   целое. Текст на плашке всегда тёмный: янтарный фон одинаков в обеих темах,
+   и светлый текст на нём теряет контраст. Начертание обычное - жирное поверх
+   цвета спорит с продуктовым маркером devops-bash. */
+header.top .three .topic {
+  background: var(--term-accent);
+  color: #121316;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
 
 /* --- сервисная планка (Utility Tray) --- */
 .utility-tray {
@@ -275,6 +286,9 @@ code, kbd {
 pre {
   background: var(--code); border: 1px solid var(--line); border-radius: 8px;
   padding: 12px 14px; overflow-x: auto; margin: 0 0 .7rem;
+  /* МЕСТО ПОД КНОПКУ «СКОПИРОВАТЬ». position:relative - якорь для неё,
+     а верхний отступ - чтобы первая строка кода не ушла ей под низ. */
+  position: relative; padding-top: 34px;
 }
 /* ПЕРЕНОС, А НЕ ГОРИЗОНТАЛЬНАЯ ПРОКРУТКА. Замер headless-браузером на ширине
    390px показал семь элементов, уезжающих за край внутри своих рамок: длинные
@@ -286,6 +300,26 @@ pre code {
   background: none; padding: 0; font-size: .88rem;
   white-space: pre-wrap; overflow-wrap: anywhere;
 }
+
+/* --- кнопка «скопировать» в блоке кода (cp.js) ---
+   ВИДНА ВСЕГДА, А НЕ ПО НАВЕДЕНИЮ. На телефоне наведения не существует, а
+   команду с телефона копируют чаще, чем с настольной машины. Та же причина,
+   по которой всегда видны якоря `#`. */
+.cp-btn {
+  position: absolute; top: 5px; right: 6px;
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--bg); color: var(--dim);
+  border: 1px solid var(--line); border-radius: 6px;
+  padding: 2px 7px; font: inherit; font-size: .78rem; line-height: 1.5;
+  cursor: pointer; opacity: .6; transition: opacity .12s ease, color .12s ease;
+  max-width: calc(100% - 12px);
+}
+.cp-btn:hover, .cp-btn:focus { opacity: 1; color: var(--fg); border-color: var(--term-accent); }
+.cp-btn.ok { opacity: 1; color: var(--ok); border-color: var(--ok); }
+.cp-btn.fail { opacity: 1; color: var(--warn); border-color: var(--warn); }
+.cp-ico { display: block; flex: none; }
+.cp-say:empty { display: none; }
+.cp-say { overflow-wrap: anywhere; }
 
 /* --- шаг: открыт один, остальные свёрнуты. Без JavaScript --- */
 details.step {
@@ -656,6 +690,8 @@ nav.sessions .nav-extra a[aria-current="page"] {
 
 /* --- режим чтения и печати (Machine Reading / Accessibility / PDF Export) --- */
 @media print {
+  /* В бумажной брошюре кнопка копирования не нажимается. */
+  .cp-btn { display: none; }
   nav.sessions, .utility-tray, .page-toc, .yakor, .svernut, .term-card {
     display: none !important;
   }
