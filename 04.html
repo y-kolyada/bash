@@ -171,10 +171,11 @@ echo ${arr[0]}   # в dash - ошибка
 sed -i 's/a/b/' f   # GNU
 sed -i '' 's/a/b/' f # BSD/macOS
 
-readlink -f p    # нет в macOS
+stat -c %s f     # GNU; BSD: -f %z
 date -d @0       # GNU; BSD: -r 0</code></pre>
-    <p><code>/bin/sh</code> в Debian и Ubuntu - это <code>dash</code>, а не Bash: массивы,
-    <code>[[ ]]</code>, <code>local</code> там отсутствуют. В Alpine внутри контейнера оболочка -
+    <p><code>/bin/sh</code> в Debian и Ubuntu - это <code>dash</code>, а не Bash: массивов,
+    <code>[[ ]]</code>, подстановки процессов и замены по шаблону <code>${v//a/b}</code> там нет.
+    (<code>local</code>, вопреки распространённому мнению, в <code>dash</code> есть.) В Alpine внутри контейнера оболочка -
     <code>ash</code> из busybox, и половина привычных ключей утилит работает иначе. В macOS Bash
     версии 3.2, а утилиты - BSD.</p>
     <p><strong>Решение честное и скучное:</strong> либо явный <code>#!/usr/bin/env bash</code> и

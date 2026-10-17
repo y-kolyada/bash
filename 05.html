@@ -101,13 +101,15 @@ shellcheck $files</code></pre>
 
     <h2 id="ci">2 · CI и GitHub Actions: shell по умолчанию <a class="yakor" href="#ci">#</a></h2>
     <p>Шаг <code>run:</code> - это shell-скрипт, который CI пишет во временный файл и запускает.
-    Важно знать, с какими ключами: GitHub Actions запускает
-    <code>bash -e</code>, то есть <code>set -e</code> есть, а <code>-u</code> и
-    <code>pipefail</code> - нет.</p>
+    Важно знать, с какими ключами, и здесь есть тонкость, о которую спотыкаются: если
+    <code>shell:</code> не указан, GitHub Actions запускает <code>bash -e {0}</code> -
+    <code>set -e</code> есть, <code>pipefail</code> нет. Если указать <code>shell: bash</code>
+    явно, запуск становится <code>bash --noprofile --norc -eo pipefail {0}</code> -
+    <code>pipefail</code> появляется. <strong><code>-u</code> нет ни в одном варианте.</strong></p>
 <pre><code>- name: build
-  shell: bash          # явно
+  shell: bash          # даёт -eo pipefail
   run: |
-    set -euo pipefail  # дополняем сами
+    set -euo pipefail  # -u всё равно свой
     ./build.sh
 
 # каждый шаг - новый процесс:
@@ -208,7 +210,7 @@ python3 -c 'import json, sys; ...'</code></pre>
     </div>
     <ol>
       <li><strong>Git:</strong> решение - кодом возврата; хуки не версионируются без <code>core.hooksPath</code>.</li>
-      <li><strong>CI:</strong> <code>bash -e</code> без <code>-u</code> и <code>pipefail</code>; переменные между шагами - через файлы.</li>
+      <li><strong>CI:</strong> без <code>shell:</code> - <code>bash -e</code>, с <code>shell: bash</code> - ещё и <code>pipefail</code>; <code>-u</code> нет нигде; переменные между шагами - через файлы.</li>
       <li><strong>Docker:</strong> exec-форма, <code>exec</code> в конце скрипта, отсутствие init.</li>
       <li><strong>systemd:</strong> <code>ExecStart</code> - не оболочка; логи в журнал, а не в файл.</li>
       <li><strong>Make и Ansible:</strong> каждая строка в своей оболочке; <code>command</code> против <code>shell</code>.</li>

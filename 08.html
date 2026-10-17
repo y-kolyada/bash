@@ -84,8 +84,9 @@
     <p>Шаг CI - это ваш скрипт, запущенный чужим способом. Три факта об этом запуске определяют
     почти всё поведение.</p>
 <pre><code># 1. ключи задаёт CI, не вы
-#    GitHub Actions: bash -e
-set -euo pipefail   # дополняем
+#    без shell: -&gt; bash -e
+#    shell: bash -&gt; + pipefail
+set -euo pipefail   # -u - только свой
 
 # 2. каждый шаг - новый процесс
 echo "VER=$v" &gt;&gt; "$GITHUB_ENV"
