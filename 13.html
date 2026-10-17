@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>50 вопросов по Bash · уровень Pro · devops-bash · ai|</title>
+<link rel="stylesheet" href="style.css?v=1">
+<script>
+  (function() {
+    var t = localStorage.getItem('b1-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+    var f = localStorage.getItem('b1-font');
+    if (f) document.documentElement.setAttribute('data-font', f);
+  })();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand-group">
+    <a class="home" href="index.html">
+      <span class="badge-ai">ai|</span>
+      <span class="sub-brand">devops-bash</span>
+    </a>
+    <div class="three" aria-hidden="true">инструменты · <span class="topic">Bash</span> · практика · 150 вопросов</div>
+  </div>
+  <div class="utility-tray" role="toolbar" aria-label="Настройки отображения и язык">
+    <div class="lang-switcher" aria-label="Выбор языка">
+      <a href="13-en.html">EN</a>
+      <a href="13.html" class="active" aria-current="page">RU</a>
+      <a href="13-uk.html">UK</a>
+      <a href="13-de.html">DE</a>
+    </div>
+    <div class="font-scaler" role="group" aria-label="Размер шрифта">
+      <button type="button" class="font-btn font-s" data-size="s" title="Мелкий шрифт" aria-label="Мелкий шрифт">А</button>
+      <button type="button" class="font-btn font-m active" data-size="m" title="Стандартный шрифт" aria-label="Стандартный шрифт">A</button>
+      <button type="button" class="font-btn font-l" data-size="l" title="Крупный шрифт" aria-label="Крупный шрифт">A</button>
+    </div>
+    <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему (День/Ночь)" aria-label="Сменить тему день/ночь">
+      <span class="theme-icon" aria-hidden="true">☼</span>
+    </button>
+  </div>
+</header>
+
+<div class="cols">
+
+  <nav class="sessions" aria-label="Разделы сайта">
+    <ol>
+      <li><a href="01.html"><span class="num">1</span>Ключевые компоненты</a></li>
+      <li><a href="02.html"><span class="num">2</span>Написание скриптов</a></li>
+      <li><a href="03.html"><span class="num">3</span>Сила Bash</a></li>
+      <li><a href="04.html"><span class="num">4</span>Слабости и границы</a></li>
+      <li><a href="05.html"><span class="num">5</span>Взаимосвязи</a></li>
+      <li><a href="06.html"><span class="num">6</span>Практики в контексте AI</a></li>
+      <li><a href="07.html"><span class="num">7</span>Практики в Clouds</a></li>
+      <li><a href="08.html"><span class="num">8</span>Практики DevOps</a></li>
+      <li><a href="09.html"><span class="num">9</span>Примеры · Noob</a></li>
+      <li><a href="10.html"><span class="num">10</span>Примеры · Pro</a></li>
+      <li><a href="11.html"><span class="num">11</span>Примеры · IGL</a></li>
+      <li><a href="12.html"><span class="num">12</span>Вопросы · Noob</a></li>
+      <li><a href="13.html" aria-current="page"><span class="num">13</span>Вопросы · Pro</a></li>
+      <li><a href="14.html"><span class="num">14</span>Вопросы · IGL</a></li>
+    </ol>
+    <div class="nav-extra">
+      <a href="glossary.html">📖 Словарь понятий</a>
+    </div>
+    <div class="page-toc" id="pageToc" aria-label="Разделы этой страницы" hidden>
+      <div class="toc-title">На этой странице</div>
+      <ul class="toc-list" id="tocList"></ul>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Вопросы · Pro</h1>
+    <p class="lead">Пятьдесят вопросов боевого уровня. Здесь уже не спрашивают, что делает команда, - спрашивают, что произойдёт, когда она не сработает.</p>
+
+    <div class="box key" id="glavnaya-mysl">
+      <h2>Главная мысль страницы <a class="yakor" href="#glavnaya-mysl" aria-label="ссылка на этот блок">#</a></h2>
+      <p>Вопросы уровня Pro почти всегда про отказ: где <code>set -e</code> не сработает, где потеряется код возврата, что случится с контейнером при остановке, почему переменная из одного шага CI не видна в другом. Ответ на них нельзя выучить - он выводится из понимания процессов, дескрипторов и порядка раскрытий. Поэтому вопросы сгруппированы не по темам документации, а по местам, где скрипты реально ломаются. Если ответ не складывается, соответствующий приём разобран на странице примеров уровня Pro, а механика - в ключевых компонентах.</p>
+    </div>
+
+    <h2 id="rezhim">Строгий режим, ошибки и сигналы (1–10) <a class="yakor" href="#rezhim">#</a></h2>
+    <ol class="qa" start="1">
+      <li><strong>Что именно делает каждый ключ в <code>set -euo pipefail</code>?</strong><br><code>-e</code> - выход при ненулевом коде, <code>-u</code> - ошибка на необъявленной переменной, <code>-o pipefail</code> - код конвейера берётся у первого упавшего звена.<br><span class="dim">Зачем спрашивают: проверяют, знаете ли вы это как три отдельных решения, а не как заклинание.</span></li>
+      <li><strong>Назовите случаи, когда <code>set -e</code> не срабатывает.</strong><br>В условии <code>if</code>/<code>while</code>, слева от <code>&amp;&amp;</code> и <code>||</code>, в теле функции, вызванной из условия, и в подстановке внутри аргумента.<br><span class="dim">Зачем спрашивают: главный вопрос про надёжность; отличает знание от веры.</span></li>
+      <li><strong>Зачем нужен ключ <code>-E</code> вместе с <code>trap ERR</code>?</strong><br>Без него ловушка <code>ERR</code> не наследуется функциями и подоболочками, и отказ внутри функции проходит мимо обработчика.<br><span class="dim">Зачем спрашивают: редко знают; показывает реальный опыт отладки.</span></li>
+      <li><strong>Как узнать, на какой строке упал скрипт?</strong><br><code>trap 'echo "строка $LINENO"' ERR</code> вместе с <code>set -E</code>. Стека вызовов в Bash нет.<br><span class="dim">Зачем спрашивают: проверяют, как вы диагностируете отказы в продакшне.</span></li>
+      <li><strong>Как получить код возврата конкретного звена конвейера?</strong><br>Из массива <code>${PIPESTATUS[@]}</code> сразу после конвейера - любая следующая команда его затрёт.<br><span class="dim">Зачем спрашивают: классика; отделяет тех, кто читал <code>man bash</code>.</span></li>
+      <li><strong>Почему <code>false | tee out</code> возвращает 0?</strong><br>Код конвейера по умолчанию - код последнего звена. Лечится <code>set -o pipefail</code>.<br><span class="dim">Зачем спрашивают: самый частый способ потерять ошибку незаметно.</span></li>
+      <li><strong>Что делает <code>trap … EXIT</code> и почему это надёжнее ручной уборки?</strong><br>Срабатывает при любом завершении - нормальном, по ошибке и по прерыванию, поэтому временные файлы удаляются всегда.<br><span class="dim">Зачем спрашивают: проверяют, думаете ли вы о путях выхода, а не только об основном.</span></li>
+      <li><strong>Можно ли перехватить <code>SIGKILL</code>?</strong><br>Нет. Сигнал 9 и <code>SIGSTOP</code> не перехватываются и не блокируются - это свойство ядра.<br><span class="dim">Зачем спрашивают: вопрос о границах возможного, а не о синтаксисе.</span></li>
+      <li><strong>Что означает код возврата 130?</strong><br>Завершение сигналом: <code>128 + N</code>, где N - номер сигнала; 130 - это <code>SIGINT</code>, то есть <code>Ctrl+C</code>.<br><span class="dim">Зачем спрашивают: показывает умение читать коды в журналах CI.</span></li>
+      <li><strong>Как корректно завершить скрипт с диагностикой?</strong><br>Функция вида <code>die() { echo "$*" &gt;&amp;2; exit 1; }</code>: сообщение в stderr, ненулевой код.<br><span class="dim">Зачем спрашивают: проверяют дисциплину вывода и кодов.</span></li>
+    </ol>
+
+    <h2 id="podstanovki">Подстановки, массивы, цитирование (11–20) <a class="yakor" href="#podstanovki">#</a></h2>
+    <ol class="qa" start="11">
+      <li><strong>Чем <code>"$@"</code> отличается от <code>$@</code> и <code>"$*"</code>?</strong><br><code>"$@"</code> разворачивается в отдельные аргументы с сохранением границ; <code>$@</code> режется по <code>IFS</code>; <code>"$*"</code> склеивается в одну строку.<br><span class="dim">Зачем спрашивают: один из самых частых вопросов; ответ сразу показывает уровень.</span></li>
+      <li><strong>Что произойдёт с <code>rm $file</code>, если <code>file</code> содержит пробел?</strong><br>Аргументов станет несколько, и будут удалены не те объекты. Кавычки обязательны.<br><span class="dim">Зачем спрашивают: проверяют рефлекс, а не знание.</span></li>
+      <li><strong>Зачем <code>IFS=$'\n\t'</code> в начале скрипта?</strong><br>Сужает разбиение до перевода строки и табуляции, убирая разрезание по пробелам там, где оно почти никогда не нужно.<br><span class="dim">Зачем спрашивают: часть канонического строгого режима.</span></li>
+      <li><strong>Как объявить и перебрать массив?</strong><br><code>arr=(a b c)</code>, перебор - <code>for x in "${arr[@]}"</code>, длина - <code>${#arr[@]}</code>.<br><span class="dim">Зачем спрашивают: база, без которой не обсудить ограничения языка.</span></li>
+      <li><strong>Как передать массив в функцию?</strong><br>Только по имени: <code>local -n ref=$1</code> (Bash 4.3+) или развернув в <code>"$@"</code>. Копии массива передать нельзя.<br><span class="dim">Зачем спрашивают: показывает понимание границ типовой системы.</span></li>
+      <li><strong>Что такое ассоциативный массив и с какой версии он есть?</strong><br><code>declare -A m; m[key]=val</code> - словарь; появился в Bash 4.<br><span class="dim">Зачем спрашивают: важно для совместимости с macOS, где по умолчанию 3.2.</span></li>
+      <li><strong>Что делает <code>${var:?сообщение}</code>?</strong><br>Прерывает скрипт с этим сообщением, если переменная пуста или не задана.<br><span class="dim">Зачем спрашивают: компактная проверка обязательных параметров.</span></li>
+      <li><strong>Чем <code>${var%.txt}</code> отличается от <code>${var#*/}</code>?</strong><br>Первое срезает суффикс, второе - префикс по шаблону; удвоенный символ означает жадное срезание.<br><span class="dim">Зачем спрашивают: замена вызова <code>basename</code> без порождения процесса.</span></li>
+      <li><strong>Как получить длину строки и подстроку без внешних команд?</strong><br><code>${#s}</code> и <code>${s:0:5}</code>.<br><span class="dim">Зачем спрашивают: проверяют, знаете ли вы встроенные средства вместо <code>cut</code>.</span></li>
+      <li><strong>Что делает <code>${var@Q}</code>?</strong><br>Печатает значение в виде, пригодном для безопасной вставки обратно в скрипт (Bash 4.4+).<br><span class="dim">Зачем спрашивают: редкое знание; полезно при генерации команд.</span></li>
+    </ol>
+
+    <h2 id="processy">Процессы, конвейеры, перенаправления (21–30) <a class="yakor" href="#processy">#</a></h2>
+    <ol class="qa" start="21">
+      <li><strong>В каком порядке Bash выполняет раскрытия?</strong><br>Скобки, тильда, параметры, подстановка команд, арифметика, словоделение, имена файлов, снятие кавычек.<br><span class="dim">Зачем спрашивают: объясняет почти все «странности» разом.</span></li>
+      <li><strong>Почему <code>{1..$n}</code> не работает?</strong><br>Раскрытие фигурных скобок происходит до подстановки параметров, поэтому <code>$n</code> там ещё не значение.<br><span class="dim">Зачем спрашивают: проверяют знание порядка, а не синтаксиса.</span></li>
+      <li><strong>Чем <code>cmd &gt;log 2&gt;&amp;1</code> отличается от <code>cmd 2&gt;&amp;1 &gt;log</code>?</strong><br>В первом оба потока уходят в файл; во втором stderr копирует текущее назначение stdout - терминал, - и в файл идёт только stdout.<br><span class="dim">Зачем спрашивают: классический вопрос на понимание дескрипторов.</span></li>
+      <li><strong>Что такое here-document и чем он отличается от here-string?</strong><br><code>&lt;&lt;EOF</code> подаёт многострочный блок на вход; <code>&lt;&lt;&lt;</code> - одну строку. Кавычки вокруг <code>'EOF'</code> отключают подстановки.<br><span class="dim">Зачем спрашивают: часто нужно для конфигов и SQL внутри скриптов.</span></li>
+      <li><strong>Почему переменная, изменённая в цикле после <code>|</code>, снаружи пуста?</strong><br>Звенья конвейера выполняются в подоболочках; изменения не возвращаются в родительский процесс.<br><span class="dim">Зачем спрашивают: одна из самых обсуждаемых загадок Bash.</span></li>
+      <li><strong>Как прочитать вывод команды в цикл без подоболочки?</strong><br>Подстановкой процесса: <code>while read -r l; do …; done &lt; &lt;(cmd)</code>.<br><span class="dim">Зачем спрашивают: показывает знание <code>&lt;( )</code> - признак опыта.</span></li>
+      <li><strong>Чем <code>exec</code> без аргументов отличается от <code>exec cmd</code>?</strong><br>Без команды он только меняет перенаправления текущей оболочки; с командой - заменяет процесс, не порождая новый.<br><span class="dim">Зачем спрашивают: важно для точек входа в контейнерах.</span></li>
+      <li><strong>Как ограничить время выполнения команды?</strong><br><code>timeout 30 cmd</code>; при срабатывании код возврата 124.<br><span class="dim">Зачем спрашивают: обязательный приём для сетевых операций.</span></li>
+      <li><strong>Как запустить команду так, чтобы она пережила выход из сессии?</strong><br><code>nohup cmd &amp;</code>, <code>setsid</code> или терминальный мультиплексор; в systemd - отдельный юнит.<br><span class="dim">Зачем спрашивают: проверяют понимание связи процесса с терминалом.</span></li>
+      <li><strong>Что делает <code>wait -n</code>?</strong><br>Ждёт завершения любого одного фонового задания, а не всех (Bash 4.3+).<br><span class="dim">Зачем спрашивают: нужно для ограничения параллельности своими руками.</span></li>
+    </ol>
+
+    <h2 id="fayly">Файлы, параллельность, блокировки (31–40) <a class="yakor" href="#fayly">#</a></h2>
+    <ol class="qa" start="31">
+      <li><strong>Почему временный файл создают через <code>mktemp</code>?</strong><br>Он гарантирует уникальное имя и безопасные права; предсказуемое имя в <code>/tmp</code> - это гонка и возможность подмены.<br><span class="dim">Зачем спрашивают: вопрос одновременно о надёжности и о безопасности.</span></li>
+      <li><strong>Как защититься от одновременного запуска двух копий скрипта?</strong><br><code>flock</code> на дескрипторе: блокировка снимается автоматически при завершении процесса, в отличие от файла-флага.<br><span class="dim">Зачем спрашивают: типичная задача для cron.</span></li>
+      <li><strong>Чем <code>mv</code> отличается от <code>cp</code> с точки зрения атомарности?</strong><br>Переименование в пределах одной файловой системы атомарно; копирование - нет, и промежуточное состояние видно другим.<br><span class="dim">Зачем спрашивают: основа безопасного деплоя и записи конфигов.</span></li>
+      <li><strong>Как безопасно переключить симлинк на новую версию?</strong><br><code>ln -sfn new tmp &amp;&amp; mv -T tmp current</code> - замена происходит одним шагом.<br><span class="dim">Зачем спрашивают: проверяют, умеете ли вы думать о промежуточных состояниях.</span></li>
+      <li><strong>Как обработать имена файлов с пробелами и переводами строк?</strong><br><code>find … -print0</code> вместе с <code>xargs -0</code> или <code>read -d ''</code>.<br><span class="dim">Зачем спрашивают: показывает опыт работы с реальными данными.</span></li>
+      <li><strong>Чем <code>xargs -P</code> лучше, чем <code>&amp;</code> в цикле?</strong><br>Ограничивает число одновременных задач и возвращает ненулевой код, если упала хотя бы одна.<br><span class="dim">Зачем спрашивают: практический способ параллелизма без самоделок.</span></li>
+      <li><strong>Как узнать, что дочерний процесс упал, если задач несколько?</strong><br>Сохранять <code>$!</code> в массив и вызывать <code>wait</code> для каждого идентификатора отдельно.<br><span class="dim">Зачем спрашивают: проверяют понимание, что <code>wait</code> без аргументов скрывает коды.</span></li>
+      <li><strong>Что делает <code>sync</code> и когда он нужен?</strong><br>Сбрасывает буферы файловой системы на диск; нужен редко - перед аварийным выключением или в тестах долговечности.<br><span class="dim">Зачем спрашивают: проверка на понимание кеширования записи.</span></li>
+      <li><strong>Как сравнить два каталога?</strong><br><code>diff -r a b</code> или <code>rsync -n -ac --delete a/ b/</code> для предварительного просмотра различий.<br><span class="dim">Зачем спрашивают: частая задача при миграциях.</span></li>
+      <li><strong>Как узнать, кто держит открытым файл или порт?</strong><br><code>lsof +D /path</code>, <code>fuser</code>, для портов - <code>ss -lntp</code>.<br><span class="dim">Зачем спрашивают: ежедневная диагностика на сервере.</span></li>
+    </ol>
+
+    <h2 id="okruzhenie">CI, контейнеры, systemd, секреты (41–50) <a class="yakor" href="#okruzhenie">#</a></h2>
+    <ol class="qa" start="41">
+      <li><strong>С какими ключами CI запускает шаг <code>run:</code>?</strong><br>В GitHub Actions это <code>bash -e</code>: <code>set -e</code> есть, <code>-u</code> и <code>pipefail</code> нужно включать самому.<br><span class="dim">Зачем спрашивают: проверяют, читали ли вы документацию инструмента, а не только скрипты.</span></li>
+      <li><strong>Почему <code>export</code> из одного шага CI не виден в следующем?</strong><br>Каждый шаг - отдельный процесс; значения передаются через файлы вроде <code>$GITHUB_ENV</code>.<br><span class="dim">Зачем спрашивают: типовая ошибка при переходе с локальных скриптов на CI.</span></li>
+      <li><strong>Почему контейнер не останавливается по <code>docker stop</code>?</strong><br>В строчной форме <code>ENTRYPOINT</code> PID 1 - это оболочка, и она не передаёт <code>SIGTERM</code> приложению. Нужна exec-форма или <code>exec</code> в конце скрипта.<br><span class="dim">Зачем спрашивают: любимый вопрос на собеседованиях по контейнерам.</span></li>
+      <li><strong>Почему скрипт ломается в образе Alpine?</strong><br>Там <code>/bin/sh</code> - busybox <code>ash</code>, Bash отсутствует, а ключи утилит отличаются.<br><span class="dim">Зачем спрашивают: проверяют знание различий между дистрибутивами.</span></li>
+      <li><strong>Почему перенаправление не работает в <code>ExecStart</code> systemd?</strong><br>Строка разбирается самим systemd, а не оболочкой; нужен явный <code>/bin/bash -c '…'</code>.<br><span class="dim">Зачем спрашивают: частая ошибка при написании юнитов.</span></li>
+      <li><strong>Как безопасно передать секрет команде?</strong><br>Через stdin, файл или переменную окружения - но не аргументом: аргументы видны в <code>ps</code> всем пользователям.<br><span class="dim">Зачем спрашивают: вопрос о безопасности, который проверяют всегда.</span></li>
+      <li><strong>Почему <code>set -x</code> опасен в CI?</strong><br>Трассировка печатает значения переменных, то есть секреты, а маскирование ловит только точные совпадения.<br><span class="dim">Зачем спрашивают: проверяют, думаете ли вы о журналах как о публичных.</span></li>
+      <li><strong>Чем <code>/bin/sh</code> отличается от <code>/bin/bash</code> в Debian?</strong><br><code>sh</code> - это <code>dash</code>: нет массивов, <code>[[ ]]</code>, <code>local</code> и подстановки процессов.<br><span class="dim">Зачем спрашивают: основа переносимости.</span></li>
+      <li><strong>Как проверить скрипт без выполнения?</strong><br><code>bash -n script.sh</code> - только синтаксис; <code>shellcheck</code> - семантические ошибки.<br><span class="dim">Зачем спрашивают: проверяют наличие привычки к статическому анализу.</span></li>
+      <li><strong>Что такое <code>#  shellcheck disable=SCxxxx</code> и как им пользоваться?</strong><br>Отключение конкретного правила для следующей строки; глобальное отключение почти всегда означает скрытую проблему.<br><span class="dim">Зачем спрашивают: показывает отношение к предупреждениям инструментов.</span></li>
+    </ol>
+
+    <h2 id="artefakty">Артефакты: что у вас есть после этой страницы <a class="yakor" href="#artefakty">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Чтение &gt;&gt; Ваш квант времени жизни · Партнёрство достоинства вместе с AI · Перестройка вашей нейросети</p>
+      <p><strong>Пятьдесят сценариев отказа и ответ на каждый.</strong> Время потрачено не зря, если вы перестали отвечать «такого не бывает» и начали называть условие, при котором бывает. Это и есть перестройка нейросети: вопрос «что делает эта команда» заменяется вопросом «что она сделает, когда что-то пойдёт не так».</p>
+    </div>
+    <ol>
+      <li><strong>Десять ответов про строгий режим</strong> - включая дыры <code>set -e</code> и ключ <code>-E</code>.</li>
+      <li><strong>Десять про подстановки и массивы</strong> - <code>"$@"</code>, передача массива, <code>${var@Q}</code>.</li>
+      <li><strong>Десять про процессы и дескрипторы</strong> - порядок раскрытий, <code>2&gt;&amp;1</code>, подстановка процесса.</li>
+      <li><strong>Десять про файлы и параллельность</strong> - <code>mktemp</code>, <code>flock</code>, атомарность, <code>-print0</code>.</li>
+      <li><strong>Десять про окружение</strong> - CI, PID 1 в контейнере, systemd, секреты, dash против bash.</li>
+    </ol>
+
+    <footer>
+      Последняя страница банка - пятьдесят вопросов уровня IGL. Что отложено и почему - в <a href="potom.md">potom.md</a>.
+    </footer>
+  </main>
+
+</div>
+</div>
+<script src="swa.js"></script>
+<script src="terms.js"></script>
+<script src="cp.js"></script>
+</body>
+</html>
