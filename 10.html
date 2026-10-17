@@ -100,7 +100,7 @@ cleanup() { rm -rf "$tmp"; }
 trap cleanup EXIT INT TERM
 
 work &gt; "$tmp/out"
-mv "$tmp/out" result.txt</code></pre>    <div class="prints"><strong>Почему так:</strong> Ловушка на <code>EXIT</code> срабатывает при любом завершении, включая отказ под <code>set -e</code>. <code>INT</code> и <code>TERM</code> добавляют реакцию на прерывание и остановку. <strong>Имя придумывает <code>mktemp</code>, а не вы:</strong> предсказуемое имя в общем <code>/tmp</code> - это и гонка при параллельных запусках, и возможность подмены. Готовый результат переносится в целевое место одной командой - чтобы не было полуготового файла.</div>
+mv "$tmp/out" result.txt</code></pre>    <div class="prints"><strong>Почему так:</strong> Ловушка на <code>EXIT</code> срабатывает при любом завершении, включая отказ под <code>set -e</code>, - кроме <code>SIGKILL</code>: его ядро не даёт перехватить. <code>INT</code> и <code>TERM</code> добавляют реакцию на прерывание и остановку. <strong>Имя придумывает <code>mktemp</code>, а не вы:</strong> предсказуемое имя в общем <code>/tmp</code> - это и гонка при параллельных запусках, и возможность подмены. Готовый результат переносится в целевое место одной командой - чтобы не было полуготового файла.</div>
 
     <h2 id="getopts">3 · Опции и обязательный <code>--dry-run</code> <a class="yakor" href="#getopts">#</a></h2>
     <p><strong>Задача:</strong> дать скрипту ключи и режим «показать, но не делать».</p>
@@ -116,7 +116,7 @@ done
 shift $((OPTIND - 1))
 
 run() { (( dry )) &amp;&amp; { echo "DRY: $*"; return 0; }; "$@"; }
-run rm -rf "$target"</code></pre>    <div class="prints"><strong>Почему так:</strong> Двоеточие в начале строки ключей переводит <code>getopts</code> в тихий режим - ошибки обрабатываете вы, а не он. <code>shift $((OPTIND - 1))</code> убирает разобранные ключи, после чего <code>$1</code> - первый позиционный аргумент. <strong>Обёртка <code>run</code> делает режим проверки структурным, а не добавленным потом:</strong> любая опасная команда проходит через неё, и забыть про <code>--dry-run</code> становится труднее, чем помнить.</div>
+run rm -rf "$target"</code></pre>    <div class="prints"><strong>Почему так:</strong> Двоеточие в начале строки ключей переводит <code>getopts</code> в тихий режим - ошибки обрабатываете вы, а не он. <code>shift $((OPTIND - 1))</code> убирает разобранные ключи, после чего <code>$1</code> - первый позиционный аргумент. <strong>Обёртка <code>run</code> делает режим проверки структурным, а не добавленным потом:</strong> любая опасная команда проходит через неё, и забыть про <code>--dry-run</code> становится труднее, чем помнить. <strong>Одна оговорка, без которой обёртка опасна:</strong> перенаправления оболочка выполняет <em>до</em> входа в функцию. <code>run echo x &gt; file</code> затрёт <code>file</code> и в режиме проверки, потому что <code>&gt;</code> уже сработал. Всё, что пишет в файл, уводят внутрь вызова: <code>run sh -c 'echo x &gt; file'</code> или отдельная функция записи, которая сама проверяет режим.</div>
 
     <h2 id="retry">4 · Повтор с нарастающей задержкой <a class="yakor" href="#retry">#</a></h2>
     <p><strong>Задача:</strong> пережить временный отказ сети, не превратив скрипт в вечный цикл.</p>
@@ -171,8 +171,8 @@ die()  { _log ERROR "$@"; exit 1; }</code></pre>    <div class="prints"><strong>
     </div>
     <ol>
       <li><strong><code>set -Eeuo pipefail</code> и <code>trap ERR $LINENO</code></strong> - отказ называет своё место.</li>
-      <li><strong><code>mktemp -d</code> плюс <code>trap EXIT INT TERM</code></strong> - уборка при любом исходе.</li>
-      <li><strong><code>getopts</code> и обёртка <code>run</code></strong> - режим проверки как структура.</li>
+      <li><strong><code>mktemp -d</code> плюс <code>trap EXIT INT TERM</code></strong> - уборка при любом исходе, кроме <code>kill -9</code>.</li>
+      <li><strong><code>getopts</code> и обёртка <code>run</code></strong> - режим проверки как структура, и перенаправления внутри вызова, а не снаружи.</li>
       <li><strong>Повтор с пределом и таймаутом</strong>, и почему <code>curl -f</code> обязателен.</li>
       <li><strong><code>xargs -0 -P</code></strong> - параллельность с устойчивыми именами и честным кодом.</li>
       <li><strong><code>flock</code> на дескрипторе</strong>, а не файл-флаг.</li>

@@ -91,16 +91,24 @@
     <h2 id="parsing">1 · Parsing the command line <a class="yakor" href="#parsing">#</a></h2>
     <p>The shell reads the line, splits it into tokens on operators (<code>|</code>, <code>;</code>,
     <code>&amp;&amp;</code>, <code>&gt;</code>), and only then starts expanding. The order is fixed,
-    and it is the single most asked question:</p>
-<pre><code>1. brace expansion    {a,b}
-2. tilde              ~
-3. parameters         $var ${var}
-4. command subst.     $(cmd)
-5. arithmetic         $((1+2))
-6. word splitting     on IFS
-7. filename globbing  *.txt
-8. quote removal</code></pre>
-    <p>Two consequences. Globbing runs <em>after</em> parameter expansion, so
+    and it is the single most asked question. There are five stages, not the eight it is
+    often drawn as:</p>
+<pre><code>1. brace expansion    {a,b} {1..3}
+2. one left-to-right pass:
+   tilde              ~
+   parameters         $var ${var}
+   command subst.     $(cmd)
+   arithmetic         $((1+2))
+   process subst.     &lt;(cmd)
+3. word splitting     on IFS
+4. filename globbing  *.txt
+5. quote removal</code></pre>
+    <p><strong>The second stage is one pass, not five steps.</strong> Tilde, parameters, command
+    substitution, arithmetic and process substitution expand together, left to right. One line
+    shows it: <code>x=1; echo $((x=2)) $x</code> prints <code>2 2</code> - arithmetic has already
+    changed <code>x</code> by the time the second <code>$x</code> is reached. Were parameters a
+    separate earlier step, the result would be <code>2 1</code>.</p>
+    <p>Two more consequences. Globbing runs <em>after</em> parameter expansion, so
     <code>f="*.txt"; echo $f</code> prints a file list while <code>echo "$f"</code> prints the
     asterisk. And the reverse: <code>{1..3}</code> expands before parameters, which is why
     <code>{1..$n}</code> does not work.</p>
@@ -164,7 +172,8 @@ x=1; { x=2; }; echo $x  # 2</code></pre>
     <h2 id="signals">6 · Signals and traps <a class="yakor" href="#signals">#</a></h2>
     <p>A signal is an asynchronous message to a process. <code>trap</code> installs a handler, and
     the only reliable way to clean up after yourself is a trap on <code>EXIT</code>: it fires on
-    every termination, including errors and interrupts:</p>
+    every termination the shell gets to notice - normal exit, error, interrupt. There is one
+    exception, covered below: <code>SIGKILL</code>.</p>
 <pre><code>tmp=$(mktemp)
 trap 'rm -f "$tmp"' EXIT
 trap 'echo interrupted; exit 130' INT</code></pre>
@@ -184,12 +193,12 @@ trap 'echo interrupted; exit 130' INT</code></pre>
       stays and carries over to any shell.</p>
     </div>
     <ol>
-      <li><strong>The expansion order</strong> - eight steps that explain most of the “oddities”.</li>
+      <li><strong>The expansion order</strong> - five stages, and why the second one is a single pass rather than five steps.</li>
       <li><strong>The quoting rule:</strong> an unquoted expansion is a decision, not a default.</li>
       <li><strong>Redirection order</strong> and why <code>2&gt;&amp;1</code> cannot go just anywhere.</li>
       <li><strong><code>PIPESTATUS</code> and <code>pipefail</code></strong> - how not to lose a failure in a pipeline.</li>
       <li><strong>Process boundaries:</strong> subshell, <code>export</code>, <code>local</code>.</li>
-      <li><strong>A trap on <code>EXIT</code></strong> as the only reliable cleanup.</li>
+      <li><strong>A trap on <code>EXIT</code></strong> as the only reliable cleanup - on any termination except <code>SIGKILL</code>.</li>
     </ol>
 
     <footer>

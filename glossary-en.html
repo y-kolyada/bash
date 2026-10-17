@@ -142,7 +142,7 @@
       <p><code>-e</code> exits on a non-zero code, but not inside conditions, <code>&amp;&amp;</code>
       chains, or functions called in a condition. <code>-u</code> turns a typo in a variable name
       into a stop rather than an empty string. <code>-o pipefail</code> surfaces the code of the
-      first failing stage. This is a hygiene minimum, not a guarantee of reliability.</p>
+      last (rightmost) stage that failed. This is a hygiene minimum, not a guarantee of reliability.</p>
       <div class="glossary-meta">
         🎯 <strong>First seen in:</strong> <a href="index-en.html#levels">Home · Three levels</a>
       </div>
