@@ -193,6 +193,57 @@ for (const file of files) {
     for (const why of search) bad.push([file, why]);
   }
 
+  // Телефон: меню свёрнуто в строку, и страница открывается на своём тексте.
+  // Раньше заголовок начинался на 901px при экране 844px - целый экран меню
+  // перед текстом, на каждой странице и при любом способе прихода.
+  const fold = await phone.evaluate(async (deep) => {
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const out = [];
+    const nav = document.querySelector('nav.contents');
+    if (!nav || !nav.querySelector('a')) return out;
+
+    const btn = document.querySelector('.nav-fold');
+    if (!btn) return ['на телефоне нет свёрнутой строки меню'];
+    if (getComputedStyle(btn).display === 'none') return ['свёрнутая строка меню спрятана на телефоне'];
+    if (!nav.classList.contains('nav-folded')) out.push('меню открыто при загрузке страницы');
+
+    const main = document.querySelector('main');
+    const top = main ? Math.round(main.getBoundingClientRect().top) : 0;
+    if (main && top >= window.innerHeight) {
+      out.push('текст не виден без прокрутки: он начинается на ' + top + 'px при экране ' + window.innerHeight + 'px');
+    }
+
+    const here = nav.querySelector('[aria-current="page"]');
+    if (here) {
+      const num = here.querySelector('.num');
+      const title = here.textContent.replace(num ? num.textContent : '', '').trim();
+      if (title && !btn.textContent.includes(title)) out.push('свёрнутая строка не называет текущую страницу');
+    }
+
+    // Разворот и касание раздела проверяются на одной странице языка: каждый
+    // прыжок по якорю стоит секунды, а проверка должна оставаться запускаемой.
+    if (!deep) return out;
+    btn.click();
+    await sleep(150);
+    if (nav.classList.contains('nav-folded')) out.push('меню не разворачивается касанием');
+    const items = [...nav.querySelectorAll('ol > li > a')].filter((a) => a.offsetParent);
+    if (items.length !== 15) out.push('в развёрнутом меню пунктов ' + items.length + ', а не 15');
+    const sections = [...document.querySelectorAll('#tocList a')].filter((a) => a.offsetParent);
+    // Заглушке взять разделы неоткуда: на ней нет ни одного заголовка с якорем.
+    const hasSections = document.querySelectorAll('main h2[id], main .glossary-term[id]').length > 0;
+    if (here && hasSections && sections.length === 0) {
+      out.push('в развёрнутом меню нет разделов текущей страницы');
+    }
+    if (sections.length) {
+      sections[0].click();
+      await sleep(350);
+      if (!nav.classList.contains('nav-folded')) out.push('меню не свернулось после касания раздела');
+      if (btn.getAttribute('aria-expanded') !== 'false') out.push('после сворачивания aria-expanded осталась true');
+    }
+    return out;
+  }, /\/01\.html$/.test(file.replace(/\\/g, '/')));
+  for (const why of fold) bad.push([file, why + ' (телефон)']);
+
   // Storage belongs to the origin, not to the folder: a sibling site published
   // under the same domain would read these keys as its own. Every key carries
   // the engine and the site - swa-bash-*. The rule is checked as a pattern, not
@@ -310,9 +361,13 @@ for (const file of files) {
       // разделы лежат внутри этого пункта. У лендинга своего пункта нет - его
       // разделы стоят первыми в панели, над картой сайта. Заглушке вкладывать
       // нечего: разделов на ней нет, и движок блок не трогает.
+      // У лендинга своего пункта нет: его разделы должны стоять выше карты
+      // сайта. Проверяется порядок, а не «первый элемент»: первой в панели
+      // стоит свёрнутая строка меню для телефона.
+      const list = nav.querySelector('ol');
       const placed = host
         ? !!(toc && host.contains(toc))
-        : !!(toc && nav.firstElementChild === toc);
+        : !!(toc && list && (toc.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING));
       const nested = links.length === 0 || placed;
       const ownItem = !!host;
       const firstTop = links.length
