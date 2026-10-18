@@ -355,6 +355,12 @@ details.step > summary code { white-space: nowrap; }
 .box h2, .box h3 { margin-top: 0; }
 .box.key h2 { font-size: 1.15rem; margin-bottom: 8px; }
 
+/* --- банк вопросов: длинный нумерованный список с тремя строками в пункте --- */
+ol.qa { padding-left: 1.6em; }
+ol.qa > li { margin: 0 0 1.1rem; line-height: 1.55; }
+ol.qa > li::marker { color: var(--dim); font-variant-numeric: tabular-nums; }
+ol.qa > li > span.dim { font-size: .92em; }
+
 .soon { color: var(--dim); }
 footer { margin-top: 48px; border-top: 1px solid var(--line); padding-top: 14px; color: var(--dim); font-size: .9rem; }
 
