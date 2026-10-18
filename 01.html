@@ -55,12 +55,13 @@
       <li><a href="06.html"><span class="num">6</span>Практики в контексте AI</a></li>
       <li><a href="07.html"><span class="num">7</span>Практики в Clouds</a></li>
       <li><a href="08.html"><span class="num">8</span>Практики DevOps</a></li>
-      <li><a href="09.html"><span class="num">9</span>Примеры · Noob</a></li>
-      <li><a href="10.html"><span class="num">10</span>Примеры · Pro</a></li>
-      <li><a href="11.html"><span class="num">11</span>Примеры · IGL</a></li>
-      <li><a href="12.html"><span class="num">12</span>Вопросы · Noob</a></li>
-      <li><a href="13.html"><span class="num">13</span>Вопросы · Pro</a></li>
-      <li><a href="14.html"><span class="num">14</span>Вопросы · IGL</a></li>
+      <li><a href="09.html"><span class="num">9</span>Практики SRE</a></li>
+      <li><a href="10.html"><span class="num">10</span>Примеры · Noob</a></li>
+      <li><a href="11.html"><span class="num">11</span>Примеры · Pro</a></li>
+      <li><a href="12.html"><span class="num">12</span>Примеры · IGL</a></li>
+      <li><a href="13.html"><span class="num">13</span>Вопросы · Noob</a></li>
+      <li><a href="14.html"><span class="num">14</span>Вопросы · Pro</a></li>
+      <li><a href="15.html"><span class="num">15</span>Вопросы · IGL</a></li>
     </ol>
     <div class="nav-extra">
       <a href="glossary.html">📖 Словарь понятий</a>
@@ -128,32 +129,45 @@ rm "$f"   # одна цель, верно</code></pre>
     <code>$@</code> и <code>"$*"</code>, и что сломается на путях с пробелами?»</div>
 
     <h2 id="processy">3 · Процессы и перенаправления <a class="yakor" href="#processy">#</a></h2>
-    <p>У процесса три открытых дескриптора: <code>0</code> - вход, <code>1</code> - вывод,
-    <code>2</code> - ошибки. Перенаправления применяются слева направо, и порядок меняет
-    результат:</p>
+    <p>Каждая внешняя команда стоит двух системных вызовов ядра: <code>fork</code> клонирует
+    оболочку, а <code>execve</code> заменяет копию программой (если команда последняя в
+    <code>bash -c</code> или сабшелле, лишний <code>fork</code> пропускается). Встроенные
+    конструкции (<code>[[ ]]</code>, <code>read</code>, <code>${v#*/}</code>) работают внутри самого
+    Bash без порождения процесса - в цикле на тысячи итераций разница составляет порядки.</p>
+    <p>У процесса три стандартных дескриптора в <code>/proc/$$/fd</code>: <code>0</code> - вход,
+    <code>1</code> - вывод, <code>2</code> - ошибки. Перенаправления применяются слева направо, и
+    порядок меняет результат:</p>
 <pre><code>cmd &gt;log 2&gt;&amp;1   # оба потока в файл
-cmd 2&gt;&amp;1 &gt;log   # ошибки в терминал</code></pre>
+cmd 2&gt;&amp;1 &gt;log   # ошибки в терминал
+echo &lt;(true)    # /dev/fd/63 (труба)</code></pre>
     <p>Во втором случае <code>2</code> копирует <em>текущее</em> назначение <code>1</code> -
-    терминал, - и только потом <code>1</code> уходит в файл. Там же живут
-    <code>&lt;&lt;EOF</code> (here-document), <code>&lt;&lt;&lt;</code> (here-string) и
-    <code>exec 3&gt;file</code> для долгоживущих дескрипторов.</p>
+    терминал, - и только потом <code>1</code> уходит в файл. А подстановка процесса
+    <code>&lt;(cmd)</code> передаёт команде имя открытого дескриптора трубы вроде
+    <code>/dev/fd/63</code>: читать из него можно один раз, а перемотать назад
+    (<code>lseek</code>) нельзя, потому что на диске этого файла нет.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Почему <code>2&gt;&amp;1 &gt;log</code>
-    и <code>&gt;log 2&gt;&amp;1</code> дают разный результат?»</div>
+    и <code>&gt;log 2&gt;&amp;1</code> дают разный результат и что на самом деле подставляет
+    <code>&lt;(cmd)</code>?»</div>
 
     <h2 id="konveyery">4 · Конвейеры и коды возврата <a class="yakor" href="#konveyery">#</a></h2>
-    <p>Звенья конвейера запускаются одновременно, каждое в своём процессе. Код возврата всего
-    конвейера по умолчанию - код последнего звена, поэтому ошибка первого теряется молча:</p>
+    <p>Звенья конвейера запускаются одновременно, каждое в своём подпроцессе, и связаны буфером
+    ядра (в Linux по умолчанию 64 КБ). Код возврата конвейера по умолчанию - код последнего звена,
+    а с <code>set -o pipefail</code> - код <strong>последнего (самого правого) упавшего</strong>
+    звена:</p>
 <pre><code>false | tee out
 echo $?                  # 0
 echo "${PIPESTATUS[@]}"  # 1 0
 set -o pipefail
-false | tee out
-echo $?                  # 1</code></pre>
-    <p>Это же объясняет, почему <code>set -e</code> не спасает: он реагирует на код команды, а
-    команда здесь - весь конвейер. И почему переменная, изменённая в цикле после
-    <code>|</code>, снаружи пуста: цикл выполнялся в сабшелле.</p>
+yes | head -n 1 &gt;/dev/null
+echo $?                  # 141 (SIGPIPE)</code></pre>
+    <p>Когда правое звено (<code>head -n 1</code> или <code>grep -q</code>) прочитало свою строку и
+    закрыло трубу, пишущий процесс слева при следующей записи получает от ядра сигнал
+    <code>SIGPIPE</code> (13) и завершается с кодом <code>128 + 13 = 141</code>. Под
+    <code>pipefail</code> этот штатный 141 воспринимается как авария. И по той же причине (каждое
+    звено - отдельный подпроцесс) переменная, изменённая в цикле после <code>|</code>, снаружи
+    остаётся пустой.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Как получить код возврата конкретного
-    звена конвейера и почему <code>set -e</code> здесь не срабатывает?»</div>
+    звена конвейера и почему <code>yes | head -n 1</code> под <code>pipefail</code> возвращает 141?»</div>
 
     <h2 id="peremennye">5 · Переменные и области видимости <a class="yakor" href="#peremennye">#</a></h2>
     <p>Переменная оболочки видна только самой оболочке; <code>export</code> помечает её для

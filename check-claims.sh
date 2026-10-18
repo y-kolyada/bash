@@ -88,6 +88,15 @@ claim "local x=\$(cmd) маскирует ошибку подстановки" "
 claim "exit в функции под \$( ) не завершает скрипт" "жив 3" \
   bash -c 'f() { exit 3; }; v=$(f); echo "жив $?"'
 
+claim "yes | head -n 1 под pipefail возвращает 141 (SIGPIPE)" "141" \
+  bash -o pipefail -c 'yes | head -n 1 >/dev/null; echo $?'
+
+claim "подстановка процесса <(cmd) раскрывается в /dev/fd/N" "ok" \
+  bash -c 'p=$(echo <(true)); [[ $p =~ ^/dev/fd/[0-9]+$ ]] && echo ok'
+
+claim "flock -n отклоняет параллельный запуск на занятом дескрипторе" "занято" \
+  bash -c "exec 9>\"$tmp/lck\"; flock -n 9; flock -n \"$tmp/lck\" true || echo занято"
+
 echo "  ----------------------------------------------"
 if [ "$FAIL" -eq 0 ]; then
   printf '  %s\n\n' "$(g 'ЗЕЛЁНОЕ')"
