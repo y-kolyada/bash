@@ -1,28 +1,23 @@
 #!/usr/bin/env python3
-"""Сверка переведённой страницы с русским оригиналом.
+"""Structure check: a translated page against its Russian original.
 
-Перевод обязан остаться переводом: та же структура, те же якоря, те же команды.
-Проверяется машиной, потому что принимать полсотни страниц на языке, которого
-не читаешь, иначе нельзя - это чтение наугад.
+A translation must stay a translation: same structure, same anchors, same
+commands. Accepting fifty pages in a language you do not read is guesswork
+otherwise.
 
-Запуск (из корня репозитория):
-    python3 tools/check-struct.py en            все страницы языка
-    python3 tools/check-struct.py en/01.html    одна страница
-    python3 tools/check-struct.py uk de         несколько языков
+    python3 tools/check-struct.py en            every page of a language
+    python3 tools/check-struct.py en/01.html    one page
+    python3 tools/check-struct.py uk de         several languages
 
-ЧТО СВЕРЯЕТСЯ
+Compared: the set and order of all ids; the number of sections; the number of
+code blocks and the skeleton of each (comments and human strings stripped, so
+comments may be translated but grep -q must not become grep -Q); the number of
+questions, exactly fifty on a level page; the alphabet (no Cyrillic in English
+and German, Ukrainian letters present and Russian-only letters absent in
+Ukrainian); and the shell - fifteen navigation items, four languages, no stub
+card left behind.
 
-  1. Якоря: набор и порядок всех id совпадают с оригиналом. Ссылка из словаря,
-     из другого раздела и из чужого языка должна попасть в то же место.
-  2. Разделы: число заголовков h2 с якорем.
-  3. Блоки кода: их число и СКЕЛЕТ каждого - то, что остаётся после удаления
-     комментариев и человеческих строк в кавычках. Комментарии переводятся,
-     команда - нет: grep -q не должен стать grep -Q.
-  4. Вопросы: число пунктов в банке и ровно 50 на страницах уровней.
-  5. Язык: в английской и немецкой странице не осталось кириллицы; в
-     украинской есть её собственные буквы (і, ї, є, ґ) и нет русских (ы, э, ъ).
-  6. Оболочка: 15 пунктов навигации, переключатель на четыре языка, и в
-     странице не осталось карточки-заглушки «перевод готовится».
+Output is Russian: it speaks to the person who accepts the work.
 """
 
 import os
@@ -42,17 +37,17 @@ NAV_ITEM = re.compile(r'<nav class="sessions".*?</nav>', re.S | re.I)
 LANG_LINK = re.compile(r'<div class="lang-switcher".*?</div>', re.S | re.I)
 ENTITIES = (('&lt;', '<'), ('&gt;', '>'), ('&quot;', '"'), ('&#39;', "'"), ('&amp;', '&'))
 
-# Символы, по которым слово опознаётся как код, а не как человеческая речь.
-# Точка сюда не входит: «subst.» и «подстановка» - это перевод, а не команда.
+# Characters that mark a word as code rather than prose. A dot is not one of
+# them: "subst." and its translation are words, not a command.
 CODEISH = set('${}()[]<>*~|&/=+\\`!%^"\'')
 
 CYRILLIC = re.compile(r'[\u0400-\u04FF]')
 UK_OWN = re.compile(r'[іїєґІЇЄҐ]')
 RU_ONLY = re.compile(r'[ыэъЫЭЪ]')
 
-# Комментарий начинается с # в начале слова: внутри ${v#x} решётка не комментарий.
+# A comment starts a word: inside ${v#x} the hash is not a comment.
 COMMENT = re.compile(r'(?m)(?:(?<=\s)|^)#.*$')
-# Человеческая строка в кавычках переводится, строка с подстановкой - нет.
+# A quoted human string gets translated; one holding an expansion does not.
 QUOTED = re.compile(r'"([^"\\$`]*)"|\'([^\'\\$`]*)\'')
 
 
@@ -74,18 +69,17 @@ def skeleton(code):
 
 
 def shape(code):
-    """Форма блока: сколько строк и какие в нём «кодовые» слова. Словами из
-    букв схема и отличается от перевода, а {a,b}, $var и *.txt обязаны
-    совпасть."""
+    """Shape of a block: line count and its code-like words. Prose differs
+    between languages, but {a,b}, $var and *.txt must match."""
     text = unescape(code)
     tokens = [t for t in text.split() if any(ch in CODEISH for ch in t)]
     return (len(text.strip().splitlines()), tokens)
 
 
 def is_scheme(code):
-    """Схема, а не команды: после снятия комментариев и человеческих строк в
-    русском оригинале осталась кириллица. Такие блоки переводятся целиком -
-    сверять их посимвольно нельзя, но форма обязана остаться той же."""
+    """A diagram rather than commands: Cyrillic survives in the original once
+    comments and human strings are stripped. Such blocks are translated whole,
+    so only their shape is compared."""
     return bool(CYRILLIC.search(skeleton(code)))
 
 
@@ -151,7 +145,7 @@ def compare(target, source, lang):
 
     if lang in ('en', 'de'):
         left = CYRILLIC.findall(a['raw'])
-        left = [c for c in left if c not in '\u0410']  # подпись кнопки шрифта, чиненная генератором
+        left = [c for c in left if c not in '\u0410']  # font-size button label, fixed by the shell generator
         if left:
             bad.append('осталась кириллица: %d символов' % len(left))
     elif lang == 'uk':

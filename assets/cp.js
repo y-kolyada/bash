@@ -1,13 +1,7 @@
-// cp.js - кнопка «скопировать» в каждом блоке кода.
-//
-// Имя файла то же, что у команды cp: копирование и есть вся его работа.
-// Подключается только там, где есть блоки кода, - на заглушках он не нужен.
-//
-// Имена в коде английские, объяснения пока русские: код здесь профессия, а
-// комментарий - урок. Комментарии переводятся на английский одним проходом в
-// конце разработки сайта, когда механика перестанет меняться (potom.md).
+// cp.js - a copy button in every code block. Loaded only on pages that have
+// code, so a stub page does not carry it.
 (function () {
-  // Подписи берём по языку страницы: один файл обслуживает все языки.
+  // Labels follow the page language, so one file serves every language.
   var LANG = (document.documentElement.getAttribute('lang') || 'ru').slice(0, 2);
   var LABELS = {
     ru: { copy: 'Скопировать код', done: 'Скопировано', fail: 'Не удалось' },
@@ -17,19 +11,15 @@
   };
   var label = LABELS[LANG] || LABELS.ru;
 
-  // ДВА ПУТИ, И ВТОРОЙ - НЕ ПЕРЕСТРАХОВКА. Первое допущение автора было
-  // неверным и его опровергла проверка в браузере: file:// в Chrome СЧИТАЕТСЯ
-  // защищённым контекстом, и navigator.clipboard там есть. Но наличие API не
-  // означает разрешения: writeText отклоняется, если у страницы нет права на
-  // запись в буфер или нет фокуса. Поэтому запасной путь включается не по
-  // отсутствию API, а по ЛЮБОМУ отказу - это разные условия, и проверять надо
-  // именно отказ. execCommand устарел, но работает и там, где отказали.
+  // The fallback runs on any rejection, not on a missing API: file:// is a
+  // secure context, so the clipboard exists there, yet writeText is still
+  // refused without permission or focus.
   function fallbackCopy(text) {
     var area = document.createElement('textarea');
     area.value = text;
     area.setAttribute('readonly', '');
-    // Увести за левый край, а не спрятать display:none: скрытое поле нельзя
-    // выделить, а без выделения копировать нечего.
+    // Moved off-screen rather than hidden: a hidden field cannot be selected,
+    // and without a selection there is nothing to copy.
     area.style.position = 'fixed';
     area.style.left = '-9999px';
     area.style.top = '0';
@@ -60,12 +50,9 @@
       button.type = 'button';
       button.className = 'cp-btn';
       button.setAttribute('aria-label', label.copy);
-      // ЗНАЧОК - КАРТИНКА, А НЕ СИМВОЛ, и это тоже нашла проверка. Сначала
-      // стоял типографский символ ⧉ (U+29C9): в браузере он отрисовался
-      // пустым квадратом - глифа нет в стандартных шрифтах. Встроенный SVG
-      // не зависит ни от шрифта, ни от внешнего файла и наследует цвет
-      // кнопки через currentColor. Он скрыт от синтезатора речи: тот читает
-      // aria-label кнопки, а картинка без подписи стала бы мусором в речи.
+      // An image, not a character: the typographic glyph rendered as an empty
+      // box in standard fonts. Hidden from screen readers, which announce the
+      // button's aria-label instead.
       button.innerHTML =
         '<svg class="cp-ico" aria-hidden="true" width="13" height="13" viewBox="0 0 16 16"'
         + ' fill="none" stroke="currentColor" stroke-width="1.6"'
@@ -78,8 +65,7 @@
       var timer = null;
 
       button.addEventListener('click', function () {
-        // textContent, а не innerHTML: нужен ровно тот текст, который видно,
-        // без разметки и без подставленных браузером символов.
+        // textContent, not innerHTML: exactly the visible text, with no markup.
         copyText(code.textContent).then(function () {
           respond(label.done, 'ok');
         }, function () {

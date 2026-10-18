@@ -1,37 +1,30 @@
-// check-pages.mjs - все страницы сайта одним запуском браузера.
+// check-pages.mjs - every page of the site in one browser run.
 //
-//   node tools/check-pages.mjs            # все страницы репозитория
-//   node tools/check-pages.mjs ru en      # только эти папки
+//   node tools/check-pages.mjs            whole repository
+//   node tools/check-pages.mjs ru en      these folders only
 //
-// Мерит две вещи, которые нельзя увидеть в тексте файла:
+// Measures what a file cannot show: the page at 390px, where nothing may run
+// past the edge; the sticky sidebar, which must not be pushed above the
+// viewport or out of the window; the scroll spy, where the last section must
+// be active at the bottom of a page; and the floating button stack on a phone.
 //
-//   1. ТЕЛЕФОН. Ширина экрана 390px: ничто не должно вылезать за край.
-//      То же, что делает glaza.mjs, но по всем страницам и без снимка -
-//      снимок смотрят глазами по одной странице, а это проверка.
+// Two window heights, because the spy failed only on tall windows: a page hits
+// its bottom before the last heading reaches the top third.
 //
-//   2. ЛИПКАЯ ПАНЕЛЬ. На широком экране навигация - position: sticky, и она
-//      не может выйти за границу своего контейнера (сетки .cols). Если под
-//      сеткой есть пустое дно, то на дне страницы панель прижимается к этой
-//      границе и уезжает ВВЕРХ, за край окна: её первые пункты недостижимы ни
-//      прокруткой панели (её scrollTop уже 0), ни прокруткой страницы (она
-//      уже внизу). Так было потеряно 118px - два первых раздела сайта.
-//      Поэтому мерим, на сколько пикселей панель спрятана над окном: 0 или брак.
-//
-// Возвращает 1, если хоть одна страница в браке.
+// Exits 1 if any page is faulty. Output is Russian: it speaks to the person
+// who accepts the work.
 
 import { readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 const SKIP_DIRS = new Set(['.git', 'node_modules', '.claude', '.agents', '__pycache__']);
 const PHONE = { width: 390, height: 844 };
-// ДВЕ ВЫСОТЫ ОКНА, И ЭТО НЕ ПЕРЕСТРАХОВКА. Подсветка последнего раздела
-// отваливалась только на высоких окнах: страница упиралась в дно раньше, чем
-// заголовок доезжал до верхней трети. На 860px всё было зелено, дефект нашёл
-// Приёмщик глазами на своём экране.
+// Two window heights: at 860px everything was green and the defect was only
+// visible on a taller screen.
 const DESKTOPS = [{ width: 1280, height: 860 }, { width: 1280, height: 1400 }];
-const STICKY_TOP = 18; // то же значение, что в style.css у nav.sessions
-// Под закреплённой шапкой панель начинается на 12px ниже её нижнего края,
-// поэтому ожидаемая граница считается от шапки, а не от верха окна.
+const STICKY_TOP = 18; // same value as nav.sessions in style.css
+// Under a pinned header the sidebar starts below its bottom edge, so the
+// expected boundary is measured from the header, not from the window top.
 
 let chromium;
 try {
@@ -75,10 +68,9 @@ for (const file of files) {
   const url = 'file://' + resolve(file);
 
   await phone.goto(url);
-  // Стопка плавающих кнопок мерится на телефоне: там теснее всего и там
-  // палец. Поведение (щелчок уводит в начало и в конец) проверяется на одной
-  // странице каждого языка - плавная прокрутка идёт секунду, и гонять её по
-  // всем 69 страницам значит получить проверку, которую перестанут запускать.
+  // The button stack is measured on a phone: tightest screen, and the thumb.
+  // Clicks are tested on one page per language, because smooth scrolling takes
+  // about a second and a ten-minute check stops being run.
   const floats = await phone.evaluate(async (checkClicks) => {
     const sleep = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
     await sleep();
@@ -136,6 +128,15 @@ for (const file of files) {
 
   for (const why of floats) bad.push([file, why + ' (телефон)']);
 
+  // Reader preference keys must carry no product marker: a page copied from
+  // another site would quietly bring its own storage keys back.
+  const keys = await phone.evaluate(() => {
+    const src = document.documentElement.outerHTML;
+    const found = [...src.matchAll(/localStorage\.(?:get|set)Item\('([^']+)'/g)].map((m) => m[1]);
+    return found.filter((k) => k !== 'ai-theme' && k !== 'ai-font');
+  });
+  for (const key of keys) bad.push([file, 'чужой ключ настроек в странице: ' + key]);
+
   const overflow = await phone.evaluate(() => {
     const viewport = document.documentElement.clientWidth;
     const out = [];
@@ -152,11 +153,9 @@ for (const file of files) {
   for (const [viewport, desktop] of desktops) {
     await desktop.goto(url);
     const seen = await desktop.evaluate(async (top) => {
-      // ПАУЗА НА ВРЕМЯ - ЭТО МИГАЮЩАЯ ПРОВЕРКА. Пересчёт панели и подсветки
-      // идёт в кадре отрисовки, и под нагрузкой кадр приходит позже паузы:
-      // проверка краснела в общем запуске и зеленела в одиночном. Поэтому
-      // ждём не миллисекунды, а условие - два кадра подряд, а для подсветки
-      // ещё и её появление, но не дольше секунды.
+      // Waiting on a timer makes a flaky check: layout is recomputed in an
+      // animation frame, which under load arrives after the pause. Wait for a
+      // condition instead, bounded by a timeout.
       const sleep = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 
       async function waitFor(ready, tries = 60) {
@@ -170,8 +169,8 @@ for (const file of files) {
       if (!nav) return null;
       const links = [...document.querySelectorAll('#tocList a')];
 
-      // 1. Верх панели на дне страницы: не должен уехать ни за верхний край
-      //    окна, ни под закреплённую шапку.
+      // 1. Top of the sidebar at the bottom of the page: neither above the
+      //    window nor under the pinned header.
       const bottom = () => Math.round(document.scrollingElement.scrollTop + window.innerHeight)
         >= document.scrollingElement.scrollHeight - 2;
       window.scrollTo(0, document.scrollingElement.scrollHeight);
@@ -183,18 +182,15 @@ for (const file of files) {
       const want = stuck ? Math.round(head.getBoundingClientRect().bottom) + top - 6 : top;
       const hidden = Math.max(0, Math.round(want - nav.getBoundingClientRect().top) - 2);
 
-      // 2. Последний раздел подсвечен, когда страница на дне.
+      // 2. The last section is active when the page is at its bottom.
       const lastLink = links[links.length - 1];
       await waitFor(() => !links.length || lastLink.classList.contains('active'));
       const active = document.querySelector('#tocList a.active');
       const spyOk = !links.length || (active && active === lastLink);
 
-      // 3. Панель целиком помещается в окно - тогда любой её пункт достижим
-      //    собственной прокруткой. Меряется край панели, а не поведение
-      //    прокрутки: присвоение scrollTop браузер зажимает по прежнему
-      //    размеру элемента, и проверка через него мигала на 4-5px - то
-      //    краснея в общем запуске, то зеленея в одиночном. Худший случай -
-      //    верх страницы: шапка ещё на месте, и панель начинается ниже неё.
+      // 3. The sidebar fits the window, so every item is reachable. Its edge is
+      //    measured rather than scrolling, which the browser clamps to the old
+      //    size. Worst case: the top of the page, header still in place.
       window.scrollTo(0, 0);
       await waitFor(() => Math.round(document.scrollingElement.scrollTop) === 0);
       await sleep();

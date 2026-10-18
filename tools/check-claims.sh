@@ -1,21 +1,17 @@
 #!/usr/bin/env bash
-# Проверка фактов сайта.
+# Claim check: the site's statements about Bash are executed, not re-read.
 #
-#     ./check-claims.sh
+#     tools/check-claims.sh
 #
-# Сайт утверждает, как ведёт себя Bash. Здесь эти утверждения выполняются, а
-# не перечитываются. Каждая строка: что утверждает сайт, команда, ожидаемый
-# вывод. Если Bash ведёт себя иначе - НЕТ, и сайт где-то говорит неправду.
+# Each line is a claim, a command and the expected output. If Bash behaves
+# differently, the site is wrong somewhere. Output is Russian: it speaks to the
+# person who accepts the work.
 #
-# ПОЧЕМУ ЭТО ОТДЕЛЬНЫЙ ФАЙЛ, А НЕ ЧАСТЬ check.sh. check.sh проверяет страницу,
-# эта проверка - знание. Первая краснеет от правки вёрстки, вторая - от ошибки
-# в механике, и смешивать причины красного нельзя: по красному должно быть
-# видно, что чинить.
+# Separate from the page check on purpose: that one turns red when markup
+# breaks, this one when knowledge does, and the reason for red must be obvious.
 #
-# Откуда утверждения. Одиннадцать нашло независимое ревью (review-gemini-1.md),
-# четыре - ревью, которое было до него (zapis-4.md), три - задание 7, два -
-# возврат задания 7 (zapis-7.md). Все они однажды стояли на сайте неверно или
-# были под подозрением.
+# The claims come from independent reviews and from returns: every one of them
+# once stood on the site in a wrong form or was under suspicion.
 
 set -uo pipefail
 
@@ -23,7 +19,7 @@ FAIL=0
 g() { printf '\033[32m%s\033[0m' "$1"; }
 r() { printf '\033[31m%s\033[0m' "$1"; }
 
-# claim "что утверждает сайт" "ожидаемый вывод" команда...
+# claim "<what the site states>" "<expected output>" <command...>
 claim() {
   local text=$1 want=$2; shift 2
   local got
@@ -81,13 +77,13 @@ claim "local в dash есть" "1" \
   dash -c 'f() { local x=1; echo $x; }; f'
 
 claim "((i++)) от нуля роняет скрипт под set -e" "1" \
-  bash -c 'bash -c "set -e; i=0; ((i++)); echo дошли"; echo $?'
+  bash -c 'bash -c "set -e; i=0; ((i++)); echo reached"; echo $?'
 
 claim "local x=\$(cmd) маскирует ошибку подстановки" "0" \
   bash -c 'set -e; f() { local x=$(false); }; f; echo $?'
 
-claim "exit в функции под \$( ) не завершает скрипт" "жив 3" \
-  bash -c 'f() { exit 3; }; v=$(f); echo "жив $?"'
+claim "exit в функции под \$( ) не завершает скрипт" "alive 3" \
+  bash -c 'f() { exit 3; }; v=$(f); echo "alive $?"'
 
 claim "yes | head -n 1 под pipefail возвращает 141 (SIGPIPE)" "141" \
   bash -o pipefail -c 'yes | head -n 1 >/dev/null; echo $?'
@@ -95,8 +91,8 @@ claim "yes | head -n 1 под pipefail возвращает 141 (SIGPIPE)" "141"
 claim "подстановка процесса <(cmd) раскрывается в /dev/fd/N" "ok" \
   bash -c 'p=$(echo <(true)); [[ $p =~ ^/dev/fd/[0-9]+$ ]] && echo ok'
 
-claim "flock -n отклоняет параллельный запуск на занятом дескрипторе" "занято" \
-  bash -c "exec 9>\"$tmp/lck\"; flock -n 9; flock -n \"$tmp/lck\" true || echo занято"
+claim "flock -n отклоняет параллельный запуск на занятом дескрипторе" "busy" \
+  bash -c "exec 9>\"$tmp/lck\"; flock -n 9; flock -n \"$tmp/lck\" true || echo busy"
 
 claim "truncate по имени удалённого файла не освобождает место" "5242880" \
   bash -c "d=$tmp/tr; mkdir -p \$d; dd if=/dev/zero of=\$d/log bs=1M count=5 2>/dev/null; exec 7<>\$d/log; rm \$d/log; truncate -s 0 \$d/log; stat -L -c %s /proc/\$\$/fd/7"

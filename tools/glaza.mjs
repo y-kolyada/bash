@@ -1,24 +1,16 @@
-// glaza.mjs - глаза для ИИ.
+// glaza.mjs - the eyes of an AI agent.
 //
-//   npm i playwright          (один раз, в папке своего проекта)
-//   node glaza.mjs index.html
+//   npm i playwright
+//   node tools/glaza.mjs ru/01.html
 //
-// Открывает твою страницу так, как её увидит телефон, и говорит, что с ней не
-// так. ИИ сам страницу не видит: он читает текст файлов. Этот скрипт - то, чем
-// он смотрит.
+// Opens a page the way a phone shows it, reports anything that runs past the
+// edge and saves a screenshot: the model reads files, it does not see pages.
+// Exits 1 on overflow and 0 when the page is clean, so it can be used as a
+// check and not only by hand.
 //
-// Возвращает 1, если что-то вылезло за край, и 0, если всё в порядке. Поэтому
-// из него можно сделать проверку, а не только запускать руками.
-//
-// Имена в коде английские, объяснения пока русские; комментарии переводятся
-// в конце разработки сайта (potom.md). В копии этого файла на детском сайте
-// имена оставлены русскими: там его код процитирован прямо в уроке, и
-// расхождение с уроком дороже единообразия.
-//
-// ПОЧЕМУ playwright СТАВИТСЯ ИМЕННО В ПАПКУ ПРОЕКТА. Если его там нет, node
-// идёт искать выше - в родительские папки - и может найти ЧУЖОЙ, другой
-// версии. Тогда ошибка будет про невидимый файл браузера, а не про то, что
-// установка не там. Так и случилось при первой проверке этого скрипта.
+// Install playwright in this project, not above it: node resolves modules
+// upwards and will happily find someone else's copy, and then the error talks
+// about a missing browser instead of a misplaced install.
 
 const file = process.argv[2] || 'index.html';
 
@@ -26,14 +18,14 @@ let chromium;
 try {
   ({ chromium } = await import('playwright'));
 } catch {
-  console.error('playwright не найден. Поставь его в ЭТОЙ папке:');
+  console.error('playwright не найден. Поставьте его в этой папке:');
   console.error('    npm init -y');
   console.error('    npm i playwright');
   console.error('    npx playwright install chromium chromium-headless-shell');
   process.exit(2);
 }
 
-// Путь может быть и адресом, и именем файла, и полным путём от корня.
+// The argument can be a URL, a relative file name or an absolute path.
 const url = file.startsWith('http') ? file
   : 'file://' + (file.startsWith('/') ? file : process.cwd() + '/' + file);
 
@@ -44,15 +36,15 @@ try {
   console.error('браузер не запустился: ' + String(e.message).split('\n')[0]);
   console.error('если написано "Executable doesn\'t exist" - браузер не скачан:');
   console.error('    npx playwright install chromium chromium-headless-shell');
-  console.error('если написано "error while loading shared libraries" - системе не хватает библиотек,');
-  console.error('покажи эту строку тренеру: нужен пароль взрослого.');
+  console.error('если написано "error while loading shared libraries" - не хватает системных библиотек:');
+  console.error('    установка библиотек требует прав администратора.');
   process.exit(2);
 }
 
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
 await page.goto(url);
 
-// Всё меряется внутри страницы: этот код выполняется в самом браузере.
+// Everything is measured inside the page: this runs in the browser.
 const report = await page.evaluate(() => {
   const viewport = document.documentElement.clientWidth;
   const overflowing = [];

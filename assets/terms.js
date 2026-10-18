@@ -1,4 +1,4 @@
-// terms.js - интерактивные карточки терминов на мобильных и десктопах
+// terms.js - interactive term cards on phones and wide screens
 (function () {
   function closeAllTerms() {
     document.querySelectorAll('.term[data-open]').forEach((term) => {

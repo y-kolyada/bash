@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Линейка ссылок: все внутренние href и src и все якоря #id по страницам сайта.
+"""Link ruler: every internal href and src, every #anchor, across the site.
 
-Печатает два числа - сколько ссылок проверено и сколько битых - и возвращает
-1, если битая хотя бы одна. Нужна прежде всего при переездах файлов: руками
-полторы тысячи ссылок не пересчитать, а молча битая ссылка выглядит как
-работающий сайт.
+Prints two numbers - links checked and links broken - and exits 1 if any are
+broken. Needed most when files move: fifteen hundred links cannot be counted by
+hand, and a quietly broken one looks exactly like a working site.
 
-Запуск:
-    python3 tools/check-links.py            # весь репозиторий
-    python3 tools/check-links.py ru en      # только эти папки
+    python3 tools/check-links.py            whole repository
+    python3 tools/check-links.py ru en      these folders only
+
+Output is Russian: it speaks to the person who accepts the work.
 """
 
 import os
@@ -18,9 +18,8 @@ import sys
 SKIP_DIRS = {'.git', 'node_modules', '.claude', '.agents', '__pycache__'}
 EXTERNAL = ('http://', 'https://', 'mailto:', 'tel:', 'data:', 'javascript:')
 
-# Куски, которые не содержат настоящих ссылок: примеры кода и скрипты.
-# В 10.html внутри <pre> лежит строка src="data.csv" - это пример разметки,
-# а не ссылка, и без этой очистки линейка краснеет на честной странице.
+# Code samples and scripts hold no real links: a <pre> block containing
+# src="data.csv" is an example of markup, not a link to follow.
 STRIP = re.compile(r'<pre\b.*?</pre>|<script\b.*?</script>|<!--.*?-->', re.S | re.I)
 LINK = re.compile(r'(?:href|src)\s*=\s*"([^"]*)"', re.I)
 ID = re.compile(r'\bid\s*=\s*"([^"]+)"')

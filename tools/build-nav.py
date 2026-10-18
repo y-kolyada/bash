@@ -1,36 +1,29 @@
 #!/usr/bin/env python3
-"""Оболочка страницы: пути к оснастке, ссылки между языками, встроенные значки.
+"""Page shell: asset paths, links between languages, inline icons.
 
-Шапка, навигация и переключатель языков на 68 страницах должны быть
-одинаковыми. Руками это не держится: одна забытая страница - и читатель
-проваливается в 404 или остаётся без кнопки копирования. Поэтому механика
-переписывается скриптом, а не руками, и скрипт лежит в репозитории - его можно
-запустить снова после любого переезда или добавления страницы.
+Header, navigation and the language switcher must be identical on every page.
+By hand that does not hold: one forgotten page and a reader lands in a 404 or
+loses the copy button. The mechanics live in this script so they can be run
+again after any move or new page.
 
-Запуск (из корня репозитория):
-    python3 tools/build-nav.py            # все языки
-    python3 tools/build-nav.py ru en      # только эти папки
+    python3 tools/build-nav.py              every language
+    python3 tools/build-nav.py ru en        these folders only
+    python3 tools/build-nav.py --relink en  repoint cross-page anchors
+    python3 tools/build-nav.py --migrate    one-off rule for the folder move
 
-Скрипт идемпотентен: второй запуск ничего не меняет.
+Idempotent: a second run changes nothing.
 
-Ключ --migrate включает одно дополнительное правило, нужное только при переезде
-с плоского корня: имя файла без языкового суффикса в нерусской странице
-означало ссылку на русскую версию (так были устроены заглушки). После переезда
-то же самое имя означает страницу рядом, в своей папке, поэтому правило
-выключено по умолчанию и само отключается на странице, которая уже переехала
-(признак - путь ../assets/). Без этой оговорки второй запуск с --migrate
-переписал бы всю навигацию нерусских страниц на русские версии: проверено,
-51 страница.
+--migrate adds the rule that only held while pages lived in a flat root, where
+a name without a language suffix meant the Russian page. It switches itself off
+on a page that already moved, because a second run with it would otherwise
+repoint every non-Russian navigation link at the Russian pages.
 
-ЧТО ОН ДЕЛАЕТ
-  1. Пути к оснастке: style.css и скрипты лежат в assets/, страницы - в папке
-     языка, поэтому ссылка всегда ../assets/<файл>.
-  2. Ссылки между страницами. Имя файла теперь одно на все языки, язык задаёт
-     папка: своя страница - то же имя рядом, чужой язык - ../<язык>/<имя>.
-  3. Файлы занятий переехали в lessons/.
-  4. Значки - встроенный SVG вместо эмодзи. Эмодзи на машине без шрифта с
-     эмодзи рисуется пустым квадратом: так уже было со значком кнопки
-     копирования (⧉), и это видно только на снимке, глазами.
+What it rewrites: asset paths into ../assets/; links between pages, where the
+filename is the same in every language and the folder carries the language;
+links to lesson files in lessons/; and icons, as inline SVG rather than emoji,
+which render as empty boxes without an emoji font.
+
+Output is Russian: it speaks to the person who accepts the work.
 """
 
 import os
@@ -42,10 +35,9 @@ ASSETS = ('style.css', 'swa.js', 'terms.js', 'cp.js')
 PAGE = re.compile(r'(?P<attr>href=")(?P<name>index|glossary|[0-9]{2})(?:-(?P<lang>en|uk|de))?\.html')
 LESSON = re.compile(r'(href=")((?:zadanie|zapis)-[0-9]+\.md|potom\.md|review-gemini-[0-9]+\.md)"')
 
-# ЗНАЧКИ ЖИВУТ ЗДЕСЬ, А НЕ В СТРАНИЦАХ. Каждый помечен data-icon, и генератор
-# умеет перерисовать его на всех страницах разом: иначе правка формы значка
-# превращается в правку 68 файлов руками. Рисунок занимает поле целиком, иначе
-# значок рядом с текстом выглядит мелким и поднятым, как верхний индекс.
+# Icons live here, not in the pages: each one carries data-icon, so the shape
+# can be redrawn everywhere at once. The drawing fills its box, or the icon
+# reads as a superscript next to text.
 def icon(name, body):
     return ('<svg class="icon" data-icon="%s" viewBox="0 0 20 20" width="16" height="16" '
             'fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" '
@@ -67,9 +59,8 @@ REDRAW = re.compile(r'<svg class="icon".*?</svg>', re.S)
 
 
 def which(svg):
-    """Какой это значок. По data-icon, а для старой разметки - по рисунку:
-    книга - два пути без окружностей, мишень - три окружности, солнце - и то и
-    другое."""
+    """Which icon this is: by data-icon, or for older markup by its drawing -
+    two paths and no circles is a book, three circles a target, both a sun."""
     mark = re.search(r'data-icon="([a-z]+)"', svg)
     if mark:
         return mark.group(1) if mark.group(1) in ICONS else None
@@ -84,7 +75,7 @@ def which(svg):
 def rewrite(text, lang, migrate=False):
     counts = {'assets': 0, 'pages': 0, 'lessons': 0, 'icons': 0}
     if '../assets/' in text:
-        migrate = False  # страница уже переехала, правило переезда не нужно
+        migrate = False  # page already moved, the one-off rule is done
 
     for name in ASSETS:
         for attr in ('href', 'src'):
@@ -109,24 +100,15 @@ def rewrite(text, lang, migrate=False):
 
     text = PAGE.sub(page, text)
 
-    # Ключи настроек читателя не привязаны к продукту: b1 - маркер другого сайта.
-    for stale, fresh in (("'b1-theme'", "'ai-theme'"), ("'b1-font'", "'ai-font'")):
-        if stale in text:
-            text = text.replace(stale, fresh)
-            counts['assets'] += 1
-
-    # КНОПКА МЕЛКОГО ШРИФТА БЫЛА ПОДПИСАНА КИРИЛЛИЧЕСКОЙ «А». Глиф тот же,
-    # буква чужая: на английской странице она была единственным кириллическим
-    # символом, а проверка перевода считает такие символы непереведённым
-    # текстом. Три кнопки различаются размером, а не алфавитом.
+    # The small-font button was labelled with a Cyrillic A: same glyph, wrong
+    # alphabet, and the only Cyrillic character on an English page.
     before_font = text
     text = re.sub(r'(class="font-btn font-s"[^>]*>)\u0410(</button>)', r'\1A\2', text)
     if text != before_font:
         counts['icons'] += 1
 
-    # ССЫЛКА НА ПАПКУ ОТКРЫВАЕТ СПИСОК ФАЙЛОВ. На сервере href="./" отдаёт
-    # index.html, а при открытии страницы из файловой системы - каталог. Сайт
-    # обязан работать обоими способами, поэтому путь всегда явный.
+    # A link to a folder lists the folder when the page is opened from the
+    # file system, so the path is always explicit.
     before_dir = text
     text = text.replace('href="./"', 'href="index.html"')
     if text != before_dir:
@@ -173,14 +155,11 @@ anchors_of.cache = {}
 
 
 def cross_links(text, lang):
-    """Ссылка на раздел ведёт туда, где этот раздел есть.
+    """A section link points where that section exists.
 
-    Пока страница языка - заглушка, у неё нет якорей, и ссылка из словаря на
-    «где встретилось впервые» повисает: читатель попадает в никуда, а проверка
-    ссылок краснеет. Пока раздела в своём языке нет, ссылка ведёт на русскую
-    версию; как только страница переведена и якорь появился, ссылка сама
-    возвращается в свой язык. Обе стороны делает один проход, поэтому правило
-    не нужно помнить руками при каждой сданной странице.
+    While a page is still a stub it has no anchors, so a cross-page link
+    dangles. Until then the link points at the Russian page, and it returns to
+    its own language as soon as the anchor appears there.
     """
     moved = [0]
 

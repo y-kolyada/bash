@@ -1,19 +1,13 @@
 #!/usr/bin/env bash
-# Проверка страницы: существует, не пустая, заголовок свой.
+# Page check: the file exists, is not empty, and carries its own title.
 #
 #     tools/check-page.sh ru/index.html
 #
-# Запускается сама из корневого ./check.sh - и отдельно, когда нужно проверить
-# одну страницу.
+# Answers one of two things: ЗЕЛЁНОЕ or КРАСНОЕ. The wording of the output is
+# Russian on purpose: it speaks to the person who accepts the work.
 #
-# Она отвечает одним из двух: ЗЕЛЁНОЕ или КРАСНОЕ. Без мнений, без «почти».
-#
-# ЗДЕСЬ НАРОЧНО ОЧЕНЬ МАЛО. Эта проверка смотрит, что страница существует, не
-# пустая и что у неё поменяли заголовок. Она НЕ смотрит, то ли на странице, что
-# ты просил - для этого на занятии 4 ты напишешь настоящую проверку сам.
-#
-# ЗАПОМНИ ЭТУ ПРОВЕРКУ. На занятии 7 речь будет про зелёную проверку, которая
-# ничего не доказывает. Вот она. Зелёная - и почти ничего не доказывает.
+# Deliberately small. It does not look at what is on the page, only that a page
+# is there - a green check that proves almost nothing, and says so.
 
 set -uo pipefail
 
@@ -31,25 +25,22 @@ echo
 echo "  Проверка продукта"
 echo "  ----------------------------------------------"
 
-# 1. Страница есть
+# 1. The page exists
 if [ -f "$PAGE" ]; then
   ok "страница $PAGE на месте"
 else
   bad "страницы $PAGE нет" "проверьте путь: страницы лежат в ru/ en/ uk/ de/"
 fi
 
-# 2. Она не пустая
+# 2. It is not empty
 if [ -s "$PAGE" ]; then
   ok "страница не пустая"
 else
   bad "страница пустая" "в ней должно быть хоть что-то"
 fi
 
-# 3. У неё есть заголовок
-# ДВА СПОСОБА ВЫТАЩИТЬ ЗАГОЛОВОК, И ЭТО НЕ ПЕРЕСТРАХОВКА. Если на машине не
-# окажется grep с поддержкой -P, первый способ вернёт пусто - и проверка
-# соврёт, что заголовка нет, вместо того чтобы сказать правду. Поэтому есть
-# второй. Проверка, которая врёт про причину, хуже отсутствующей.
+# 3. It has a title. Two ways of reading it, because a grep without -P would
+#    return nothing and the check would then lie about the reason.
 TITLE=$(grep -oiP '(?<=<title>).*(?=</title>)' "$PAGE" 2>/dev/null | head -1 || true)
 if [ -z "$TITLE" ]; then
   TITLE=$(sed -n 's/.*<title>\(.*\)<\/title>.*/\1/Ip' "$PAGE" 2>/dev/null | head -1 || true)
@@ -60,10 +51,8 @@ else
   bad "у страницы нет заголовка" "нужен тег <title> внутри <head>"
 fi
 
-# 4. Заголовок уже твой, а не из шаблона.
-#    ЭТА СТРОКА КРАСНАЯ В ПЕРВУЮ МИНУТУ, И ЭТО ЕДИНСТВЕННОЕ, ЧТО ТУТ ВАЖНО.
-#    Проверка, которая ни разу не была красной, ничего не доказывает: может,
-#    она вообще ничего не проверяет. Эта - была.
+# 4. The title is the product's own, not the template's.
+#    A check that has never been red proves nothing. This one was.
 if [ "$TITLE" = "Замени этот заголовок" ]; then
   bad "заголовок всё ещё из шаблона" "поменяй <title> на свой - это твой продукт, не наш"
 else
