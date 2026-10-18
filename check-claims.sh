@@ -13,8 +13,9 @@
 # видно, что чинить.
 #
 # Откуда утверждения. Одиннадцать нашло независимое ревью (review-gemini-1.md),
-# четыре - ревью, которое было до него (zapis-4.md). Все пятнадцать однажды
-# стояли на сайте неверно или были под подозрением.
+# четыре - ревью, которое было до него (zapis-4.md), три - задание 7, два -
+# возврат задания 7 (zapis-7.md). Все они однажды стояли на сайте неверно или
+# были под подозрением.
 
 set -uo pipefail
 
@@ -96,6 +97,12 @@ claim "подстановка процесса <(cmd) раскрывается �
 
 claim "flock -n отклоняет параллельный запуск на занятом дескрипторе" "занято" \
   bash -c "exec 9>\"$tmp/lck\"; flock -n 9; flock -n \"$tmp/lck\" true || echo занято"
+
+claim "truncate по имени удалённого файла не освобождает место" "5242880" \
+  bash -c "d=$tmp/tr; mkdir -p \$d; dd if=/dev/zero of=\$d/log bs=1M count=5 2>/dev/null; exec 7<>\$d/log; rm \$d/log; truncate -s 0 \$d/log; stat -L -c %s /proc/\$\$/fd/7"
+
+claim "усечение через /proc/PID/fd освобождает место" "0" \
+  bash -c "d=$tmp/tr2; mkdir -p \$d; dd if=/dev/zero of=\$d/log bs=1M count=5 2>/dev/null; exec 7<>\$d/log; rm \$d/log; : > /proc/\$\$/fd/7; stat -L -c %s /proc/\$\$/fd/7"
 
 echo "  ----------------------------------------------"
 if [ "$FAIL" -eq 0 ]; then
