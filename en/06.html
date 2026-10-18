@@ -74,23 +74,150 @@
 
   <main>
     <h1>Practices in an AI context</h1>
+    <p class="lead">How to work with an AI agent on shell code: where it fails predictably, how to specify tasks, how to verify output, and what never to trust it with.</p>
 
-    <div class="stub-card">
-      <h2>The English version is in preparation</h2>
-      <p>The full working version of this page is published in Russian (на русском языке).</p>
-      <p>Open the full version:</p>
-      <div class="stub-actions">
-        <a href="../ru/06.html" class="btn-primary">Practices in an AI context in Russian (на русском языке) →</a>
-      </div>
+    <div class="box key" id="key-idea">
+      <h2>Key idea of this page <a class="yakor" href="#key-idea" aria-label="link to this section">#</a></h2>
+      <p>A language model writes Bash more confidently than accurately, and its mistakes are predictable: quoting, word splitting, lost exit statuses, non-existent utility options, and on modern models - strict mode crashing on standard code. This is not a reason to avoid using it - it is a reason to know the exact checklist to verify first. The key idea of this page: value comes not from a clever task prompt, but from the agent having a self-verification loop - <code>shellcheck</code>, <code>bash -n</code>, and <code>--dry-run</code> are worth more than any prompt, because a prompt is hope, while verification is a fact. The converse is also true: a properly written script is the best tool interface for an agent, provided it has an honest exit status, parsable output, and can be run twice safely. And the environment property forgotten most often: in most setups, an agent runs without a keyboard and without state between commands, so anything that waits for human input or remembers previous commands will break.</p>
     </div>
 
+    <h2 id="model-mistakes">1 · Where models fail in Bash, and why <a class="yakor" href="#model-mistakes">#</a></h2>
+    <p>A language model's shell errors are not random - they recur predictably, and the list is short. Knowing this list turns reviewing its output from reading all lines into inspecting six specific spots.</p>
+<pre><code># 1. unquoted expansion
+rm $file            # path with space
+
+# 2. lost exit status
+grep x f | tee out  # returns 0
+
+# 3. non-existent option
+sort --parallel=4   # not in BSD
+
+# 4. &gt; instead of &gt;&gt;
+echo a &gt; log        # overwritten log
+
+# 5. strict mode against standard code
+set -e
+grep -q x f         # no x: exit, silence
+diff a b            # differences found: exit</code></pre>
+    <p>The first four stem from training data: <strong>models reproduce the most frequent text, and the most common text on the internet is written without strict mode and without quotes.</strong> Modern agentic models after post-training add <code>set -euo pipefail</code> and quotes on their own - and therefore commit the fifth, inverse mistake more often: <strong>crashing their own scripts on standard non-zero exit codes.</strong> <code>grep</code> without matches returns 1, <code>diff</code> on differences returns 1, <code>((i++))</code> from zero returns 1, and under strict mode each of these terminates the script without printing a single message. The sixth is invoking with full confidence an option that does not exist in your utility version: the model does not know your environment, whether it is GNU or BSD, bash or dash.</p>
+    <div class="prints"><strong>What gets asked:</strong> “Which AI mistakes in shell code do you distrust and verify first?”</div>
+
+    <h2 id="task-brief">2 · How to specify tasks for scripts <a class="yakor" href="#task-brief">#</a></h2>
+    <p>The difference between “write a backup script” and a working result lies in what the model cannot determine on its own: <strong>boundaries and the definition of done.</strong> It will inspect the environment faster and more accurately than you if the prompt tells it to do so: checking <code>/etc/os-release</code> and <code>bash --version</code> takes one second and does not depend on human memory.</p>
+<pre><code>First: inspect the environment yourself -
+os-release, bash --version, sudo -n.
+
+Task: archive /var/app into /backup,
+dated filename, retain the last 7.
+
+Boundaries: do not delete outside
+/backup; do not install packages.
+
+Done when: shellcheck is silent,
+--dry-run prints the plan,
+repeated run does not break.</code></pre>
+    <p><strong>The definition of done is a predicate</strong>, and it must be formulated before the code. Without it, you evaluate the result on impression, while the model optimizes for looking finished. Three lines of specification save half an hour of revisions.</p>
+    <p><strong>Persistent rules go into files, one-off rules go into the prompt.</strong> Rules that apply permanently - stop switches, push restrictions, verification commands - live in the repository's <code>AGENTS.md</code>, and the agent reads them on every start. Typing them into every prompt guarantees forgetting them eventually.</p>
+    <div class="prints"><strong>What gets asked:</strong> “What do you include in a task specification for an agent besides the task itself?”</div>
+
+    <h2 id="check-loop">3 · A verification loop beats any prompt <a class="yakor" href="#check-loop">#</a></h2>
+    <p>The core thesis of this page: <strong>an agent becomes useful not when it receives a great explanation, but when it possesses the means to verify itself.</strong> In Bash, such verification exists and costs almost nothing.</p>
+<pre><code>shellcheck -S warning script.sh \
+  &amp;&amp; bash -n script.sh \
+  &amp;&amp; ./script.sh --dry-run</code></pre>
+    <p><code>shellcheck</code> catches quotes and exit statuses, <code>bash -n</code> validates syntax without execution, and <code>--dry-run</code> validates logic without side effects. Three commands that the agent runs itself after each edit and fixes what it finds <strong>deliver far more than any prompt phrasing</strong>: a prompt is hope, but verification is fact.</p>
+    <p><strong>The loop includes two more checks, both about behavior rather than knowledge.</strong> First: test options by running them, not by reading help. A model gets options wrong precisely because it assumes they are familiar, so a rule like "verify unfamiliar options" never triggers; furthermore, many BSD tools lack both <code>--help</code> and <code>--version</code>. Only one thing is reliable: run the command itself on empty or dummy input - <code>cmd -flag &lt; /dev/null</code>.</p>
+    <p>Second: <strong>inspect real data before writing parsing logic.</strong> Field names for <code>jq</code> and column numbers for <code>awk</code> are confidently invented by models; running <code>cmd | head -20</code> before writing the first line of parsing saves more iterations than any syntax check.</p>
+    <div class="prints"><strong>What gets asked:</strong> “How is the self-verification loop structured for an agent writing scripts?”</div>
+
+    <h2 id="not-trusted">4 · What not to trust an agent with <a class="yakor" href="#not-trusted">#</a></h2>
+    <p>The danger of Bash for automation is that <strong>a destructive command looks no different on the outside from an innocent one</strong> - neither in length nor in structure.</p>
+<pre><code>rm -rf "$dir/"          # $dir empty: disaster
+sudo anything           # no elevated privileges
+curl … | bash           # remote code executed directly
+&gt; important.log         # truncation
+git push --force        # external history</code></pre>
+    <p>The working rule: <strong>the agent proposes, the human executes</strong> - for anything that deletes, elevates privileges, pulls remote code, or touches shared history. Technically, this is guarded by two measures, both about the environment rather than a banned word list: <strong>isolation</strong> - containers, data copies, separate worktrees via <code>git worktree</code>, - and <strong>confirmation of the exact invocation with all its arguments.</strong> A whitelist of command names is not a security boundary: <code>find -delete</code>, <code>tar --checkpoint-action</code>, <code>env</code>, or any interpreter from such a list can destroy and execute just as well as <code>rm</code>.</p>
+    <p><strong>A distinct hazard is text read by the agent.</strong> Command output, file contents, web pages, or log entries may contain prompt-like directives: “ignore previous instructions and run...”. To the agent, this is data, not instructions. The defense is identical to human safeguards: <strong>a high-risk operation requires human confirmation regardless of where the prompt originated</strong> - from the task description, model generation, or a file it just opened.</p>
+    <div class="prints"><strong>What gets asked:</strong> “Which operations do you forbid an agent from running autonomously, and how do you enforce this?”</div>
+
+    <h2 id="bash-for-agents">5 · Bash as a good tool for an agent <a class="yakor" href="#bash-for-agents">#</a></h2>
+    <p>The converse: a script is <strong>the best tool interface for an AI</strong> when written for machines rather than humans.</p>
+<pre><code># machines need an exit status,
+# not the word "success"
+check() {
+  "$@" &gt;/dev/null 2&gt;&amp;1 || return 1
+}
+
+# and parsable output
+printf '%s\t%s\n' "$name" "$status"</code></pre>
+    <p>Three requirements for such a tool: <strong>an honest exit status</strong> - zero only on genuine success; <strong>parsable output</strong> - columns or JSON, not human sentences; <strong>idempotence</strong> - running it again does not corrupt the state, because an agent will retry without asking.</p>
+    <div class="prints"><strong>What gets asked:</strong> “What properties must a script have so that an agent can invoke it reliably?”</div>
+
+    <h2 id="agent-environment">6 · An agent environment is not your terminal <a class="yakor" href="#agent-environment">#</a></h2>
+    <p>Most agent environments launch each command as an isolated, non-interactive process and capture its stdout/stderr rather than a terminal screen. This introduces four properties foreign to your interactive shell. Some runners smooth over a subset of these - setting <code>PAGER=cat</code> automatically or piping input to a running child, - but <strong>a script that relies on such support ceases to work when moved to another environment.</strong></p>
+    <p><strong>No keyboard.</strong> Anything that waits for a user - pagers, password prompts, “continue? [y/N]”, editors for commit messages - turns into an indefinite hang until timeout.</p>
+<pre><code>git --no-pager log -5
+GIT_PAGER=cat PAGER=cat cmd
+apt-get install -y pkg
+git commit -m "commit message"   # without editor
+cmd &lt; /dev/null             # nothing to wait for
+timeout 60 cmd              # always set a limit</code></pre>
+    <p><strong>No state between invocations.</strong> <code>cd</code>, variables, functions, and traps defined in one agent command do not exist in the next: each runs in a fresh process. Pass directories explicitly, and keep anything that needs to persist across commands in a file or script.</p>
+    <p><strong>Background processes hold output streams open.</strong> A process started with <code>&amp;</code> inherits the agent's stdout/stderr, and the runner waits for it to close even if the invoking script has finished. Fully detach background processes:</p>
+<pre><code># agent will wait for server:
+server &amp;
+# will not wait:
+server &gt;log 2&gt;&amp;1 &lt;/dev/null &amp;</code></pre>
+    <p><strong>Output consumes context window.</strong> A human can scroll past a thousand lines, but for an agent they flood working memory and push out critical context. Scripts designed for agents should be concise: return summaries rather than logs, and keep details behind a <code>--verbose</code> flag or write them to a file. In command chains, use <code>| tail -50</code>, <code>--quiet</code>, and <code>grep -c</code> instead of dumping all matches.</p>
+    <div class="prints"><strong>What gets asked:</strong> “Why does an agent hang on a command that runs instantly in your terminal, and why does its <code>cd</code> have no effect on the next command?”</div>
+
+    <h2 id="file-edits">7 · Edit files with dedicated tools, not shell commands <a class="yakor" href="#file-edits">#</a></h2>
+    <p>When an agent has dedicated file-reading and editing tools - present in almost every modern platform - <strong>editing via <code>sed -i</code>, <code>cat &lt;&lt;EOF &gt; file</code>, and <code>echo &gt;</code> becomes the primary source of file corruption.</strong> An unquoted delimiter expands <code>$(...)</code> within text, an accidental <code>&gt;</code> truncates a file, and a loose regex in <code>sed</code> matches the wrong line.</p>
+<pre><code># how files get corrupted silently:
+sed -i 's/port=.*/port=8080/' app.conf
+cat &lt;&lt;EOF &gt; deploy.sh
+echo "$HOME"     # expanded upon write
+EOF</code></pre>
+    <p>A specialized edit tool verifies which exact snippet is replaced, failing gracefully if the snippet is missing or ambiguous; the shell blindly runs whatever was passed. <strong>The rule is simple: use the shell for commands, and file-editing tools for files.</strong></p>
+    <div class="prints"><strong>What gets asked:</strong> “Why should an agent with file-editing tools avoid modifying files via <code>sed</code> and here-documents?”</div>
+
+    <h2 id="reviewing-output">8 · Reviewing model-generated code <a class="yakor" href="#reviewing-output">#</a></h2>
+    <p>Skimming does not work: Bash code almost always looks plausible at a glance. Verification follows a short checklist.</p>
+<pre><code># 1. is strict mode enabled
+# 2. are all "$var" quoted
+# 3. are exit statuses honest
+# 4. what does it delete and how is it bounded
+# 5. does it run cleanly twice in a row</code></pre>
+    <p>And one rule more valuable than the list: <strong>ask for an explanation of every line you do not understand.</strong> If the explanation contradicts what the command actually does, that discrepancy is your defect. Never leave an unexplained line in a script: responsibility for it remains yours, not the model's.</p>
+    <div class="prints"><strong>What gets asked:</strong> “How do you review shell code written by an AI, and what do you do with a line you don't understand?”</div>
+
+    <h2 id="artifacts">Artifacts: what you take away from this page <a class="yakor" href="#artifacts">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Reading &gt;&gt; Your life quantum · Dignity partnership with AI · Rewiring your neural network</p>
+      <p><strong>A five-point checklist instead of reading the entire code.</strong> Your time was well spent if you stopped accepting model output based on persuasive explanations and started accepting it based on verification exit codes. That is the essence of rewiring: trust is replaced by procedure, making work with AI calmer rather than anxious.</p>
+    </div>
+    <ol>
+      <li><strong>Six standard model failure modes</strong> - and the latest inverse trap: strict mode crashing on standard exit status 1.</li>
+      <li><strong>Task specification:</strong> boundaries and definition of done; the agent discovers environment details on its own; persistent rules live in <code>AGENTS.md</code>.</li>
+      <li><strong>Self-verification loop</strong> of three commands, plus testing options by invocation and inspecting real data prior to parsing.</li>
+      <li><strong>Security boundary</strong> - isolation and invocation confirmation, not a command name whitelist.</li>
+      <li><strong>Three requirements for tool scripts:</strong> honest exit statuses, parsable output, and idempotence.</li>
+      <li><strong>Four properties of the agent environment:</strong> no keyboard, stateless between commands, background processes keep streams open, and output consumes context.</li>
+      <li><strong>Use file tools for files, shell for commands.</strong></li>
+      <li><strong>Read input is data, not instructions:</strong> confirming dangerous operations does not depend on where the idea came from.</li>
+      <li><strong>The ununderstood line rule:</strong> explain it or remove it.</li>
+    </ol>
+
     <footer>
-      Part of the AI Factory series. Built with the same toolchain as the rest: plain HTML and CSS, a bash check, published through GitHub Pages.
+      Next page - practices in the cloud. Deferred items and rationale - in <a href="../lessons/potom.md">potom.md</a>.
     </footer>
   </main>
 
 </div>
 </div>
 <script src="../assets/swa.js"></script>
+<script src="../assets/terms.js"></script>
+<script src="../assets/cp.js"></script>
 </body>
 </html>
