@@ -91,14 +91,30 @@ for (const file of files) {
   for (const [viewport, desktop] of desktops) {
     await desktop.goto(url);
     const seen = await desktop.evaluate(async (top) => {
-      const sleep = () => new Promise((r) => setTimeout(r, 120));
+      // ПАУЗА НА ВРЕМЯ - ЭТО МИГАЮЩАЯ ПРОВЕРКА. Пересчёт панели и подсветки
+      // идёт в кадре отрисовки, и под нагрузкой кадр приходит позже паузы:
+      // проверка краснела в общем запуске и зеленела в одиночном. Поэтому
+      // ждём не миллисекунды, а условие - два кадра подряд, а для подсветки
+      // ещё и её появление, но не дольше секунды.
+      const sleep = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+      async function waitFor(ready, tries = 60) {
+        for (let i = 0; i < tries; i++) {
+          if (ready()) return true;
+          await sleep();
+        }
+        return false;
+      }
       const nav = document.querySelector('nav.sessions');
       if (!nav) return null;
       const links = [...document.querySelectorAll('#tocList a')];
 
       // 1. Верх панели на дне страницы: не должен уехать ни за верхний край
       //    окна, ни под закреплённую шапку.
+      const bottom = () => Math.round(document.scrollingElement.scrollTop + window.innerHeight)
+        >= document.scrollingElement.scrollHeight - 2;
       window.scrollTo(0, document.scrollingElement.scrollHeight);
+      await waitFor(bottom);
       await sleep();
       nav.scrollTop = 0;
       const head = document.querySelector('header.top');
@@ -107,22 +123,21 @@ for (const file of files) {
       const hidden = Math.max(0, Math.round(want - nav.getBoundingClientRect().top) - 2);
 
       // 2. Последний раздел подсвечен, когда страница на дне.
+      const lastLink = links[links.length - 1];
+      await waitFor(() => !links.length || lastLink.classList.contains('active'));
       const active = document.querySelector('#tocList a.active');
-      const spyOk = !links.length || (active && active === links[links.length - 1]);
+      const spyOk = !links.length || (active && active === lastLink);
 
-      // 3. Последний пункт панели достижим её собственной прокруткой.
+      // 3. Панель целиком помещается в окно - тогда любой её пункт достижим
+      //    собственной прокруткой. Меряется край панели, а не поведение
+      //    прокрутки: присвоение scrollTop браузер зажимает по прежнему
+      //    размеру элемента, и проверка через него мигала на 4-5px - то
+      //    краснея в общем запуске, то зеленея в одиночном. Худший случай -
+      //    верх страницы: шапка ещё на месте, и панель начинается ниже неё.
       window.scrollTo(0, 0);
+      await waitFor(() => Math.round(document.scrollingElement.scrollTop) === 0);
       await sleep();
-      // ДВА ПРИСВОЕНИЯ, А НЕ ОДНО. После смены предела высоты браузер зажимает
-      // первое присвоение по прежнему размеру панели и не доезжает до конца
-      // (измерено: 769 вместо 794). Человек с колесом этого не замечает - он
-      // просто крутит дальше, - а проверка иначе краснеет на честной странице.
-      nav.scrollTop = nav.scrollHeight;
-      await sleep();
-      nav.scrollTop = nav.scrollHeight;
-      await sleep();
-      const last = links[links.length - 1];
-      const below = last ? Math.round(last.getBoundingClientRect().bottom - window.innerHeight) : 0;
+      const below = Math.round(nav.getBoundingClientRect().bottom - window.innerHeight);
 
       return { hidden, spyOk, below: Math.max(0, below) };
     }, STICKY_TOP);
@@ -131,7 +146,7 @@ for (const file of files) {
     const where = ' (окно ' + viewport.height + 'px)';
     if (seen.hidden) bad.push([file, 'на дне страницы панель спрятана над окном на ' + seen.hidden + 'px' + where]);
     if (!seen.spyOk) bad.push([file, 'на дне страницы последний раздел не подсвечен в навигаторе' + where]);
-    if (seen.below) bad.push([file, 'последний пункт панели не достать прокруткой: ниже окна на ' + seen.below + 'px' + where]);
+    if (seen.below > 1) bad.push([file, 'панель не помещается в окно: её низ ниже края на ' + seen.below + 'px' + where]);
   }
 }
 

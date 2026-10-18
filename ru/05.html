@@ -33,7 +33,7 @@
       <a href="../de/05.html">DE</a>
     </div>
     <div class="font-scaler" role="group" aria-label="Размер шрифта">
-      <button type="button" class="font-btn font-s" data-size="s" title="Мелкий шрифт" aria-label="Мелкий шрифт">А</button>
+      <button type="button" class="font-btn font-s" data-size="s" title="Мелкий шрифт" aria-label="Мелкий шрифт">A</button>
       <button type="button" class="font-btn font-m active" data-size="m" title="Стандартный шрифт" aria-label="Стандартный шрифт">A</button>
       <button type="button" class="font-btn font-l" data-size="l" title="Крупный шрифт" aria-label="Крупный шрифт">A</button>
     </div>
@@ -76,8 +76,8 @@
     <h1>Взаимосвязи</h1>
     <p class="lead">Где Bash стыкуется с Git, CI, Docker, systemd, Make и Ansible - и что в каждом из этих швов ломается чаще всего.</p>
 
-    <div class="box key" id="glavnaya-mysl">
-      <h2>Главная мысль страницы <a class="yakor" href="#glavnaya-mysl" aria-label="ссылка на этот блок">#</a></h2>
+    <div class="box key" id="key-idea">
+      <h2>Главная мысль страницы <a class="yakor" href="#key-idea" aria-label="ссылка на этот блок">#</a></h2>
       <p>Bash редко работает сам по себе: он живёт внутри чужих инструментов, и большинство проблем возникает не в нём, а на границе. Git-хук решает судьбу коммита кодом возврата. CI запускает ваш шаг с собственным набором ключей и новым процессом на каждый шаг. Docker в строчной форме ставит PID 1 оболочкой, и контейнер перестаёт останавливаться по сигналу. systemd разбирает <code>ExecStart</code> сам, без оболочки. Make и Ansible выполняют каждую строку в своей оболочке. Выучив шесть этих швов, вы закрываете основную часть вопросов на ассессменте - и большую часть реальных инцидентов.</p>
     </div>
 
@@ -163,7 +163,7 @@ ExecStart=/bin/bash -c 'app | tee -a log'
     лишняя работа.</strong></p>
     <div class="prints"><strong>Что спрашивают:</strong> «Почему в <code>ExecStart</code> не работает перенаправление и когда нужен <code>bash -c</code>?»</div>
 
-    <h2 id="make">5 · Make и Ansible: каждая строка - своя оболочка <a class="yakor" href="#make">#</a></h2>
+    <h2 id="make-ansible">5 · Make и Ansible: каждая строка - своя оболочка <a class="yakor" href="#make-ansible">#</a></h2>
     <p>Общая ошибка обоих инструментов: <strong>строки не продолжают друг друга.</strong>
     В Make каждая строка рецепта исполняется в отдельной оболочке, поэтому <code>cd</code> из
     первой строки во второй уже не действует.</p>
@@ -185,7 +185,7 @@ build:
     <strong>Правило: <code>command</code>, пока не доказано, что нужен <code>shell</code>.</strong></p>
     <div class="prints"><strong>Что спрашивают:</strong> «Почему <code>cd</code> в Makefile не действует на следующую строку и чем <code>command</code> отличается от <code>shell</code> в Ansible?»</div>
 
-    <h2 id="granicy">6 · Где Bash заканчивается: jq, awk, Python <a class="yakor" href="#granicy">#</a></h2>
+    <h2 id="boundaries">6 · Где Bash заканчивается: jq, awk, Python <a class="yakor" href="#boundaries">#</a></h2>
     <p>Соседи по экосистеме делят работу по типу данных, и знание границы экономит часы.</p>
 <pre><code># структура - jq
 jq -r '.items[] | select(.ok).id' f.json
@@ -204,7 +204,7 @@ python3 -c 'import json, sys; ...'</code></pre>
     <code>jq</code> с собственным выражением на три строки - задача уже не про Bash.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Когда вы берёте <code>awk</code> вместо связки <code>grep | cut</code> и когда уходите в Python?»</div>
 
-    <h2 id="artefakty">Артефакты: что у вас есть после этой страницы <a class="yakor" href="#artefakty">#</a></h2>
+    <h2 id="artifacts">Артефакты: что у вас есть после этой страницы <a class="yakor" href="#artifacts">#</a></h2>
     <div class="box key">
       <p class="artifacts-slogan">Чтение &gt;&gt; Ваш квант времени жизни · Партнёрство достоинства вместе с AI · Перестройка вашей нейросети</p>
       <p><strong>Карта швов вместо набора рецептов.</strong> Время потрачено не зря, если вы теперь спрашиваете про чужой инструмент правильное: кто здесь запускает мою строку, в каком процессе и что он сделает с кодом возврата. Это и есть перестройка нейросети: вопрос «почему не работает» заменяется вопросом «кто это выполняет».</p>

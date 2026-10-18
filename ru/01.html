@@ -33,7 +33,7 @@
       <a href="../de/01.html">DE</a>
     </div>
     <div class="font-scaler" role="group" aria-label="Размер шрифта">
-      <button type="button" class="font-btn font-s" data-size="s" title="Мелкий шрифт" aria-label="Мелкий шрифт">А</button>
+      <button type="button" class="font-btn font-s" data-size="s" title="Мелкий шрифт" aria-label="Мелкий шрифт">A</button>
       <button type="button" class="font-btn font-m active" data-size="m" title="Стандартный шрифт" aria-label="Стандартный шрифт">A</button>
       <button type="button" class="font-btn font-l" data-size="l" title="Крупный шрифт" aria-label="Крупный шрифт">A</button>
     </div>
@@ -77,8 +77,8 @@
     <p class="lead">Шесть механизмов, из которых собран любой скрипт. Знание их порядка отличает
     инженера, который чинит скрипт за минуту, от того, кто правит его наугад.</p>
 
-    <div class="box key" id="glavnaya-mysl">
-      <h2>Главная мысль страницы <a class="yakor" href="#glavnaya-mysl" aria-label="ссылка на этот блок">#</a></h2>
+    <div class="box key" id="key-idea">
+      <h2>Главная мысль страницы <a class="yakor" href="#key-idea" aria-label="ссылка на этот блок">#</a></h2>
       <p>Bash - не язык команд, а конвейер обработки одной строки текста, и почти все его
       «странности» объясняются порядком этой обработки. Оболочка сначала разбирает строку на
       лексемы, затем выполняет раскрытия в строго заданной последовательности, режет результат на
@@ -88,7 +88,7 @@
       именно их, потому что ответ показывает, понимаете вы механизм или помните рецепт.</p>
     </div>
 
-    <h2 id="razbor">1 · Разбор командной строки <a class="yakor" href="#razbor">#</a></h2>
+    <h2 id="parsing">1 · Разбор командной строки <a class="yakor" href="#parsing">#</a></h2>
     <p>Оболочка читает строку, делит её на лексемы по операторам (<code>|</code>, <code>;</code>,
     <code>&amp;&amp;</code>, <code>&gt;</code>), и только потом начинает раскрытия. Их порядок
     фиксирован и его спрашивают чаще всего. Стадий пять, а не восемь, как его часто рисуют:</p>
@@ -115,7 +115,7 @@
     <div class="prints"><strong>Что спрашивают:</strong> «В каком порядке Bash выполняет
     раскрытия и почему результат <code>echo $f</code> зависит от кавычек?»</div>
 
-    <h2 id="raskrytiya">2 · Раскрытия и словоделение <a class="yakor" href="#raskrytiya">#</a></h2>
+    <h2 id="expansions">2 · Раскрытия и словоделение <a class="yakor" href="#expansions">#</a></h2>
     <p>После подстановки Bash режет результат на слова по символам из <code>IFS</code> - по
     умолчанию пробел, табуляция, перевод строки. Кавычки отменяют это разбиение, и в этом их
     единственная настоящая работа.</p>
@@ -128,7 +128,7 @@ rm "$f"   # одна цель, верно</code></pre>
     <div class="prints"><strong>Что спрашивают:</strong> «Чем <code>"$@"</code> отличается от
     <code>$@</code> и <code>"$*"</code>, и что сломается на путях с пробелами?»</div>
 
-    <h2 id="processy">3 · Процессы и перенаправления <a class="yakor" href="#processy">#</a></h2>
+    <h2 id="processes">3 · Процессы и перенаправления <a class="yakor" href="#processes">#</a></h2>
     <p>Каждая внешняя команда стоит двух системных вызовов ядра: <code>fork</code> клонирует
     оболочку, а <code>execve</code> заменяет копию программой (если команда последняя в
     <code>bash -c</code> или сабшелле, лишний <code>fork</code> пропускается). Встроенные
@@ -149,7 +149,7 @@ echo &lt;(true)    # /dev/fd/63 (труба)</code></pre>
     и <code>&gt;log 2&gt;&amp;1</code> дают разный результат и что на самом деле подставляет
     <code>&lt;(cmd)</code>?»</div>
 
-    <h2 id="konveyery">4 · Конвейеры и коды возврата <a class="yakor" href="#konveyery">#</a></h2>
+    <h2 id="pipelines">4 · Конвейеры и коды возврата <a class="yakor" href="#pipelines">#</a></h2>
     <p>Звенья конвейера запускаются одновременно, каждое в своём подпроцессе, и связаны буфером
     ядра (в Linux по умолчанию 64 КБ). Код возврата конвейера по умолчанию - код последнего звена,
     а с <code>set -o pipefail</code> - код <strong>последнего (самого правого) упавшего</strong>
@@ -169,7 +169,7 @@ echo $?                  # 141 (SIGPIPE)</code></pre>
     <div class="prints"><strong>Что спрашивают:</strong> «Как получить код возврата конкретного
     звена конвейера и почему <code>yes | head -n 1</code> под <code>pipefail</code> возвращает 141?»</div>
 
-    <h2 id="peremennye">5 · Переменные и области видимости <a class="yakor" href="#peremennye">#</a></h2>
+    <h2 id="variables">5 · Переменные и области видимости <a class="yakor" href="#variables">#</a></h2>
     <p>Переменная оболочки видна только самой оболочке; <code>export</code> помечает её для
     передачи дочерним процессам. Сабшелл наследует значения, но свои изменения наружу не
     возвращает - фигурные скобки, в отличие от круглых, сабшелл не создают:</p>
@@ -182,7 +182,7 @@ x=1; { x=2; }; echo $x  # 2</code></pre>
     <div class="prints"><strong>Что спрашивают:</strong> «Чем <code>export</code> отличается от
     обычного присваивания и почему без <code>local</code> функция опасна?»</div>
 
-    <h2 id="signaly">6 · Сигналы и ловушки <a class="yakor" href="#signaly">#</a></h2>
+    <h2 id="signals">6 · Сигналы и ловушки <a class="yakor" href="#signals">#</a></h2>
     <p>Сигнал - асинхронное сообщение процессу. <code>trap</code> назначает обработчик, и
     единственный надёжный способ убрать за собой - ловушка на <code>EXIT</code>: она
     срабатывает при любом завершении, которое оболочка успевает заметить, - нормальном, по
@@ -197,7 +197,7 @@ trap 'echo прервано; exit 130' INT</code></pre>
     <div class="prints"><strong>Что спрашивают:</strong> «Как гарантировать удаление временного
     файла при любом завершении скрипта и почему <code>SIGKILL</code> нельзя перехватить?»</div>
 
-    <h2 id="artefakty">Артефакты: что у вас есть после этой страницы <a class="yakor" href="#artefakty">#</a></h2>
+    <h2 id="artifacts">Артефакты: что у вас есть после этой страницы <a class="yakor" href="#artifacts">#</a></h2>
     <div class="box key">
       <p class="artifacts-slogan">Чтение &gt;&gt; Ваш квант времени жизни · Партнёрство достоинства вместе с AI · Перестройка вашей нейросети</p>
       <p><strong>Шесть механизмов вместо шести рецептов.</strong> Время потрачено не зря, если вы
