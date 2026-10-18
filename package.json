@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "check": "./check.sh",
-    "glaza": "node tools/glaza.mjs ru/index.html"
+    "shot": "node tools/shot.mjs ru/index.html"
   },
   "license": "ISC",
   "dependencies": {

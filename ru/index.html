@@ -45,7 +45,7 @@
 
 <div class="cols">
 
-  <nav class="sessions" aria-label="Разделы сайта">
+  <nav class="contents" aria-label="Разделы сайта">
     <ol>
       <li><a href="01.html"><span class="num">1</span>Ключевые компоненты</a></li>
       <li><a href="02.html"><span class="num">2</span>Написание скриптов</a></li>
@@ -79,7 +79,7 @@
     150 вопросов с ответами.</p>
 
     <div class="box key" id="key-idea">
-      <h3>Главная мысль сайта <a class="yakor" href="#key-idea" aria-label="ссылка на этот блок">#</a></h3>
+      <h3>Главная мысль сайта <a class="anchor-link" href="#key-idea" aria-label="ссылка на этот блок">#</a></h3>
       <p>Bash знают все и почти никто - он выглядит простым ровно до первого продакшн-инцидента, где
       скрипт молча проглотил ошибку и вернул ноль. Этот сайт разбирает Bash не как набор команд, а как
       систему: из каких частей он состоит, где у него швы с другими инструментами, где он слабее
@@ -90,7 +90,7 @@
       предельно коротко: каждая формулировка либо меняет ваше решение, либо её здесь нет.</p>
     </div>
 
-    <h2 id="seven-goals">Что на этом сайте есть <a class="yakor" href="#seven-goals">#</a></h2>
+    <h2 id="seven-goals">Что на этом сайте есть <a class="anchor-link" href="#seven-goals">#</a></h2>
     <p>Семь целей - общая рамка всей серии AI Factory: ключевые компоненты, практики в контексте AI,
     взаимосвязи, слабости, примеры по уровням зрелости, банк из 150 вопросов и предельная
     лаконичность изложения. На треке Bash они разложены в пятнадцать разделов. Все пятнадцать написаны на русском; перевод на остальные языки готовится.</p>
@@ -156,7 +156,7 @@
     <p><strong>Седьмая цель - предельная лаконичность</strong> - не раздел, а правило изложения,
     действующее на всех страницах: абзац, который не меняет ваше решение, удаляется.</p>
 
-    <h2 id="levels">Три уровня, и зачем они разделены <a class="yakor" href="#levels">#</a></h2>
+    <h2 id="levels">Три уровня, и зачем они разделены <a class="anchor-link" href="#levels">#</a></h2>
     <p><strong>Noob</strong> - вы запускаете скрипты и иногда их правите. Задача уровня: убрать магию.<br>
     <strong>Pro</strong> - вы пишете скрипты, которые работают на чужих машинах. Задача уровня: убрать
     молчаливые отказы.<br>
@@ -177,7 +177,7 @@
       на язык с настоящими исключениями.</p>
     </div>
 
-    <h2 id="toolchain">Оснастка: чем сделан этот сайт <a class="yakor" href="#toolchain">#</a></h2>
+    <h2 id="toolchain">Оснастка: чем сделан этот сайт <a class="anchor-link" href="#toolchain">#</a></h2>
     <p>Simple Web Architecture: статический HTML и CSS, около 160 строк ванильного JavaScript,
     ноль бэкенда, ноль сборки. Страницы лежат плоско в корне, без подпапок - так ссылки не ломаются
     на статическом хостинге.</p>
@@ -185,14 +185,14 @@
     запись о том, что получилось на самом деле - <a href="../lessons/zapis-1.md">zapis-1.md</a>,
     и список отложенного с причиной по каждой строке - <a href="../lessons/potom.md">potom.md</a>.
     Проверка - <code>./check.sh</code>, отвечает ЗЕЛЁНОЕ или КРАСНОЕ. Страницу на ширине телефона
-    меряет <code>node glaza.mjs index.html</code>: он находит то, что уехало за край, и возвращает
+    меряет <code>node shot.mjs index.html</code>: он находит то, что уехало за край, и возвращает
     код возврата, поэтому годится в автоматическую проверку.</p>
     <p class="dim">Каждый
     <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">shebang</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Shebang</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Первая строка скрипта <code>#!/usr/bin/env bash</code>: указывает ядру, каким интерпретатором его запускать.</span><span class="term-links"><a href="glossary.html#shebang">В словарь понятий <svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg></a></span></span></span>
     в этом репозитории - <code>#!/usr/bin/env bash</code>, и это не вкусовщина: так скрипт найдёт
     тот Bash, который стоит у пользователя, а не только тот, что лежит в <code>/bin</code>.</p>
 
-    <h2 id="artifacts">Артефакты: что у вас есть после этой страницы <a class="yakor" href="#artifacts">#</a></h2>
+    <h2 id="artifacts">Артефакты: что у вас есть после этой страницы <a class="anchor-link" href="#artifacts">#</a></h2>
     <div class="box key">
       <p class="artifacts-slogan">Чтение &gt;&gt; Ваш квант времени жизни · Партнёрство достоинства вместе с AI · Перестройка вашей нейросети</p>
       <p><strong>Время, потраченное на эту страницу, невосполнимо.</strong> Поэтому она обязана вернуть
@@ -209,7 +209,7 @@
       <li><strong>Шесть терминов,</strong> которые дальше не объясняются: shebang, код возврата,
       конвейер, <code>set -euo pipefail</code>, словоделение, сабшелл.</li>
       <li><strong>Оснастка в руках:</strong> понимание, как этот сайт проверяет себя сам -
-      <code>./check.sh</code> и <code>glaza.mjs</code>.</li>
+      <code>./check.sh</code> и <code>shot.mjs</code>.</li>
     </ol>
 
     <footer>

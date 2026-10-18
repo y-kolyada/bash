@@ -45,7 +45,7 @@
 
 <div class="cols">
 
-  <nav class="sessions" aria-label="Site sections">
+  <nav class="contents" aria-label="Site sections">
     <ol>
       <li><a href="01.html"><span class="num">1</span>Key components</a></li>
       <li><a href="02.html"><span class="num">2</span>Writing scripts</a></li>
@@ -77,11 +77,11 @@
     <p class="lead">Fifty foundational questions with concise answers. Each includes a note on why it gets asked: often more valuable than the answer itself.</p>
 
     <div class="box key" id="key-idea">
-      <h2>Key idea of this page <a class="yakor" href="#key-idea" aria-label="link to this section">#</a></h2>
+      <h2>Key idea of this page <a class="anchor-link" href="#key-idea" aria-label="link to this section">#</a></h2>
       <p>Questions at this level test operational mechanics rather than memory: why a local file fails to execute, why quotes are mandatory, and why <code>cd</code> inside a script does not change your terminal's directory. Answer concisely and directly - over-explaining simple mechanics signals uncertainty. The “why this gets asked” note reveals the underlying principle being tested and anticipates the likely follow-up question. If an answer seems unfamiliar, the corresponding walkthrough is available on the Noob examples page.</p>
     </div>
 
-    <h2 id="running-files">Execution, files, and paths (1–10) <a class="yakor" href="#running-files">#</a></h2>
+    <h2 id="running-files">Execution, files, and paths (1–10) <a class="anchor-link" href="#running-files">#</a></h2>
     <ol class="qa" start="1">
       <li><strong>What does the first line <code>#!/usr/bin/env bash</code> do?</strong><br>It informs the kernel which interpreter to use when executing the file. The <code>env</code> form searches for Bash across <code>PATH</code>, rather than hardcoding <code>/bin/bash</code>.<br><span class="dim">Why this gets asked: tests whether you understand that a script is an ordinary file rather than a distinct file type.</span></li>
       <li><strong>Why does <code>script.sh</code> fail to run, while <code>./script.sh</code> executes?</strong><br>Without <code>./</code>, the shell searches directories listed in <code>PATH</code>, which does not include the current directory.<br><span class="dim">Why this gets asked: the most common initial beginner error; verifies understanding of <code>PATH</code>.</span></li>
@@ -95,7 +95,7 @@
       <li><strong>How do you view command documentation?</strong><br><code>man cmd</code> for system binaries, <code>help cmd</code> for Bash builtins, <code>cmd --help</code> for most standard utilities.<br><span class="dim">Why this gets asked: checks whether you know that shell builtins do not appear in <code>man</code>.</span></li>
     </ol>
 
-    <h2 id="variables-quoting">Variables and quoting (11–20) <a class="yakor" href="#variables-quoting">#</a></h2>
+    <h2 id="variables-quoting">Variables and quoting (11–20) <a class="anchor-link" href="#variables-quoting">#</a></h2>
     <ol class="qa" start="11">
       <li><strong>How do you declare a variable and what characters must not surround the assignment?</strong><br><code>name=value</code>, with no spaces around <code>=</code>. Adding a space causes the shell to interpret the variable name as a command name.<br><span class="dim">Why this gets asked: classic beginner syntax mistake, immediately apparent.</span></li>
       <li><strong>Why must variables be enclosed in quotes like <code>"$var"</code>?</strong><br>Without quotes, the value undergoes word splitting on whitespace/newlines and pathname expansion. A path with spaces fragments into multiple arguments, and <code>*.log</code> expands into directory listings.<br><span class="dim">Why this gets asked: the leading cause of bugs and security vulnerabilities on production data.</span></li>
@@ -109,7 +109,7 @@
       <li><strong>What is an <code>alias</code> and why does it not work inside scripts?</strong><br>A command shortcut for interactive shells. By default, aliases are not expanded in non-interactive scripts, and scripts do not source <code>.bashrc</code> where aliases are typically declared.<br><span class="dim">Why this gets asked: verifies understanding of the boundary between interactive and scripted shells.</span></li>
     </ol>
 
-    <h2 id="conditions-loops">Conditions and loops (21–30) <a class="yakor" href="#conditions-loops">#</a></h2>
+    <h2 id="conditions-loops">Conditions and loops (21–30) <a class="anchor-link" href="#conditions-loops">#</a></h2>
     <ol class="qa" start="21">
       <li><strong>How do you test if a file exists?</strong><br><code>if [ -f "$f" ]; then …</code>. Use <code>-d</code> for directories, and <code>-e</code> for any filesystem object.<br><span class="dim">Why this gets asked: foundational pre-action validation pattern.</span></li>
       <li><strong>What do the <code>-z</code> and <code>-n</code> operators check?</strong><br><code>-z</code> checks if a string is empty; <code>-n</code> checks if a string is non-empty.<br><span class="dim">Why this gets asked: argument validation almost always begins here.</span></li>
@@ -123,7 +123,7 @@
       <li><strong>What do <code>||</code> and <code>&amp;&amp;</code> signify between commands?</strong><br><code>&amp;&amp;</code> executes the right-hand command if the left succeeded (returned 0); <code>||</code> executes if it failed (returned non-zero).<br><span class="dim">Why this gets asked: foundation of idiomatic one-liner checks and fallbacks.</span></li>
     </ol>
 
-    <h2 id="text-pipelines">Files, text, and pipelines (31–40) <a class="yakor" href="#text-pipelines">#</a></h2>
+    <h2 id="text-pipelines">Files, text, and pipelines (31–40) <a class="anchor-link" href="#text-pipelines">#</a></h2>
     <ol class="qa" start="31">
       <li><strong>How do you find files by name across nested directories?</strong><br><code>find . -name '*.log' -type f</code>.<br><span class="dim">Why this gets asked: universal administrative command asked in every interview.</span></li>
       <li><strong>How does <code>grep</code> differ from <code>find</code>?</strong><br><code>grep</code> searches text contents inside files, while <code>find</code> locates filesystem entries by attributes.<br><span class="dim">Why this gets asked: checks whether you conflate filesystem inspection with text parsing.</span></li>
@@ -137,7 +137,7 @@
       <li><strong>How do you direct both stdout and stderr into the same file?</strong><br><code>cmd &gt; file 2&gt;&amp;1</code> - evaluation order from left to right is critical.<br><span class="dim">Why this gets asked: verifies understanding of file descriptor duplication.</span></li>
     </ol>
 
-    <h2 id="processes-permissions">Processes, permissions, and triage (41–50) <a class="yakor" href="#processes-permissions">#</a></h2>
+    <h2 id="processes-permissions">Processes, permissions, and triage (41–50) <a class="anchor-link" href="#processes-permissions">#</a></h2>
     <ol class="qa" start="41">
       <li><strong>What are standard file descriptors 0, 1, and 2?</strong><br>Standard input (stdin), standard output (stdout), and standard error (stderr). Primary data streams through 1, diagnostics through 2.<br><span class="dim">Why this gets asked: required to explain shell redirection and piping.</span></li>
       <li><strong>How do you inspect running processes?</strong><br><code>ps aux</code> or <code>ps -ef</code>; interactively via <code>top</code> or <code>htop</code>.<br><span class="dim">Why this gets asked: standard daily troubleshooting routine.</span></li>
@@ -151,7 +151,7 @@
       <li><strong>How does a symbolic link differ from a hard link?</strong><br>A symbolic link (<code>ln -s</code>) stores the target path as a pointer and breaks if the target is deleted; a hard link is an alternate directory entry referencing the same underlying inode and functions only within a single filesystem.<br><span class="dim">Why this gets asked: one of the most frequent Linux filesystem questions.</span></li>
     </ol>
 
-    <h2 id="artifacts">Artifacts: what you take away from this page <a class="yakor" href="#artifacts">#</a></h2>
+    <h2 id="artifacts">Artifacts: what you take away from this page <a class="anchor-link" href="#artifacts">#</a></h2>
     <div class="box key">
       <p class="artifacts-slogan">Reading &gt;&gt; Your life quantum · Dignity partnership with AI · Rewiring your neural network</p>
       <p><strong>Fifty verified answers and an understanding of what lies behind each.</strong> Your time was well spent if you answer half of these questions not with a memorized recipe, but with an explanation of shell mechanics. That is the essence of rewiring: answers cease being learned phrases and become deducible from how the shell operates.</p>

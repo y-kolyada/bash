@@ -14,7 +14,7 @@
 #     python3 tools/check-links.py        внутренние ссылки и якоря
 #     python3 tools/build-search.py       пересобрать индекс поиска
 #     node tools/check-pages.mjs          телефон 390px и липкая панель, все страницы
-#     node tools/glaza.mjs ru/01.html     снимок одной страницы, чтобы посмотреть глазами
+#     node tools/shot.mjs ru/01.html       снимок одной страницы, чтобы посмотреть глазами
 #
 # Браузерная проверка требует playwright (npm i playwright). Если его нет,
 # она честно говорит об этом и считается КРАСНОЙ: зелёный ответ без браузера

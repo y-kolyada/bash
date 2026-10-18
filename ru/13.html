@@ -45,7 +45,7 @@
 
 <div class="cols">
 
-  <nav class="sessions" aria-label="Разделы сайта">
+  <nav class="contents" aria-label="Разделы сайта">
     <ol>
       <li><a href="01.html"><span class="num">1</span>Ключевые компоненты</a></li>
       <li><a href="02.html"><span class="num">2</span>Написание скриптов</a></li>
@@ -77,11 +77,11 @@
     <p class="lead">Пятьдесят вопросов начального уровня с короткими ответами. У каждого - строка о том, зачем его задают: это полезнее самого ответа.</p>
 
     <div class="box key" id="key-idea">
-      <h2>Главная мысль страницы <a class="yakor" href="#key-idea" aria-label="ссылка на этот блок">#</a></h2>
+      <h2>Главная мысль страницы <a class="anchor-link" href="#key-idea" aria-label="ссылка на этот блок">#</a></h2>
       <p>Вопросы этого уровня проверяют не память, а понимание механики: почему файл рядом «не найден», почему кавычки обязательны, почему <code>cd</code> в скрипте не меняет ваш каталог. Отвечать на них стоит коротко и по сути - длинный ответ на простой вопрос читается как неуверенность. Строка «зачем спрашивают» важнее ответа: она показывает, какое свойство проверяется, и по ней видно, какой второй вопрос последует. Если ответ не складывается - соответствующий разбор лежит на странице примеров уровня Noob.</p>
     </div>
 
-    <h2 id="running-files">Запуск, файлы и пути (1–10) <a class="yakor" href="#running-files">#</a></h2>
+    <h2 id="running-files">Запуск, файлы и пути (1–10) <a class="anchor-link" href="#running-files">#</a></h2>
     <ol class="qa" start="1">
       <li><strong>Что делает первая строка <code>#!/usr/bin/env bash</code>?</strong><br>Говорит ядру, каким интерпретатором запускать файл. Форма через <code>env</code> ищет Bash в <code>PATH</code>, а не только в <code>/bin</code>.<br><span class="dim">Зачем спрашивают: проверяют, понимаете ли вы, что скрипт - обычный файл, а не особый тип.</span></li>
       <li><strong>Почему <code>script.sh</code> не запускается, а <code>./script.sh</code> запускается?</strong><br>Без <code>./</code> оболочка ищет программу в каталогах <code>PATH</code>, а текущего каталога там нет.<br><span class="dim">Зачем спрашивают: самая частая первая ошибка; показывает понимание <code>PATH</code>.</span></li>
@@ -95,7 +95,7 @@
       <li><strong>Как посмотреть справку по команде?</strong><br><code>man cmd</code> для системных программ, <code>help cmd</code> для встроенных в Bash, <code>cmd --help</code> для большинства утилит.<br><span class="dim">Зачем спрашивают: проверяют, знаете ли вы, что встроенных команд в <code>man</code> нет.</span></li>
     </ol>
 
-    <h2 id="variables-quoting">Переменные и кавычки (11–20) <a class="yakor" href="#variables-quoting">#</a></h2>
+    <h2 id="variables-quoting">Переменные и кавычки (11–20) <a class="anchor-link" href="#variables-quoting">#</a></h2>
     <ol class="qa" start="11">
       <li><strong>Как объявить переменную и чем нельзя её окружать?</strong><br><code>name=value</code>, без пробелов вокруг <code>=</code>. Пробел превратит строку в вызов команды.<br><span class="dim">Зачем спрашивают: типовая ошибка новичка, видна сразу.</span></li>
       <li><strong>Почему нужно писать <code>"$var"</code> в кавычках?</strong><br>Без кавычек значение проходит два лишних шага: разрезание по пробелам и переводам строк и раскрытие шаблонов. Имя с пробелом станет несколькими аргументами, а значение <code>*.log</code> - списком файлов каталога.<br><span class="dim">Зачем спрашивают: самый частый источник поломок на реальных данных.</span></li>
@@ -109,7 +109,7 @@
       <li><strong>Что такое <code>alias</code> и почему он не работает в скрипте?</strong><br>Короткое имя для команды в интерактивной оболочке. В скрипте псевдонимы по умолчанию не раскрываются, а <code>.bashrc</code>, где их обычно объявляют, скрипт не читает.<br><span class="dim">Зачем спрашивают: проверяют, понимаете ли вы разницу между оболочкой и скриптом.</span></li>
     </ol>
 
-    <h2 id="conditions-loops">Условия и циклы (21–30) <a class="yakor" href="#conditions-loops">#</a></h2>
+    <h2 id="conditions-loops">Условия и циклы (21–30) <a class="anchor-link" href="#conditions-loops">#</a></h2>
     <ol class="qa" start="21">
       <li><strong>Как проверить, что файл существует?</strong><br><code>if [ -f "$f" ]; then …</code>. Для каталога - <code>-d</code>, для любого объекта - <code>-e</code>.<br><span class="dim">Зачем спрашивают: база любой проверки перед действием.</span></li>
       <li><strong>Что означает <code>-z</code> и <code>-n</code>?</strong><br><code>-z</code> - строка пуста, <code>-n</code> - строка не пуста.<br><span class="dim">Зачем спрашивают: проверка аргументов почти всегда начинается с этого.</span></li>
@@ -123,7 +123,7 @@
       <li><strong>Что означает <code>||</code> и <code>&amp;&amp;</code> между командами?</strong><br><code>&amp;&amp;</code> - выполнить следующую, если предыдущая успешна; <code>||</code> - если неуспешна.<br><span class="dim">Зачем спрашивают: основа коротких проверок в одну строку.</span></li>
     </ol>
 
-    <h2 id="text-pipelines">Файлы, текст и конвейеры (31–40) <a class="yakor" href="#text-pipelines">#</a></h2>
+    <h2 id="text-pipelines">Файлы, текст и конвейеры (31–40) <a class="anchor-link" href="#text-pipelines">#</a></h2>
     <ol class="qa" start="31">
       <li><strong>Как найти файлы по имени во вложенных каталогах?</strong><br><code>find . -name '*.log' -type f</code>.<br><span class="dim">Зачем спрашивают: базовый инструмент, который спрашивают всегда.</span></li>
       <li><strong>Чем <code>grep</code> отличается от <code>find</code>?</strong><br><code>grep</code> ищет текст внутри файлов, <code>find</code> - сами файлы по свойствам.<br><span class="dim">Зачем спрашивают: проверяют, не путаете ли вы их.</span></li>
@@ -137,7 +137,7 @@
       <li><strong>Как отправить вывод и ошибки в один файл?</strong><br><code>cmd &gt; file 2&gt;&amp;1</code> - порядок важен.<br><span class="dim">Зачем спрашивают: проверяют понимание дескрипторов.</span></li>
     </ol>
 
-    <h2 id="processes-permissions">Процессы, права и диагностика (41–50) <a class="yakor" href="#processes-permissions">#</a></h2>
+    <h2 id="processes-permissions">Процессы, права и диагностика (41–50) <a class="anchor-link" href="#processes-permissions">#</a></h2>
     <ol class="qa" start="41">
       <li><strong>Что такое стандартные потоки 0, 1 и 2?</strong><br>Ввод, вывод и ошибки. Результат идёт в 1, сообщения - в 2.<br><span class="dim">Зачем спрашивают: без этого не объяснить перенаправления.</span></li>
       <li><strong>Как посмотреть запущенные процессы?</strong><br><code>ps aux</code> или <code>ps -ef</code>; интерактивно - <code>top</code> и <code>htop</code>.<br><span class="dim">Зачем спрашивают: ежедневная диагностика.</span></li>
@@ -151,7 +151,7 @@
       <li><strong>Чем символическая ссылка отличается от жёсткой?</strong><br>Символическая (<code>ln -s</code>) хранит путь и ломается, если цель удалить; жёсткая - второе имя того же файла на диске и работает только в пределах одной файловой системы.<br><span class="dim">Зачем спрашивают: один из самых частых вопросов про файловую систему Linux.</span></li>
     </ol>
 
-    <h2 id="artifacts">Артефакты: что у вас есть после этой страницы <a class="yakor" href="#artifacts">#</a></h2>
+    <h2 id="artifacts">Артефакты: что у вас есть после этой страницы <a class="anchor-link" href="#artifacts">#</a></h2>
     <div class="box key">
       <p class="artifacts-slogan">Чтение &gt;&gt; Ваш квант времени жизни · Партнёрство достоинства вместе с AI · Перестройка вашей нейросети</p>
       <p><strong>Пятьдесят проверенных ответов и понимание, что за ними стоит.</strong> Время потрачено не зря, если на половину вопросов вы отвечаете не формулировкой, а объяснением механики. Это и есть перестройка нейросети: ответ перестаёт быть заученным и становится выводимым из того, как устроена оболочка.</p>

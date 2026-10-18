@@ -1,7 +1,7 @@
-// glaza.mjs - the eyes of an AI agent.
+// shot.mjs - the eyes of an AI agent.
 //
 //   npm i playwright
-//   node tools/glaza.mjs ru/01.html
+//   node tools/shot.mjs ru/01.html
 //
 // Opens a page the way a phone shows it, reports anything that runs past the
 // edge and saves a screenshot: the model reads files, it does not see pages.
@@ -59,8 +59,8 @@ console.log('экран телефона: ' + report.viewport + 'px, стран�
 console.log(report.overflowing.length ? 'за край вылезло: ' + report.overflowing.length : 'за край ничего не вылезло');
 for (const el of report.overflowing.slice(0, 5)) console.log('  ' + el);
 
-await page.screenshot({ path: 'telefon.png', fullPage: true });
-console.log('снимок: telefon.png - посмотрите на него своими глазами');
+await page.screenshot({ path: 'phone.png', fullPage: true });
+console.log('снимок: phone.png - посмотрите на него своими глазами');
 
 await browser.close();
 process.exit(report.overflowing.length ? 1 : 0);

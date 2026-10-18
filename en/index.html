@@ -45,7 +45,7 @@
 
 <div class="cols">
 
-  <nav class="sessions" aria-label="Site sections">
+  <nav class="contents" aria-label="Site sections">
     <ol>
       <li><a href="01.html"><span class="num">1</span>Key components</a></li>
       <li><a href="02.html"><span class="num">2</span>Writing scripts</a></li>
@@ -79,7 +79,7 @@
     150 questions with answers.</p>
 
     <div class="box key" id="key-idea">
-      <h3>The key idea of this site <a class="yakor" href="#key-idea" aria-label="link to this block">#</a></h3>
+      <h3>The key idea of this site <a class="anchor-link" href="#key-idea" aria-label="link to this block">#</a></h3>
       <p>Everyone knows Bash and almost nobody does - it looks simple right up to the first production
       incident where a script silently swallowed an error and exited zero. This site treats Bash as a
       system rather than a list of commands: what it is made of, where its seams with other tools are,
@@ -91,7 +91,7 @@
       changes a decision of yours, or it is not here.</p>
     </div>
 
-    <h2 id="seven-goals">What this site holds <a class="yakor" href="#seven-goals">#</a></h2>
+    <h2 id="seven-goals">What this site holds <a class="anchor-link" href="#seven-goals">#</a></h2>
     <p>Seven goals form the common frame of the whole AI Factory series: key components, practices
     in an AI context, interconnections, weaknesses, examples by maturity level, a bank of 150
     questions, and extreme brevity. On the Bash track they are laid out across fifteen sections.
@@ -159,7 +159,7 @@
     <p><strong>The seventh goal - extreme brevity</strong> - is not a section but a rule of writing
     that applies to every page: a paragraph that does not change a decision of yours is removed.</p>
 
-    <h2 id="levels">Three levels, and why they are kept apart <a class="yakor" href="#levels">#</a></h2>
+    <h2 id="levels">Three levels, and why they are kept apart <a class="anchor-link" href="#levels">#</a></h2>
     <p><strong>Noob</strong> - you run scripts and occasionally edit them. The level's job: remove the magic.<br>
     <strong>Pro</strong> - you write scripts that run on other people's machines. The level's job:
     remove silent failures.<br>
@@ -180,7 +180,7 @@
       move to a language with real exceptions.</p>
     </div>
 
-    <h2 id="toolchain">The toolchain this site is built with <a class="yakor" href="#toolchain">#</a></h2>
+    <h2 id="toolchain">The toolchain this site is built with <a class="anchor-link" href="#toolchain">#</a></h2>
     <p>Simple Web Architecture: static HTML and CSS, around 160 lines of vanilla JavaScript, zero
     backend, zero build step. Pages sit flat in the repository root, with no subfolders - that way
     links do not break on static hosting.</p>
@@ -188,14 +188,14 @@
     <a href="../lessons/zadanie-1.md">zadanie-1.md</a>; a record of what actually happened -
     <a href="../lessons/zapis-1.md">zapis-1.md</a>; and a list of what was deferred, with a reason per line -
     <a href="../lessons/potom.md">potom.md</a>. The check is <code>./check.sh</code>, and it answers GREEN or RED.
-    Phone width is measured by <code>node glaza.mjs index.html</code>: it finds whatever overflows the
+    Phone width is measured by <code>node shot.mjs index.html</code>: it finds whatever overflows the
     right edge and returns an exit code, which makes it usable as an automated check.</p>
     <p class="dim">Every
     <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">shebang</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Shebang</strong><button type="button" class="term-close" aria-label="Close">×</button></span><span class="term-desc">A script's first line, <code>#!/usr/bin/env bash</code>: it tells the kernel which interpreter to run it with.</span><span class="term-links"><a href="glossary.html#shebang">Open in glossary <svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg></a></span></span></span>
     in this repository is <code>#!/usr/bin/env bash</code>, and that is not taste: it finds the Bash
     the user actually has, not only the one in <code>/bin</code>.</p>
 
-    <h2 id="artifacts">Artifacts: what you have after this page <a class="yakor" href="#artifacts">#</a></h2>
+    <h2 id="artifacts">Artifacts: what you have after this page <a class="anchor-link" href="#artifacts">#</a></h2>
     <div class="box key">
       <p class="artifacts-slogan">Reading &gt;&gt; Your quantum of life's time · A partnership of dignity with AI · Rewiring your neural network</p>
       <p><strong>The time spent on this page is unrecoverable.</strong> So it owes you more than it
@@ -212,7 +212,7 @@
       <li><strong>Six terms</strong> that are not explained again anywhere else: shebang, exit code,
       pipeline, <code>set -euo pipefail</code>, word splitting, subshell.</li>
       <li><strong>The toolchain in hand:</strong> an understanding of how this site checks itself -
-      <code>./check.sh</code> and <code>glaza.mjs</code>.</li>
+      <code>./check.sh</code> and <code>shot.mjs</code>.</li>
     </ol>
 
     <footer>

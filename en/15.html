@@ -45,7 +45,7 @@
 
 <div class="cols">
 
-  <nav class="sessions" aria-label="Site sections">
+  <nav class="contents" aria-label="Site sections">
     <ol>
       <li><a href="01.html"><span class="num">1</span>Key components</a></li>
       <li><a href="02.html"><span class="num">2</span>Writing scripts</a></li>
@@ -77,11 +77,11 @@
     <p class="lead">Fifty questions on decisions, not syntax. The right answer here almost always names conditions and costs rather than a command name.</p>
 
     <div class="box key" id="key-idea">
-      <h2>Key idea of this page <a class="yakor" href="#key-idea" aria-label="link to this block">#</a></h2>
+      <h2>Key idea of this page <a class="anchor-link" href="#key-idea" aria-label="link to this block">#</a></h2>
       <p>At this level, interviewers do not ask what syntax you recall, but what trade-offs you evaluate and what price you pay for each decision. Saying “I would write a script” is almost always weaker than “first I determine whether this is an action or a desired state.” The fifty questions are grouped into five areas: when Bash is appropriate at all; what contract a script declares when it becomes an automated tool; how it tolerates retries and sudden interruption; what bounds its worst-case blast radius; and how it lives and gets retired in production. The final group is the most frequently neglected, yet it is precisely where engineers who have managed production legacy are distinguished from those who have only written fresh greenfield code.</p>
     </div>
 
-    <h2 id="applicability">Applicability decisions (1–10) <a class="yakor" href="#applicability">#</a></h2>
+    <h2 id="applicability">Applicability decisions (1–10) <a class="anchor-link" href="#applicability">#</a></h2>
     <ol class="qa" start="1">
       <li><strong>By what criteria do you decide that a task is not suited for Bash?</strong><br>Data structures beyond flat lists, floating-point arithmetic, structured error recovery, concurrency requiring inter-task communication, or logic exceeding three hundred lines.<br><span class="dim">Why this gets asked: tests for concrete technical criteria rather than personal taste.</span></li>
       <li><strong>When is a script the right choice even though a mature tool already exists?</strong><br>When the task is strictly one-off, when deploying the tool introduces prohibitive bootstrapping friction, or when running in a bare environment where nothing else is installed yet.<br><span class="dim">Why this gets asked: checks whether you swing to the opposite dogmatic extreme.</span></li>
@@ -95,7 +95,7 @@
       <li><strong>How do you decide between authoring an in-house tool versus adopting an existing solution?</strong><br>By comparing ongoing maintenance costs and the organizational cost of the author departing the team, rather than initial implementation hours.<br><span class="dim">Why this gets asked: tests long-term architectural planning horizons.</span></li>
     </ol>
 
-    <h2 id="contract-compat">Contract and compatibility (11–20) <a class="yakor" href="#contract-compat">#</a></h2>
+    <h2 id="contract-compat">Contract and compatibility (11–20) <a class="anchor-link" href="#contract-compat">#</a></h2>
     <ol class="qa" start="11">
       <li><strong>What constitutes the contract of a script intended for machine invocation?</strong><br>Standard stream allocation (stdout for data, stderr for diagnostics), explicit exit code semantics, structured machine-readable output formats, a dry-run flag, and documented backward compatibility guarantees.<br><span class="dim">Why this gets asked: tests whether you treat scripts as formal software interfaces.</span></li>
       <li><strong>How do you distinguish “not found” from “broken execution” in exit codes?</strong><br>Use distinct exit codes: a predictable negative result returns one code (e.g., 1), while an internal failure returns another (e.g., 2); callers must handle these cases differently.<br><span class="dim">Why this gets asked: demonstrates designing for the upstream caller rather than immediate convenience.</span></li>
@@ -109,7 +109,7 @@
       <li><strong>Why does a shared <code>common.sh</code> library sourced across a dozen repositories become an architectural trap?</strong><br>Bash lacks namespaces and package versioning: <code>source</code> pollutes caller scopes with global variables and unintended <code>set</code> options, while modifying the shared library instantly destabilizes every consumer. Shared logic should be distributed as versioned container images, packaged CLIs, or CI actions.<br><span class="dim">Why this gets asked: architectural question regarding shared code in languages without package managers.</span></li>
     </ol>
 
-    <h2 id="reliability">Reliability and idempotence (21–30) <a class="yakor" href="#reliability">#</a></h2>
+    <h2 id="reliability">Reliability and idempotence (21–30) <a class="anchor-link" href="#reliability">#</a></h2>
     <ol class="qa" start="21">
       <li><strong>What is idempotence in the context of shell scripting?</strong><br>Executing the script repeatedly yields the same system state without introducing errors, since retries are inevitable in distributed systems.<br><span class="dim">Why this gets asked: central property of robust infrastructure automation.</span></li>
       <li><strong>How do you make a non-idempotent operation safe for retries?</strong><br>Introduce an idempotency key or operation identifier, executing the mutation only if that key is absent from the state ledger or journal.<br><span class="dim">Why this gets asked: evaluates practical mechanism design rather than memorized terminology.</span></li>
@@ -123,7 +123,7 @@
       <li><strong>How do you recognize when a monolithic script should be decomposed?</strong><br>When distinct subcomponents change for different business reasons or are invoked by different consumers; line count alone is a secondary indicator.<br><span class="dim">Why this gets asked: classic single responsibility principle applied to systems scripting.</span></li>
     </ol>
 
-    <h2 id="security-blast">Security and blast radius (31–40) <a class="yakor" href="#security-blast">#</a></h2>
+    <h2 id="security-blast">Security and blast radius (31–40) <a class="anchor-link" href="#security-blast">#</a></h2>
     <ol class="qa" start="31">
       <li><strong>What is a script’s blast radius and how do you constrain it?</strong><br>The maximum damage possible during failure; constrained by scoping allowed target paths via strict allowlists and limiting the volume of mutations per run.<br><span class="dim">Why this gets asked: tests worst-case architectural risk modeling.</span></li>
       <li><strong>Why are synchronized retries across hundreds of nodes dangerous during external service degradation?</strong><br>Simultaneous retries hammer the recovering service, triggering a thundering herd failure. Implement retries with exponential backoff and jitter, and apply randomized start delays to cron jobs (<code>RandomizedDelaySec</code> in systemd timers).<br><span class="dim">Why this gets asked: evaluates single-node blast radius multiplied across an entire fleet.</span></li>
@@ -137,7 +137,7 @@
       <li><strong>Why does an allowlist of command names fail to secure an agent or user environment?</strong><br>Innocuous-looking utilities can execute arbitrary code or destroy data: <code>find -delete</code>, <code>tar --checkpoint-action</code>, <code>git -c core.pager=…</code>, <code>env</code>, or any language runtime. Real security boundaries require sandbox isolation and inspecting full argument vectors.<br><span class="dim">Why this gets asked: examines where true system security boundaries exist.</span></li>
     </ol>
 
-    <h2 id="lifecycle">Operations and lifecycle (41–50) <a class="yakor" href="#lifecycle">#</a></h2>
+    <h2 id="lifecycle">Operations and lifecycle (41–50) <a class="anchor-link" href="#lifecycle">#</a></h2>
     <ol class="qa" start="41">
       <li><strong>What must a script report about itself in production?</strong><br>Outcome, exit code, elapsed duration, and volume of processed work - the baseline metrics needed to graph trends and detect gradual degradation.<br><span class="dim">Why this gets asked: tests whether you design with observability in mind.</span></li>
       <li><strong>Why is key-value formatted logging preferred over unformatted prose?</strong><br>It is parsed effortlessly by log collectors without complex regular expressions and does not break when human-facing wording is modified.<br><span class="dim">Why this gets asked: practical systems logging discipline.</span></li>
@@ -151,7 +151,7 @@
       <li><strong>What indicator tells you that automation should not be built at all?</strong><br>The task occurs rarely, takes only minutes, and demands human contextual judgment at every step: automating it costs far more than doing the manual work.<br><span class="dim">Why this gets asked: tests whether you know when NOT to build software.</span></li>
     </ol>
 
-    <h2 id="artifacts">Artifacts: what you take away from this page <a class="yakor" href="#artifacts">#</a></h2>
+    <h2 id="artifacts">Artifacts: what you take away from this page <a class="anchor-link" href="#artifacts">#</a></h2>
     <div class="box key">
       <p class="artifacts-slogan">Reading &gt;&gt; Your life quantum · Dignity partnership with AI · Rewiring your neural network</p>
       <p><strong>Fifty architectural decisions with explicit trade-offs.</strong> Your time was well spent if you began answering technical questions with preconditions: “if the task manages state, then...”, “if there is more than one caller, then...”. That is the essence of rewiring your neural network: an answer stops being an arbitrary technology choice and becomes an accountable architectural decision.</p>

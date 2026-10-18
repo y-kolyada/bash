@@ -45,7 +45,7 @@
 
 <div class="cols">
 
-  <nav class="sessions" aria-label="Site sections">
+  <nav class="contents" aria-label="Site sections">
     <ol>
       <li><a href="01.html"><span class="num">1</span>Key components</a></li>
       <li><a href="02.html"><span class="num">2</span>Writing scripts</a></li>
@@ -77,11 +77,11 @@
     <p class="lead">Bash in delivery pipelines: builds, environments, deployments and rollbacks, pre-merge checks, and secret handling. Plus the warning signs that a pipeline has outgrown shell scripts.</p>
 
     <div class="box key" id="key-idea">
-      <h2>Key idea of this page <a class="yakor" href="#key-idea" aria-label="link to this section">#</a></h2>
+      <h2>Key idea of this page <a class="anchor-link" href="#key-idea" aria-label="link to this section">#</a></h2>
       <p>In the delivery pipeline, Bash is used most frequently and mistakes cost the most, because a CI step is your script executed by an external runner: with someone else's flags, in a fresh process, and in a reset directory. Hence the first rule: every step must be self-contained, and non-trivial logic should live in a repository script that can be run locally. The second rule governs builds: version strings come from version control, and <code>latest</code> is not a version because you cannot roll back to it. The third: one script across all environments with a mandatory environment argument, because defaults eventually trigger accidental deployments to production. And the fourth, most common interview topic: design the rollback before writing the deployment.</p>
     </div>
 
-    <h2 id="ci-step">1 · Bash in pipelines: whose process is this? <a class="yakor" href="#ci-step">#</a></h2>
+    <h2 id="ci-step">1 · Bash in pipelines: whose process is this? <a class="anchor-link" href="#ci-step">#</a></h2>
     <p>A CI step is your script run by someone else's runner. Three facts about this execution define nearly all its behavior.</p>
 <pre><code># 1. runner sets flags, not you
 #    without shell: -&gt; bash -e
@@ -96,7 +96,7 @@ cd "$GITHUB_WORKSPACE"</code></pre>
     <p><strong>The resulting rule: every step must be self-contained.</strong> It cannot rely on <code>export</code> from a preceding step, cannot assume a persistent working directory, and must declare its own strict mode explicitly. Extract multi-line logic into a <code>.sh</code> file in the repository: it can be executed locally, verified with <code>shellcheck</code>, and reviewed cleanly in diffs - unlike twenty lines inlined in YAML.</p>
     <div class="prints"><strong>What gets asked:</strong> “Why is a variable set in one CI step invisible in the next, and how do you pass data between steps?”</div>
 
-    <h2 id="build">2 · Building artifacts: reproducibility over speed <a class="yakor" href="#build">#</a></h2>
+    <h2 id="build">2 · Building artifacts: reproducibility over speed <a class="anchor-link" href="#build">#</a></h2>
     <p>A build script answers a single question: <strong>will tomorrow's build produce the exact same artifact as today's?</strong> Everything else is secondary.</p>
 <pre><code>ver=$(git describe --tags --always --dirty)
 sha=$(git rev-parse --short HEAD)
@@ -110,7 +110,7 @@ docker build \
     <p>Three rules catch the majority of build issues. <strong>Version strings must come from version control, not environment variables</strong> - preventing stale version numbers. <strong><code>latest</code> is not a version</strong>: rolling back to it is impossible. <strong>The <code>--dirty</code> suffix</strong> signals an uncommitted working tree - producing an artifact that cannot be reproduced from Git history, a condition that must be detected immediately.</p>
     <div class="prints"><strong>What gets asked:</strong> “Where should artifact versions originate, and why is deploying <code>latest</code> prohibited?”</div>
 
-    <h2 id="environments">3 · Environments Dev → QA → Prod: one script, distinct parameters <a class="yakor" href="#environments">#</a></h2>
+    <h2 id="environments">3 · Environments Dev → QA → Prod: one script, distinct parameters <a class="anchor-link" href="#environments">#</a></h2>
     <p>A classic anti-pattern is maintaining three similar scripts, one per environment. Within a month they diverge, and a production deployment no longer mirrors what was tested on QA.</p>
 <pre><code>#!/usr/bin/env bash
 set -euo pipefail
@@ -124,7 +124,7 @@ source "$cfg"
     <p><strong>One script, external configuration, mandatory environment argument.</strong> Never provide default values for the target environment: a script defaulting to production without arguments will eventually deploy to production by accident. Gate production deployments behind an explicit approval variable, not an easily ignored file header comment.</p>
     <div class="prints"><strong>What gets asked:</strong> “How does a single script serve three environments, and how do you guard production from accidental execution?”</div>
 
-    <h2 id="deploy-rollback">4 · Deployment and rollback: design rollback first <a class="yakor" href="#deploy-rollback">#</a></h2>
+    <h2 id="deploy-rollback">4 · Deployment and rollback: design rollback first <a class="anchor-link" href="#deploy-rollback">#</a></h2>
     <p>The question asked more frequently in interviews than deployment itself: <strong>how do you roll back?</strong> If the answer requires a new build, it is the wrong answer.</p>
 <pre><code># releases side by side, current is a symlink
 ln -sfn "/opt/app/rel/$ver" /opt/app/next
@@ -136,7 +136,7 @@ systemctl reload app
     <p>Post-deployment validation belongs in the script as well: <strong>querying <code>/health</code> with a bounded retry loop and triggering an automated rollback</strong> to the previous release if health checks fail.</p>
     <div class="prints"><strong>What gets asked:</strong> “How do you make release symlink switching atomic, and how is automated rollback structured?”</div>
 
-    <h2 id="pipeline-quality">5 · Pipeline quality: pre-merge checks <a class="yakor" href="#pipeline-quality">#</a></h2>
+    <h2 id="pipeline-quality">5 · Pipeline quality: pre-merge checks <a class="anchor-link" href="#pipeline-quality">#</a></h2>
     <p>Linting shell scripts is just as vital a CI stage as application unit tests. It takes seconds and catches bugs that would otherwise surface in production.</p>
 <pre><code>- run: |
     shopt -s globstar
@@ -146,7 +146,7 @@ systemctl reload app
     <p>Mirror the exact same checks locally via <code>pre-commit</code> so failing scripts never reach CI. <strong>Local and CI checks must run the exact same command</strong> - otherwise teams face “works on my machine, fails in CI” syndrome, eroding trust in the verification suite.</p>
     <div class="prints"><strong>What gets asked:</strong> “Which shell code checks do you include in CI pipelines, and why must they match local hooks?”</div>
 
-    <h2 id="secrets">6 · Secrets and CI logs <a class="yakor" href="#secrets">#</a></h2>
+    <h2 id="secrets">6 · Secrets and CI logs <a class="anchor-link" href="#secrets">#</a></h2>
     <p>CI logs are visible to anyone with repository access and persist far longer than memory of the secret.</p>
 <pre><code># no:
 set -x               # prints everything
@@ -159,7 +159,7 @@ printf '%s' "$TOKEN" | cmd --token-stdin</code></pre>
     <p>Three rules. <strong>Never pass secrets as command arguments</strong> - arguments are visible in <code>ps</code> to any user on the system; pass them via stdin, credentials files, or environment variables. <strong>Never enable shell execution tracing in steps handling secrets.</strong> <strong>CI secret masking is not a guarantee:</strong> it relies on exact string matching, meaning split secrets or alternate encodings will leak unmasked.</p>
     <div class="prints"><strong>What gets asked:</strong> “Why must passwords never be passed as command-line arguments, and what are the limits of CI secret masking?”</div>
 
-    <h2 id="beyond-scripts">7 · When a pipeline outgrows shell scripts <a class="yakor" href="#beyond-scripts">#</a></h2>
+    <h2 id="beyond-scripts">7 · When a pipeline outgrows shell scripts <a class="anchor-link" href="#beyond-scripts">#</a></h2>
     <div class="box">
       <p><strong>Signs that logic should move out of shell scripts:</strong></p>
       <ul>
@@ -173,7 +173,7 @@ printf '%s' "$TOKEN" | cmd --token-stdin</code></pre>
     </div>
 
 
-    <h2 id="artifacts">Artifacts: what you take away from this page <a class="yakor" href="#artifacts">#</a></h2>
+    <h2 id="artifacts">Artifacts: what you take away from this page <a class="anchor-link" href="#artifacts">#</a></h2>
     <div class="box key">
       <p class="artifacts-slogan">Reading &gt;&gt; Your life quantum · Dignity partnership with AI · Rewiring your neural network</p>
       <p><strong>Understanding that a CI step is an external execution of your code.</strong> Your time was well spent if you stopped being puzzled by differing behavior in CI and started checking: what flags were passed, which process executed it, and where the working directory points. That is the essence of rewiring: the pipeline stops being a black box and becomes a transparent environment running your own commands.</p>

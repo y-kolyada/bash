@@ -45,7 +45,7 @@
 
 <div class="cols">
 
-  <nav class="sessions" aria-label="Site sections">
+  <nav class="contents" aria-label="Site sections">
     <ol>
       <li><a href="01.html"><span class="num">1</span>Key components</a></li>
       <li><a href="02.html"><span class="num">2</span>Writing scripts</a></li>
@@ -77,11 +77,11 @@
     <p class="lead">An honest inventory of what Bash does poorly, and the signals that a task has outgrown it. Without this section, the previous one would just be marketing.</p>
 
     <div class="box key" id="key-idea">
-      <h2>Key idea <a class="yakor" href="#key-idea" aria-label="link to this block">#</a></h2>
+      <h2>Key idea <a class="anchor-link" href="#key-idea" aria-label="link to this block">#</a></h2>
       <p>Bash has four structural weaknesses that cannot be outsmarted by craft: leaky error handling, no data structures, integer-only arithmetic, and concurrency without synchronization. To these are added two acquired limits: readability degrades sharply past three hundred lines, and portability breaks on two independent axes - different shells and different utilities. None of these make Bash a bad language: they define the territory where it is best. The danger is not the weaknesses, but failing to notice when a task moves outside that territory. The final section lists the warning signs.</p>
     </div>
 
-    <h2 id="error-handling">1 · Error handling: <code>set -e</code> is leaky <a class="yakor" href="#error-handling">#</a></h2>
+    <h2 id="error-handling">1 · Error handling: <code>set -e</code> is leaky <a class="anchor-link" href="#error-handling">#</a></h2>
     <p>The biggest weakness, and the most dangerous because it looks like a solved problem. <code>set -e</code> creates a false sense of security, but has more holes than any engineer can keep in their head.</p>
 <pre><code>set -euo pipefail
 
@@ -93,7 +93,7 @@ yes | head -n 1         # 141 (SIGPIPE)</code></pre>
     <p><strong>The rule:</strong> inside a conditional, to the left of <code>&amp;&amp;</code> or <code>||</code>, inside a function invoked in a conditional, and in <code>local x=$(cmd)</code> - <code>set -e</code> does not trigger. Inversely, enabling <code>pipefail</code> abruptly breaks well-behaved pipelines with <code>head</code> or <code>grep -q</code> when the downstream stage closes the pipe early and the upstream process receives <code>SIGPIPE</code> (exit code 141) from the kernel. Add the absence of exceptions and stack traces, and you have a language where <strong>reliable error handling demands personal discipline rather than language guarantees.</strong></p>
     <div class="prints"><strong>What gets asked:</strong> “When does <code>set -e</code> fail to catch an error, and why does <code>pipefail</code> crash on <code>head -n 1</code>?”</div>
 
-    <h2 id="text-not-data">2 · There is no data, only text <a class="yakor" href="#text-not-data">#</a></h2>
+    <h2 id="text-not-data">2 · There is no data, only text <a class="anchor-link" href="#text-not-data">#</a></h2>
     <p>Bash has only one true data type: strings. Arrays exist, but cannot be passed into functions, nested within each other, or returned outward. Structs do not exist at all.</p>
 <pre><code># not an array of arrays,
 # just a space-separated string
@@ -108,7 +108,7 @@ cat data.json | jq -r '.items[].id'
     <p>Any manipulation of JSON, YAML, or CSV requires external tools: <code>jq</code>, <code>yq</code>, <code>awk</code>. For small payloads, that is fine. As soon as you have nested objects, cross-source joins, or schema mutations - <strong>you are writing a jq program embedded in a bash program</strong>, and nobody will be able to maintain it.</p>
     <div class="prints"><strong>What gets asked:</strong> “How do you pass an array to a function in Bash, and why is it awkward?”</div>
 
-    <h2 id="integer-math">3 · Integer-only arithmetic <a class="yakor" href="#integer-math">#</a></h2>
+    <h2 id="integer-math">3 · Integer-only arithmetic <a class="anchor-link" href="#integer-math">#</a></h2>
     <p>Built-in Bash arithmetic does not support floating-point fractions. Period.</p>
 <pre><code>echo $(( 7 / 2 ))        # 3
 echo $(( 10 * 95 / 100 )) # 9
@@ -118,7 +118,7 @@ awk 'BEGIN{print 7/2}'    # 3.5</code></pre>
     <p>Any percentage, average, or fractional elapsed time requires invoking <code>bc</code> or <code>awk</code>, spawning an external process for every calculation. <strong>If a task involves mathematics, Bash is the wrong tool</strong>, and no amount of skill changes that.</p>
     <div class="prints"><strong>What gets asked:</strong> “How do you compute an average or percentage in Bash, and why is it cumbersome?”</div>
 
-    <h2 id="parallelism">4 · Concurrency without synchronization <a class="yakor" href="#parallelism">#</a></h2>
+    <h2 id="parallelism">4 · Concurrency without synchronization <a class="anchor-link" href="#parallelism">#</a></h2>
     <p>Launching a hundred background jobs is easy. Doing it <strong>correctly</strong> is not: the language provides no mutexes, queues, or thread-safe shared state.</p>
 <pre><code>for f in *.log; do
   process "$f" &amp;
@@ -131,7 +131,7 @@ printf '%s\0' *.log \
     <p>Two background processes writing to the same file will interleave output lines. A counter incremented inside a subshell remains unchanged outside. And <code>wait</code> without arguments <strong>always returns 0</strong> - even if every background job failed; discovering failures requires waiting on each PID individually. While <code>xargs -P</code> and <code>parallel</code> handle trivial cases, <strong>anything beyond processing N independent files is your cue to leave Bash.</strong></p>
     <div class="prints"><strong>What gets asked:</strong> “How do you limit parallel jobs in shell, and how do you know if one failed?”</div>
 
-    <h2 id="readability">5 · Readability degrades beyond three hundred lines <a class="yakor" href="#readability">#</a></h2>
+    <h2 id="readability">5 · Readability degrades beyond three hundred lines <a class="anchor-link" href="#readability">#</a></h2>
     <p>Bash syntax is optimized for single-line interactive entry, not for reading six months later. Quotes, expansions, and tests combine into text that is hard to scan visually.</p>
 <pre><code>[[ -n "${v:-}" ]] &amp;&amp; [[ "${v}" != "x" ]] \
   || { echo "no"; exit 1; }
@@ -141,7 +141,7 @@ printf '%s\0' *.log \
     <p>Add the absence of namespaces, global variables by default, and the fact that only <code>set -u</code> catches variable typos. <strong>The practical threshold is around three hundred lines:</strong> past that, reading the script demands the same esoteric knowledge as writing it, which is the antithesis of maintainable code.</p>
     <div class="prints"><strong>What gets asked:</strong> “At what boundary should a shell script be rewritten in another language?”</div>
 
-    <h2 id="portability">6 · Portability: two different worlds <a class="yakor" href="#portability">#</a></h2>
+    <h2 id="portability">6 · Portability: two different worlds <a class="anchor-link" href="#portability">#</a></h2>
     <p>“Works on my machine” in shell fails for two independent reasons: <strong>the wrong shell</strong> and <strong>the wrong utilities</strong>.</p>
 <pre><code>#!/bin/sh
 echo ${arr[0]}   # error in dash
@@ -155,7 +155,7 @@ date -d @0       # GNU; BSD: -r 0</code></pre>
     <p><strong>The honest, boring solution:</strong> either commit to <code>#!/usr/bin/env bash</code> and drop POSIX purity, or check with <code>shellcheck -s sh</code> and renounce convenience. There is no middle ground, and the choice must be made deliberately.</p>
     <div class="prints"><strong>What gets asked:</strong> “How does <code>sh</code> differ from <code>bash</code>, and why do scripts break in Alpine or on macOS?”</div>
 
-    <h2 id="when-to-leave">7 · When to move on, and where <a class="yakor" href="#when-to-leave">#</a></h2>
+    <h2 id="when-to-leave">7 · When to move on, and where <a class="anchor-link" href="#when-to-leave">#</a></h2>
     <div class="box">
       <p><strong>Signs that Bash is no longer the right tool</strong> - any single one is enough:</p>
       <ul>
@@ -170,7 +170,7 @@ date -d @0       # GNU; BSD: -r 0</code></pre>
       <p class="dim">And the inverse rule, equally vital: <strong>do not rewrite twenty lines of Bash in Python</strong> out of dogma. Maintenance cost scales with size, not language.</p>
     </div>
 
-    <h2 id="artifacts">Artifacts: what you have after this page <a class="yakor" href="#artifacts">#</a></h2>
+    <h2 id="artifacts">Artifacts: what you have after this page <a class="anchor-link" href="#artifacts">#</a></h2>
     <div class="box key">
       <p class="artifacts-slogan">Reading &gt;&gt; Your quantum of life's time · A partnership of dignity with AI · Rewiring your neural network</p>
       <p><strong>The ability to say “Bash does not fit here” and name the reason.</strong> Time was well spent if you stopped arguing about languages in the abstract and started citing concrete workload constraints: fractions, nested data, error recovery, script scale. That is the neural rewire - choosing tools stops being a matter of taste and becomes an explicit cost calculation.</p>

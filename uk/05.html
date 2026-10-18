@@ -45,7 +45,7 @@
 
 <div class="cols">
 
-  <nav class="sessions" aria-label="Розділи сайту">
+  <nav class="contents" aria-label="Розділи сайту">
     <ol>
       <li><a href="01.html"><span class="num">1</span>Ключові компоненти</a></li>
       <li><a href="02.html"><span class="num">2</span>Написання скриптів</a></li>
@@ -77,11 +77,11 @@
     <p class="lead">Де Bash стикується з Git, CI, Docker, systemd, Make та Ansible - і що в кожному з цих швів ламається найчастіше.</p>
 
     <div class="box key" id="key-idea">
-      <h2>Головна думка сторінки <a class="yakor" href="#key-idea" aria-label="посилання на цей блок">#</a></h2>
+      <h2>Головна думка сторінки <a class="anchor-link" href="#key-idea" aria-label="посилання на цей блок">#</a></h2>
       <p>Bash рідко працює сам по собі: він живе всередині чужих інструментів, і більшість проблем виникає не в ньому, а на межі. Git-хук вирішує долю коміту кодом повернення. CI запускає ваш крок із власним набором ключів і новим процесом на кожен крок. Docker у рядковій формі ставить PID 1 оболонкою, і контейнер перестає зупинятися за сигналом. systemd розбирає <code>ExecStart</code> сам, без оболонки. Make та Ansible виконують кожен рядок у своїй оболонці. Вивчивши шість цих швів, ви закриваєте основну частину питань на асесменті - і більшу частину реальних інцидентів.</p>
     </div>
 
-    <h2 id="git">1 · Git: хуки та фільтри <a class="yakor" href="#git">#</a></h2>
+    <h2 id="git">1 · Git: хуки та фільтри <a class="anchor-link" href="#git">#</a></h2>
     <p>Git не має власної мови розширення - він запускає виконувані файли, і майже завжди це shell. Хук отримує дані через аргументи або stdin, а <strong>рішення ухвалює кодом повернення</strong>: ненульовий скасовує операцію.</p>
 <pre><code>#!/usr/bin/env bash
 # .git/hooks/pre-commit
@@ -94,7 +94,7 @@ shellcheck $files</code></pre>
     <p>Дві пастки. Перша: <code>grep</code> без збігів повертає 1 і під <code>set -e</code> впустить хук - звідси <code>|| true</code>. Друга: <strong>хуки не зберігаються в репозиторії</strong>, папка <code>.git/hooks</code> не версіонується; тому хуки кладуть в окремий каталог і вмикають через <code>git config core.hooksPath</code>, інакше в колег їх просто не буде.</p>
     <div class="prints"><strong>Що запитують:</strong> «Як змусити хук скасувати коміт і чому хуки не потрапляють до інших розробників самі?»</div>
 
-    <h2 id="ci">2 · CI та GitHub Actions: shell за замовчуванням <a class="yakor" href="#ci">#</a></h2>
+    <h2 id="ci">2 · CI та GitHub Actions: shell за замовчуванням <a class="anchor-link" href="#ci">#</a></h2>
     <p>Крок <code>run:</code> - це shell-скрипт, який CI пише в тимчасовий файл і запускає. Важливо знати, з якими ключами, і тут є тонкість, об яку спотикаються: якщо <code>shell:</code> не вказано, GitHub Actions запускає <code>bash -e {0}</code> - <code>set -e</code> є, <code>pipefail</code> немає. Якщо вказати <code>shell: bash</code> явно, запуск стає <code>bash --noprofile --norc -eo pipefail {0}</code> - <code>pipefail</code> з'являється. <strong><code>-u</code> немає в жодному варіанті.</strong></p>
 <pre><code>- name: build
   shell: bash          # дає -eo pipefail
@@ -109,7 +109,7 @@ echo "VER=1.2" &gt;&gt; "$GITHUB_ENV"</code></pre>
     <p><strong>Кожен крок - окремий процес</strong>, тому змінні між кроками передаються через файли (<code>$GITHUB_ENV</code>, <code>$GITHUB_OUTPUT</code>), а не через <code>export</code>. І окрема обережність: <code>set -x</code> у кроці друкує значення змінних, тобто <strong>виводить секрети в журнал</strong> - маскування рятує не завжди.</p>
     <div class="prints"><strong>Що запитують:</strong> «З якими ключами CI запускає ваш <code>run:</code> і як передати значення між кроками?»</div>
 
-    <h2 id="docker">3 · Docker: PID 1, сигнали та форма запису <a class="yakor" href="#docker">#</a></h2>
+    <h2 id="docker">3 · Docker: PID 1, сигнали та форма запису <a class="anchor-link" href="#docker">#</a></h2>
     <p>Найчастіша помилка в <code>ENTRYPOINT</code> не про shell, а про процеси. У рядковій формі команда запускається через <code>/bin/sh -c</code>, і <strong>PID 1 отримує оболонка, а не ваш застосунок</strong> - сигнал <code>SIGTERM</code> до нього не дійде, і зупинка контейнера перетвориться на вбивство за таймаутом.</p>
 <pre><code># погано: PID 1 - це sh
 ENTRYPOINT /app/run.sh
@@ -122,7 +122,7 @@ exec /app/server "$@"</code></pre>
     <p><code>exec</code> замінює процес оболонки процесом застосунку - PID 1 стає застосунком, сигнали доходять. У контейнері <strong>немає init</strong>, тому зомбі-процеси ніхто не збирає; якщо ваш скрипт породжує фонові завдання, потрібен <code>--init</code> або <code>tini</code>. І пам'ятайте про Alpine: там <code>/bin/sh</code> - це busybox <code>ash</code>, і <code>bash</code> відсутній зовсім.</p>
     <div class="prints"><strong>Що запитують:</strong> «Чому контейнер не зупиняється за <code>docker stop</code> і до чого тут форма запису <code>ENTRYPOINT</code>?»</div>
 
-    <h2 id="systemd">4 · systemd: коли скрипт не потрібен <a class="yakor" href="#systemd">#</a></h2>
+    <h2 id="systemd">4 · systemd: коли скрипт не потрібен <a class="anchor-link" href="#systemd">#</a></h2>
     <p>systemd вміє багато з того, заради чого пишуть скрипти-обгортки: перезапуск, залежності, обмеження ресурсів, журнал. <strong>Обгортка, яка лише запускає та перезапускає, зайва.</strong></p>
 <pre><code>[Service]
 ExecStart=/usr/bin/app --port 8080
@@ -136,7 +136,7 @@ ExecStart=/bin/bash -c 'app | tee -a log'
     <p>Рядок <code>ExecStart</code> розбирається самим systemd, а не оболонкою: підстановки, конвеєри та перенаправлення там не працюють. Якщо вони дійсно потрібні - виклик <code>bash -c</code> явний і усвідомлений. Логи пишуться в stdout/stderr і потрапляють до <code>journalctl</code>; <strong>саморобна ротація файлів у скрипті - майже завжди зайва робота.</strong></p>
     <div class="prints"><strong>Що запитують:</strong> «Чому в <code>ExecStart</code> не працює перенаправлення і коли потрібен <code>bash -c</code>?»</div>
 
-    <h2 id="make-ansible">5 · Make та Ansible: кожен рядок - своя оболонка <a class="yakor" href="#make-ansible">#</a></h2>
+    <h2 id="make-ansible">5 · Make та Ansible: кожен рядок - своя оболонка <a class="anchor-link" href="#make-ansible">#</a></h2>
     <p>Спільна помилка обох інструментів: <strong>рядки не продовжують один одного.</strong> У Make кожен рядок рецепта виконується в окремій оболонці, тому <code>cd</code> з першого рядка у другому вже не діє.</p>
 <pre><code># не працює:
 build:
@@ -152,7 +152,7 @@ build:
     <p>В Ansible те саме: модуль <code>shell</code> запускає рядок заново для кожного завдання. І там ще одна відмінність, про яку запитують: <code>command</code> запускає програму напряму, без оболонки - без конвеєрів, підстановок і шаблонів імен; <code>shell</code> - через оболонку, з усіма можливостями та всіма ризиками. <strong>Правило: <code>command</code>, поки не доведено, що потрібен <code>shell</code>.</strong></p>
     <div class="prints"><strong>Що запитують:</strong> «Чому <code>cd</code> у Makefile не діє на наступний рядок і чим <code>command</code> відрізняється від <code>shell</code> в Ansible?»</div>
 
-    <h2 id="boundaries">6 · Де Bash закінчується: jq, awk, Python <a class="yakor" href="#boundaries">#</a></h2>
+    <h2 id="boundaries">6 · Де Bash закінчується: jq, awk, Python <a class="anchor-link" href="#boundaries">#</a></h2>
     <p>Сусіди по екосистемі ділять роботу за типом даних, і знання межі економить години.</p>
 <pre><code># структура - jq
 jq -r '.items[] | select(.ok).id' f.json
@@ -166,7 +166,7 @@ python3 -c 'import json, sys; ...'</code></pre>
     <p class="dim">Практична ознака: щойно в скрипті з'явився другий <code>jq</code> із власним виразом на три рядки - завдання вже не про Bash.</p>
     <div class="prints"><strong>Що запитують:</strong> «Коли ви берете <code>awk</code> замість зв'язки <code>grep | cut</code> і коли йдете в Python?»</div>
 
-    <h2 id="artifacts">Артефакти: що у вас є після цієї сторінки <a class="yakor" href="#artifacts">#</a></h2>
+    <h2 id="artifacts">Артефакти: що у вас є після цієї сторінки <a class="anchor-link" href="#artifacts">#</a></h2>
     <div class="box key">
       <p class="artifacts-slogan">Читання &gt;&gt; Ваш квант часу життя · Партнерство гідності разом з AI · Перебудова вашої нейромережі</p>
       <p><strong>Карта швів замість набору рецептів.</strong> Час витрачено недаремно, якщо ви тепер запитуєте про чужий інструмент правильне: хто тут запускає мій рядок, у якому процесі та що він зробить із кодом повернення. Це і є перебудова нейромережі: питання «чому не працює» замінюється питанням «хто це виконує».</p>

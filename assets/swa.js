@@ -94,8 +94,8 @@
           ? item.querySelector('h2, h3')
           : item;
         const text = titleEl ? titleEl.cloneNode(true) : item.cloneNode(true);
-        const yakor = text.querySelector('.yakor');
-        if (yakor) yakor.remove();
+        const anchor = text.querySelector('.anchor-link');
+        if (anchor) anchor.remove();
         const obj = text.querySelector('.glossary-object');
         if (obj) obj.remove();
         a.textContent = text.textContent.trim();
@@ -140,7 +140,7 @@
 
       // The sidebar is as tall as what is visible below it, not as the window:
       // otherwise its last items sit off screen while the header is still there.
-      const nav = tocContainer.closest('nav.sessions');
+      const nav = tocContainer.closest('nav.contents');
 
       fitNav = function () {
         if (!nav || getComputedStyle(nav).position !== 'sticky') {
@@ -163,7 +163,7 @@
 
   const tray = document.querySelector('.utility-tray');
 
-  if (tray && document.querySelector('nav.sessions')) {
+  if (tray && document.querySelector('nav.contents')) {
     const langCode = document.documentElement.lang || 'ru';
     const label = FIND[langCode] || FIND.ru;
     const clearLabel = CLEAR_MARK[langCode] || CLEAR_MARK.ru;
@@ -234,7 +234,7 @@
         let n;
         while ((n = walker.nextNode())) {
           const p = n.parentElement;
-          if (!p || p.closest('.yakor, script, style, mark.search-mark')) continue;
+          if (!p || p.closest('.anchor-link, script, style, mark.search-mark')) continue;
           if (norm(n.nodeValue).indexOf(needle) >= 0) nodes.push(n);
         }
         nodes.forEach((textNode) => {
@@ -341,11 +341,6 @@
   });
 
   document.body.appendChild(floats);
-
-  // A collapse-all button pins itself to the same corner, so move it into the
-  // stack instead of letting two buttons overlap.
-  const svernut = document.querySelector('.svernut');
-  if (svernut) floats.insertBefore(svernut, floats.firstChild);
 
   function fitFloats() {
     const doc = document.scrollingElement || document.documentElement;

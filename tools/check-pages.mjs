@@ -10,6 +10,7 @@
 //
 // Two window heights, because the spy failed only on tall windows: a page hits
 // its bottom before the last heading reaches the top third.
+
 //
 // Exits 1 if any page is faulty. Output is Russian: it speaks to the person
 // who accepts the work.
@@ -22,7 +23,7 @@ const PHONE = { width: 390, height: 844 };
 // Two window heights: at 860px everything was green and the defect was only
 // visible on a taller screen.
 const DESKTOPS = [{ width: 1280, height: 860 }, { width: 1280, height: 1400 }];
-const STICKY_TOP = 18; // same value as nav.sessions in style.css
+const STICKY_TOP = 18; // same value as nav.contents in style.css
 // Under a pinned header the sidebar starts below its bottom edge, so the
 // expected boundary is measured from the header, not from the window top.
 
@@ -205,7 +206,6 @@ for (const file of files) {
   });
 
   if (overflow.length) bad.push([file, 'за край вылезло элементов: ' + overflow.length + ' (' + overflow[0] + ')']);
-
   for (const [viewport, desktop] of desktops) {
     await desktop.goto(url);
     const seen = await desktop.evaluate(async (top) => {
@@ -221,7 +221,7 @@ for (const file of files) {
         }
         return false;
       }
-      const nav = document.querySelector('nav.sessions');
+      const nav = document.querySelector('nav.contents');
       if (!nav) return null;
       const links = [...document.querySelectorAll('#tocList a')];
 
