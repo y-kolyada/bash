@@ -98,7 +98,7 @@
       <p class="glossary-lead">Перший рядок скрипту, який вказує ядру, яким інтерпретатором його запускати.</p>
       <p>Без нього скрипт виконає та оболонка, з якої його викликали, - і на машині, де <code>sh</code> це <code>dash</code>, масиви та <code>[[ ]]</code> перестануть працювати. Форма через <code>env</code> шукає <code>bash</code> у <code>PATH</code>, а не лише в <code>/bin</code>: на macOS та у BSD він лежить в іншому місці.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="../ru/02.html#skeleton">Написання скриптів · Скелет</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="02.html#skeleton">Написання скриптів · Скелет</a>
       </div>
     </div>
 
@@ -111,7 +111,7 @@
       <p class="glossary-lead">Одна програма Bash у двох ролях: оболонка, з якою працює людина, та інтерпретатор, який виконує файл.</p>
       <p>Інтерактивна оболонка читає <code>~/.bashrc</code>, знає псевдоніми та історію; login-оболонка (вхід через ssh, <code>su -</code>) читає <code>~/.bash_profile</code>; скрипт не читає ні того, ні іншого. Звідси «у терміналі працює, у cron - ні»: <code>PATH</code> та псевдоніми з ваших файлів налаштувань до скрипту не доходять.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="../ru/02.html#shell-modes">Написання скриптів · Два режими</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="02.html#shell-modes">Написання скриптів · Два режими</a>
       </div>
     </div>
 
@@ -295,7 +295,7 @@
       <p class="glossary-lead">Три запобіжники: падати на помилці, падати на неоголошеній змінній, не губити помилку в конвеєрі.</p>
       <p><code>-e</code> - вихід при ненульовому коді, але не всередині умов, <code>&amp;&amp;</code>, <code>||</code> і функцій, викликаних в умові, і не в <code>local x=$(cmd)</code>. <code>-u</code> перетворює одрук в імені змінної на зупинку, а не на порожній рядок. <code>-o pipefail</code> віддає код останньої (найправішої) ланки конвеєра, що впала. Це мінімум гігієни, а не гарантія надійності.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="../ru/02.html#skeleton">Написання скриптів · Скелет</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="02.html#skeleton">Написання скриптів · Скелет</a>
       </div>
     </div>
 
@@ -321,7 +321,7 @@
       <p class="glossary-lead">Властивість операції: повторний запуск не змінює результат і не ламає стан.</p>
       <p>В автоматиці повтор неминучий: таймаут, перезапуск вузла, подвійна подія, агент, який повторив без питання. <code>mkdir -p</code>, <code>ln -sfn</code>, <code>rsync</code> ідемпотентні; <code>mkdir</code> без ключа та <code>&gt;&gt;</code> у журнал - ні. Для неідемпотентної роботи вводять ідентифікатор операції та виконують її лише за його відсутності в журналі виконаного.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="../ru/02.html#idempotence">Написання скриптів · Ідемпотентність і прибирання</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="02.html#idempotence">Написання скриптів · Ідемпотентність і прибирання</a>
       </div>
     </div>
 
