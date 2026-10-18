@@ -180,19 +180,28 @@
       move to a language with real exceptions.</p>
     </div>
 
-    <h2 id="toolchain">The toolchain this site is built with <a class="anchor-link" href="#toolchain">#</a></h2>
-    <p>Simple Web Architecture: static HTML and CSS, around 160 lines of vanilla JavaScript, zero
-    backend, zero build step. Pages sit flat in the repository root, with no subfolders - that way
-    links do not break on static hosting.</p>
-    <p>The site has its own task, written <em>before</em> the AI did any work -
-    <a href="../lessons/zadanie-1.md">zadanie-1.md</a>; a record of what actually happened -
-    <a href="../lessons/zapis-1.md">zapis-1.md</a>; and a list of what was deferred, with a reason per line -
-    <a href="../lessons/potom.md">potom.md</a>. The check is <code>./check.sh</code>, and it answers GREEN or RED.
-    Phone width is measured by <code>node shot.mjs index.html</code>: it finds whatever overflows the
-    right edge and returns an exit code, which makes it usable as an automated check.</p>
+    <h2 id="features">What this site can do <a class="anchor-link" href="#features">#</a></h2>
+    <p>Small things that help you read. Your choices are remembered between visits, and the page
+    works without the internet.</p>
+    <ul>
+      <li><strong>Site search</strong> - the magnifier in the header: sections, questions and
+      glossary, with the matches highlighted. The index is fetched on the first search, so pages
+      open no slower.</li>
+      <li><strong>Term cards</strong> - a dashed underline: a definition and a link into the
+      glossary without losing your place. Try the word just below.</li>
+      <li><strong>Four languages, one place</strong> - the switch leaves you in the same
+      section.</li>
+      <li><strong>Font size and theme</strong> - the three A's and day / night, across the whole
+      page.</li>
+      <li><strong>Copying code</strong> - a button in every block.</li>
+      <li><strong>Navigator and quick scrolling</strong> - the section you are reading stays
+      highlighted; long pages carry buttons to the top and to the end.</li>
+      <li><strong>Examples verified by running</strong> - the code on the Examples pages is
+      executed before publication.</li>
+    </ul>
     <p class="dim">Every
     <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">shebang</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Shebang</strong><button type="button" class="term-close" aria-label="Close">×</button></span><span class="term-desc">A script's first line, <code>#!/usr/bin/env bash</code>: it tells the kernel which interpreter to run it with.</span><span class="term-links"><a href="glossary.html#shebang">Open in glossary <svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg></a></span></span></span>
-    in this repository is <code>#!/usr/bin/env bash</code>, and that is not taste: it finds the Bash
+    on this site is <code>#!/usr/bin/env bash</code>, and that is not taste: it finds the Bash
     the user actually has, not only the one in <code>/bin</code>.</p>
 
     <h2 id="artifacts">Artifacts: what you have after this page <a class="anchor-link" href="#artifacts">#</a></h2>
@@ -211,8 +220,8 @@
       as a label.</li>
       <li><strong>Six terms</strong> that are not explained again anywhere else: shebang, exit code,
       pipeline, <code>set -euo pipefail</code>, word splitting, subshell.</li>
-      <li><strong>The toolchain in hand:</strong> an understanding of how this site checks itself -
-      <code>./check.sh</code> and <code>shot.mjs</code>.</li>
+      <li><strong>The habit of checking by running:</strong> any claim about Bash can be verified
+      in a terminal within seconds - and this site verifies its own examples the same way.</li>
     </ol>
 
     <footer>
