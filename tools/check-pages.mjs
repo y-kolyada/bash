@@ -67,7 +67,7 @@ const phone = await browser.newPage({ viewport: PHONE });
 // inline script in <head>, so it has to be there before the page loads.
 const phoneBig = await browser.newPage({ viewport: PHONE });
 await phoneBig.addInitScript(() => {
-  try { localStorage.setItem('ai-font', 'l'); } catch (e) { /* private window */ }
+  try { localStorage.setItem('swa-bash-font', 'l'); } catch (e) { /* private window */ }
 });
 const desktops = [];
 for (const viewport of DESKTOPS) desktops.push([viewport, await browser.newPage({ viewport })]);
@@ -193,14 +193,17 @@ for (const file of files) {
     for (const why of search) bad.push([file, why]);
   }
 
-  // Reader preference keys must carry no product marker: a page copied from
-  // another site would quietly bring its own storage keys back.
+  // Storage belongs to the origin, not to the folder: a sibling site published
+  // under the same domain would read these keys as its own. Every key carries
+  // the engine and the site - swa-bash-*. The rule is checked as a pattern, not
+  // as a list of two names, so a new key cannot slip in unnamed.
   const keys = await phone.evaluate(() => {
     const src = document.documentElement.outerHTML;
-    const found = [...src.matchAll(/localStorage\.(?:get|set)Item\('([^']+)'/g)].map((m) => m[1]);
-    return found.filter((k) => k !== 'ai-theme' && k !== 'ai-font');
+    const found = [...src.matchAll(/(?:local|session)Storage\.(?:get|set|remove)Item\('([^']+)'/g)]
+      .map((m) => m[1]);
+    return found.filter((k) => !/^swa-bash-/.test(k));
   });
-  for (const key of keys) bad.push([file, 'чужой ключ настроек в странице: ' + key]);
+  for (const key of keys) bad.push([file, 'ключ хранилища не по шаблону swa-bash-*: ' + key]);
 
   const overflow = await phone.evaluate(() => {
     const viewport = document.documentElement.clientWidth;
@@ -227,7 +230,7 @@ for (const file of files) {
     // The size has to be set in <head>: applied later, the page would first
     // paint at the default size and then jump.
     const head = document.head.innerHTML;
-    out.early = head.includes("'ai-font'") && head.includes('data-font');
+    out.early = head.includes("'swa-bash-font'") && head.includes('data-font');
     return out;
   });
   if (big.font !== 'l') bad.push([file, 'выбранный размер шрифта не применился: data-font=' + big.font]);
@@ -273,7 +276,7 @@ for (const file of files) {
                    + small[part] + ' / ' + medium[part] + ' / ' + large[part]);
         }
       }
-      if (localStorage.getItem('ai-font') !== 'm') bad.push('настройка шрифта не вернулась к средней');
+      if (localStorage.getItem('swa-bash-font') !== 'm') bad.push('настройка шрифта не вернулась к средней');
       return bad;
     });
     for (const why of scale) bad.push([file, why + ' (телефон)']);
@@ -297,6 +300,26 @@ for (const file of files) {
       const nav = document.querySelector('nav.contents');
       if (!nav) return null;
       const links = [...document.querySelectorAll('#tocList a')];
+
+      // Разделы страницы живут внутри её пункта меню, а не отдельным блоком под
+      // всем списком: иначе навигатор оказывается за кромкой панели.
+      const toc = document.getElementById('pageToc');
+      const here = nav.querySelector('[aria-current="page"]');
+      const host = here && (here.closest('li') || here.parentElement);
+      // Два случая, и они требуют разного. У страницы со своим пунктом меню
+      // разделы лежат внутри этого пункта. У лендинга своего пункта нет - его
+      // разделы стоят первыми в панели, над картой сайта. Заглушке вкладывать
+      // нечего: разделов на ней нет, и движок блок не трогает.
+      const placed = host
+        ? !!(toc && host.contains(toc))
+        : !!(toc && nav.firstElementChild === toc);
+      const nested = links.length === 0 || placed;
+      const ownItem = !!host;
+      const firstTop = links.length
+        ? links[0].getBoundingClientRect().top - nav.getBoundingClientRect().top
+        : 0;
+      const firstVisible = links.length ? firstTop < nav.clientHeight : true;
+      const navScrollBefore = nav.scrollTop;
 
       // 1. Top of the sidebar at the bottom of the page: neither above the
       //    window nor under the pinned header.
@@ -332,7 +355,12 @@ for (const file of files) {
       const below = Math.round(nav.getBoundingClientRect().bottom - window.innerHeight);
       const clean = langs.every((a) => !a.getAttribute('href').includes('#'));
 
-      return { hidden, spyOk, below: Math.max(0, below), carried, clean };
+      // Панель не ездит сама: активный пункт читатель подводит рукой.
+      const navScrollKept = nav.scrollTop === navScrollBefore;
+
+      return { hidden, spyOk, below: Math.max(0, below), carried, clean,
+               nested, ownItem, firstVisible, firstTop: Math.round(firstTop),
+               navVisible: nav.clientHeight, navScrollKept };
     }, STICKY_TOP);
 
     if (!seen) continue;
@@ -342,6 +370,15 @@ for (const file of files) {
     if (!seen.carried) bad.push([file, 'переключатель языков не уносит текущий раздел' + where]);
     if (!seen.clean) bad.push([file, 'в начале страницы в ссылках языков остался якорь' + where]);
     if (seen.below > 1) bad.push([file, 'панель не помещается в окно: её низ ниже края на ' + seen.below + 'px' + where]);
+    if (!seen.nested) {
+      bad.push([file, seen.ownItem
+        ? 'разделы страницы стоят не внутри её пункта меню' + where
+        : 'у страницы нет своего пункта меню, и её разделы не подняты над картой сайта' + where]);
+    }
+    if (!seen.firstVisible) {
+      bad.push([file, 'первый раздел не виден без прокрутки панели: он на ' + seen.firstTop + 'px при видимой части панели ' + seen.navVisible + 'px' + where]);
+    }
+    if (!seen.navScrollKept) bad.push([file, 'панель прокрутилась сама при прокрутке страницы' + where]);
   }
 }
 

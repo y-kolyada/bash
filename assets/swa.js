@@ -1,7 +1,7 @@
 // swa.js - Simple Web Architecture utilities: theme, font scale & dynamic in-page TOC
 (function () {
   // 1. Theme: restore and toggle
-  const savedTheme = localStorage.getItem('ai-theme');
+  const savedTheme = localStorage.getItem('swa-bash-theme');
   if (savedTheme) {
     document.documentElement.setAttribute('data-theme', savedTheme);
   }
@@ -37,13 +37,13 @@
         (!currentTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
       const nextTheme = isDark ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', nextTheme);
-      localStorage.setItem('ai-theme', nextTheme);
+      localStorage.setItem('swa-bash-theme', nextTheme);
       updateThemeUI();
     });
   }
 
   // 2. Font size: S / M / L
-  const savedFont = localStorage.getItem('ai-font') || 'm';
+  const savedFont = localStorage.getItem('swa-bash-font') || 'm';
   document.documentElement.setAttribute('data-font', savedFont);
 
   const fontBtns = document.querySelectorAll('.font-btn');
@@ -59,7 +59,7 @@
       const size = btn.getAttribute('data-size');
       if (!size) return;
       document.documentElement.setAttribute('data-font', size);
-      localStorage.setItem('ai-font', size);
+      localStorage.setItem('swa-bash-font', size);
       updateFontUI(size);
     });
   });
@@ -102,6 +102,21 @@
         li.appendChild(a);
         tocList.appendChild(li);
       });
+      // РАЗДЕЛЫ СТОЯТ ВНУТРИ ПУНКТА СВОЕЙ СТРАНИЦЫ. Отдельным блоком под всеми
+      // пятнадцатью разделами они оказывались за кромкой панели: на окне 900px
+      // первая ссылка лежала на 28px ниже видимой части, и навигатор, которым
+      // пользуются постоянно, приходилось искать прокруткой. Словарь помечен
+      // текущим вне списка, поэтому берётся ближайший li, а если его нет - сам
+      // родитель ссылки.
+      // У лендинга своего пункта в меню нет: он не входит в пятнадцать разделов.
+      // Тогда разделы встают над списком - это страница, которую читают сейчас,
+      // и её содержание важнее карты сайта, до которой ещё дойдут.
+      const here = document.querySelector('nav.contents [aria-current="page"]');
+      const host = here && (here.closest('li') || here.parentElement);
+      const panel = document.querySelector('nav.contents');
+      if (host) host.appendChild(tocContainer);
+      else if (panel) panel.insertBefore(tocContainer, panel.firstElementChild);
+
       tocContainer.hidden = false;
 
       // Computed from position, not from IntersectionObserver: the last section
@@ -201,11 +216,11 @@
       clearBtn.hidden = true;
       if (!keepState) {
         try {
-          const raw = sessionStorage.getItem('ai-search');
+          const raw = sessionStorage.getItem('swa-bash-search');
           if (raw) {
             const state = JSON.parse(raw);
             state.active = false;
-            sessionStorage.setItem('ai-search', JSON.stringify(state));
+            sessionStorage.setItem('swa-bash-search', JSON.stringify(state));
           }
         } catch (_) {}
       }
@@ -253,8 +268,6 @@
             pos = at + needle.length;
           }
           if (pos < text.length) frag.appendChild(document.createTextNode(text.slice(pos)));
-          const step = textNode.parentElement && textNode.parentElement.closest('details.step');
-          if (step && !step.open) step.open = true;
           textNode.parentNode.replaceChild(frag, textNode);
         });
       });
@@ -268,7 +281,7 @@
     window.clearSearchHighlight = clearSearchHighlight;
 
     try {
-      const saved = JSON.parse(sessionStorage.getItem('ai-search') || 'null');
+      const saved = JSON.parse(sessionStorage.getItem('swa-bash-search') || 'null');
       if (saved && saved.active && saved.q) {
         const hashAnchor = location.hash ? decodeURIComponent(location.hash.slice(1)) : '';
         const savedAnchor = (saved.url && saved.url.includes('#')) ? saved.url.split('#')[1] : '';
@@ -374,18 +387,4 @@
   fitNav();
   fitFloats();
   markActive();
-
-  // 8. Print and PDF: expand every step for the booklet
-  window.addEventListener('beforeprint', () => {
-    document.querySelectorAll('details.step:not([open])').forEach((d) => {
-      d.setAttribute('data-was-closed', 'true');
-      d.setAttribute('open', '');
-    });
-  });
-  window.addEventListener('afterprint', () => {
-    document.querySelectorAll('details.step[data-was-closed]').forEach((d) => {
-      d.removeAttribute('data-was-closed');
-      d.removeAttribute('open');
-    });
-  });
 })();
