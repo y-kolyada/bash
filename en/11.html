@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bash examples · Pro level · devops-bash · ai|</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+<script>
+  (function() {
+    var t = localStorage.getItem('ai-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+    var f = localStorage.getItem('ai-font');
+    if (f) document.documentElement.setAttribute('data-font', f);
+  })();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand-group">
+    <a class="home" href="index.html">
+      <span class="badge-ai">ai|</span>
+      <span class="sub-brand">devops-bash</span>
+    </a>
+    <div class="three" aria-hidden="true">tools · <span class="topic">Bash</span> · practice · 150 questions</div>
+  </div>
+  <div class="utility-tray" role="toolbar" aria-label="Display settings and language">
+    <div class="lang-switcher" aria-label="Language">
+      <a href="11.html" class="active" aria-current="page">EN</a>
+      <a href="../ru/11.html">RU</a>
+      <a href="../uk/11.html">UK</a>
+      <a href="../de/11.html">DE</a>
+    </div>
+    <div class="font-scaler" role="group" aria-label="Font size">
+      <button type="button" class="font-btn font-s" data-size="s" title="Small text" aria-label="Small text">A</button>
+      <button type="button" class="font-btn font-m active" data-size="m" title="Default text" aria-label="Default text">A</button>
+      <button type="button" class="font-btn font-l" data-size="l" title="Large text" aria-label="Large text">A</button>
+    </div>
+    <button type="button" class="theme-toggle" id="themeToggle" title="Switch theme (day/night)" aria-label="Switch theme day/night">
+      <span class="theme-icon" aria-hidden="true"><svg class="icon" data-icon="sun" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="3.8"/><path d="M10 1.2v2.2M10 16.6v2.2M1.2 10h2.2M16.6 10h2.2M3.7 3.7l1.6 1.6M14.7 14.7l1.6 1.6M16.3 3.7l-1.6 1.6M5.3 14.7l-1.6 1.6"/></svg></span>
+    </button>
+  </div>
+</header>
+
+<div class="cols">
+
+  <nav class="sessions" aria-label="Site sections">
+    <ol>
+      <li><a href="01.html"><span class="num">1</span>Key components</a></li>
+      <li><a href="02.html"><span class="num">2</span>Writing scripts</a></li>
+      <li><a href="03.html"><span class="num">3</span>The strength of Bash</a></li>
+      <li><a href="04.html"><span class="num">4</span>Weaknesses and limits</a></li>
+      <li><a href="05.html"><span class="num">5</span>Interconnections</a></li>
+      <li><a href="06.html"><span class="num">6</span>Practices in an AI context</a></li>
+      <li><a href="07.html"><span class="num">7</span>Practices in the cloud</a></li>
+      <li><a href="08.html"><span class="num">8</span>DevOps practices</a></li>
+      <li><a href="09.html"><span class="num">9</span>SRE practices</a></li>
+      <li><a href="10.html"><span class="num">10</span>Examples · Noob</a></li>
+      <li><a href="11.html" aria-current="page"><span class="num">11</span>Examples · Pro</a></li>
+      <li><a href="12.html"><span class="num">12</span>Examples · IGL</a></li>
+      <li><a href="13.html"><span class="num">13</span>Questions · Noob</a></li>
+      <li><a href="14.html"><span class="num">14</span>Questions · Pro</a></li>
+      <li><a href="15.html"><span class="num">15</span>Questions · IGL</a></li>
+    </ol>
+    <div class="nav-extra">
+      <a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Glossary</a>
+    </div>
+    <div class="page-toc" id="pageToc" aria-label="Sections on this page" hidden>
+      <div class="toc-title">On this page</div>
+      <ul class="toc-list" id="tocList"></ul>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Examples · Pro</h1>
+    <p class="lead">Seven techniques for the “my scripts run on other people's machines” level. The goal of this level is to eliminate silent failures: whatever can go wrong must report it out loud.</p>
+
+    <div class="box key" id="key-idea">
+      <h2>Key idea of this page <a class="yakor" href="#key-idea" aria-label="link to this section">#</a></h2>
+      <p>The difference between Noob and Pro is not command recall, but the approach to failure. A beginner scripts the happy path; a professional assumes commands will fail, network connections will flap, and the script will be executed twice concurrently or interrupted mid-run. The seven techniques below target precisely these realities: loud failures with line numbers, guaranteed temporary file cleanup, non-destructive dry-run modes, bounded retries, bounded concurrency with error aggregation, single-instance execution locks, and logging that does not pollute data streams. None of them are complex. What is difficult is remembering them before an incident occurs, rather than after.</p>
+    </div>
+
+    <h2 id="trap-err">1 · Failing loudly: <code>trap ERR</code> with line numbers <a class="yakor" href="#trap-err">#</a></h2>
+    <p><strong>Task:</strong> Ensure a failing script automatically reports where the failure occurred.</p>
+<pre><code>#!/usr/bin/env bash
+set -Eeuo pipefail
+
+on_err() {
+  local rc=$?
+  echo "FAILURE: line $1, exit code $rc" &gt;&amp;2
+  exit "$rc"
+}
+trap 'on_err $LINENO' ERR</code></pre>    <div class="prints"><strong>Why this works:</strong> Bash lacks stack traces on failure, so the failure line number is the sole substitute for a trace. <strong>The <code>-E</code> option is mandatory:</strong> without it, the <code>ERR</code> trap is not inherited by shell functions or subshells, causing errors inside functions to bypass the handler. <code>local rc=$?</code> must be captured on the very first line: any subsequent command overwrites the exit status.</div>
+
+    <h2 id="mktemp">2 · Temporary directory guaranteed to clean up <a class="yakor" href="#mktemp">#</a></h2>
+    <p><strong>Task:</strong> Process intermediate files leaving zero debris on error or <code>Ctrl+C</code>.</p>
+<pre><code>tmp=$(mktemp -d "${TMPDIR:-/tmp}/app.XXXXXX")
+cleanup() { rm -rf "$tmp"; }
+trap cleanup EXIT INT TERM
+
+work &gt; "$tmp/out"
+mv "$tmp/out" result.txt</code></pre>    <div class="prints"><strong>Why this works:</strong> The <code>EXIT</code> pseudo-signal trap runs on any script termination, including <code>set -e</code> failures - with the sole exception of <code>SIGKILL</code>, which the kernel prohibits trapping. <code>INT</code> and <code>TERM</code> add handling for terminal interruptions and process termination signals. <strong>Let <code>mktemp</code> generate unique names:</strong> predictable filenames in shared <code>/tmp</code> create race conditions under concurrent runs and open symlink attack vulnerabilities. Atomic renaming into final placement ensures callers never observe a partially written file.</div>
+
+    <h2 id="getopts">3 · Command options and mandatory <code>--dry-run</code> <a class="yakor" href="#getopts">#</a></h2>
+    <p><strong>Task:</strong> Equip a script with options and a “show what would happen without executing” mode.</p>
+<pre><code>dry=0; verbose=0
+while getopts ":nvh" opt; do
+  case $opt in
+    n) dry=1 ;;
+    v) verbose=1 ;;
+    h) usage; exit 0 ;;
+    \?) echo "unknown option" &gt;&amp;2; exit 2 ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+run() { (( dry )) &amp;&amp; { echo "DRY: $*"; return 0; }; "$@"; }
+run rm -rf "$target"</code></pre>    <div class="prints"><strong>Why this works:</strong> A leading colon in the option specification string puts <code>getopts</code> into silent mode, giving you control over error reporting. <code>shift $((OPTIND - 1))</code> consumes parsed options, leaving <code>$1</code> pointing to the first positional argument. <strong>The <code>run</code> wrapper makes dry-run support architectural rather than an afterthought:</strong> all mutating commands pass through it, making omitting <code>--dry-run</code> harder than remembering it. <strong>One critical caveat:</strong> shell redirections are evaluated <em>before</em> entering a function. <code>run echo x &gt; file</code> truncates <code>file</code> even in dry-run mode because <code>&gt;</code> has already executed. Encapsulate file writing inside the command: <code>run sh -c 'echo x &gt; file'</code> or write through a dedicated helper function that performs its own dry-run check.</p></div>
+
+    <h2 id="retry">4 · Retries with exponential backoff <a class="yakor" href="#retry">#</a></h2>
+    <p><strong>Task:</strong> Survive transient network hiccups without degenerating into an infinite loop.</p>
+<pre><code>retry() {
+  local n=0 max=5 delay=1
+  until "$@"; do
+    n=$((n + 1))
+    (( n &gt;= max )) &amp;&amp; return 1
+    sleep "$delay"
+    delay=$((delay * 2))
+  done
+}
+
+retry curl -fsS --max-time 10 "$url"</code></pre>    <div class="prints"><strong>Why this works:</strong> Three conditions distinguish a resilient retry from an infinite hang: <strong>an attempt ceiling, growing backoff delays, and a command-level timeout.</strong> Without <code>--max-time</code>, retries are useless: the very first request can stall indefinitely. <code>curl -f</code> is mandatory: without it, HTTP 500 errors are treated as successful exits, leaving nothing to retry.</div>
+
+    <h2 id="parallel">5 · Bounded parallel processing with error aggregation <a class="yakor" href="#parallel">#</a></h2>
+    <p><strong>Task:</strong> Process a hundred files across four parallel workers and verify if any failed.</p>
+<pre><code>export -f process          # visible in xargs
+
+printf '%s\0' logs/*.log \
+  | xargs -0 -P4 -I{} bash -c 'process "$@"' _ {} \
+  || echo "some tasks failed" &gt;&amp;2
+
+# manual tracking with exit codes:
+pids=(); for f in …; do work "$f" &amp; pids+=($!); done
+rc=0; for p in "${pids[@]}"; do wait "$p" || rc=1; done</code></pre>    <div class="prints"><strong>Why this works:</strong> The null delimiter <code>\0</code> paired with <code>-0</code> immunizes the pipeline against filenames with spaces and newlines. <strong><code>xargs</code> returns a non-zero exit status if any sub-process fails</strong> - providing the aggregated error detection absent in naive <code>&amp;</code> plus <code>wait</code> workflows. If you need individual process exit codes, store <code>$!</code> in an array and wait on each PID individually.</div>
+
+    <h2 id="flock">6 · Single instance: protecting against concurrent runs <a class="yakor" href="#flock">#</a></h2>
+    <p><strong>Task:</strong> Prevent a cron job from starting a second instance if the previous run is still active.</p>
+<pre><code>exec 9&gt;/var/lock/app.lock
+flock -n 9 || { echo "already running" &gt;&amp;2; exit 0; }
+
+# subsequent standard execution</code></pre>    <div class="prints"><strong>Why this works:</strong> The lock is bound to an open file descriptor, not a filesystem path: <strong>it is released automatically when the process terminates</strong> - including abrupt crashes. A custom “pid-file / flag-file” lacks this property: upon an unhandled crash, stale lock files remain on disk blocking future runs permanently. The <code>-n</code> flag requests non-blocking acquisition; exiting with status 0 is deliberate here - for cron, an already running instance is an expected condition, not a failure.</div>
+
+    <h2 id="log-levels">7 · Leveled logging <a class="yakor" href="#log-levels">#</a></h2>
+    <p><strong>Task:</strong> Provide diagnostic logging that does not corrupt command stdout.</p>
+<pre><code>LOG_LEVEL="${LOG_LEVEL:-info}"
+_log() {
+  local lvl=$1; shift
+  printf '%s [%s] %s\n' \
+    "$(date -Is)" "$lvl" "$*" &gt;&amp;2
+}
+info() { [ "$LOG_LEVEL" = debug ] || [ "$LOG_LEVEL" = info ] &amp;&amp; _log INFO "$@"; }
+die()  { _log ERROR "$@"; exit 1; }</code></pre>    <div class="prints"><strong>Why this works:</strong> All log output is directed to <strong>stderr</strong> because stdout is reserved for data consumed by downstream pipeline stages. Timestamps formatted with <code>-Is</code> (ISO 8601) sort naturally as strings and parse unambiguously by machine tools. <strong>Log level is driven by an environment variable</strong>: verbosity can be toggled without editing script code - essential when triaging issues in production.</div>
+
+    <h2 id="artifacts">Artifacts: what you take away from this page <a class="yakor" href="#artifacts">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Reading &gt;&gt; Your life quantum · Dignity partnership with AI · Rewiring your neural network</p>
+      <p><strong>Seven modular patterns and the exact failures each defends against.</strong> Your time was well spent if when drafting your next script you reflexively ask “what happens if this crashes midway through” - and already know the solution. That is the essence of rewiring: failure handling stops being an afterthought and becomes an integral part of design.</p>
+    </div>
+    <ol>
+      <li><strong><code>set -Eeuo pipefail</code> and <code>trap ERR $LINENO</code></strong> - failures name their exact location.</li>
+      <li><strong><code>mktemp -d</code> with <code>trap EXIT INT TERM</code></strong> - guaranteed cleanup on all exits except <code>kill -9</code>.</li>
+      <li><strong><code>getopts</code> and the <code>run</code> wrapper</strong> - architectural dry-run checks and internal redirection.</li>
+      <li><strong>Bounded retries with timeouts</strong>, and why <code>curl -f</code> is mandatory.</li>
+      <li><strong><code>xargs -0 -P</code></strong> - safe filenames and aggregated exit status reporting.</li>
+      <li><strong>Descriptor-based <code>flock</code></strong> instead of brittle pid-files.</li>
+      <li><strong>Stderr logging with environment-driven log levels.</strong></li>
+    </ol>
+
+    <footer>
+      Next page - the IGL level: architectural decisions on whether a script should exist at all. Deferred items - in <a href="../lessons/potom.md">potom.md</a>.
+    </footer>
+  </main>
+
+</div>
+</div>
+<script src="../assets/swa.js"></script>
+<script src="../assets/terms.js"></script>
+<script src="../assets/cp.js"></script>
+</body>
+</html>

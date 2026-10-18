@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Слабости и границы Bash · devops-bash · ai|</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+<script>
+  (function() {
+    var t = localStorage.getItem('ai-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+    var f = localStorage.getItem('ai-font');
+    if (f) document.documentElement.setAttribute('data-font', f);
+  })();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand-group">
+    <a class="home" href="index.html">
+      <span class="badge-ai">ai|</span>
+      <span class="sub-brand">devops-bash</span>
+    </a>
+    <div class="three" aria-hidden="true">инструменты · <span class="topic">Bash</span> · практика · 150 вопросов</div>
+  </div>
+  <div class="utility-tray" role="toolbar" aria-label="Настройки отображения и язык">
+    <div class="lang-switcher" aria-label="Выбор языка">
+      <a href="../en/04.html">EN</a>
+      <a href="04.html" class="active" aria-current="page">RU</a>
+      <a href="../uk/04.html">UK</a>
+      <a href="../de/04.html">DE</a>
+    </div>
+    <div class="font-scaler" role="group" aria-label="Размер шрифта">
+      <button type="button" class="font-btn font-s" data-size="s" title="Мелкий шрифт" aria-label="Мелкий шрифт">A</button>
+      <button type="button" class="font-btn font-m active" data-size="m" title="Стандартный шрифт" aria-label="Стандартный шрифт">A</button>
+      <button type="button" class="font-btn font-l" data-size="l" title="Крупный шрифт" aria-label="Крупный шрифт">A</button>
+    </div>
+    <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему (День/Ночь)" aria-label="Сменить тему день/ночь">
+      <span class="theme-icon" aria-hidden="true"><svg class="icon" data-icon="sun" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="3.8"/><path d="M10 1.2v2.2M10 16.6v2.2M1.2 10h2.2M16.6 10h2.2M3.7 3.7l1.6 1.6M14.7 14.7l1.6 1.6M16.3 3.7l-1.6 1.6M5.3 14.7l-1.6 1.6"/></svg></span>
+    </button>
+  </div>
+</header>
+
+<div class="cols">
+
+  <nav class="sessions" aria-label="Разделы сайта">
+    <ol>
+      <li><a href="01.html"><span class="num">1</span>Ключевые компоненты</a></li>
+      <li><a href="02.html"><span class="num">2</span>Написание скриптов</a></li>
+      <li><a href="03.html"><span class="num">3</span>Сила Bash</a></li>
+      <li><a href="04.html" aria-current="page"><span class="num">4</span>Слабости и границы</a></li>
+      <li><a href="05.html"><span class="num">5</span>Взаимосвязи</a></li>
+      <li><a href="06.html"><span class="num">6</span>Практики в контексте AI</a></li>
+      <li><a href="07.html"><span class="num">7</span>Практики в Clouds</a></li>
+      <li><a href="08.html"><span class="num">8</span>Практики DevOps</a></li>
+      <li><a href="09.html"><span class="num">9</span>Практики SRE</a></li>
+      <li><a href="10.html"><span class="num">10</span>Примеры · Noob</a></li>
+      <li><a href="11.html"><span class="num">11</span>Примеры · Pro</a></li>
+      <li><a href="12.html"><span class="num">12</span>Примеры · IGL</a></li>
+      <li><a href="13.html"><span class="num">13</span>Вопросы · Noob</a></li>
+      <li><a href="14.html"><span class="num">14</span>Вопросы · Pro</a></li>
+      <li><a href="15.html"><span class="num">15</span>Вопросы · IGL</a></li>
+    </ol>
+    <div class="nav-extra">
+      <a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словарь понятий</a>
+    </div>
+    <div class="page-toc" id="pageToc" aria-label="Разделы этой страницы" hidden>
+      <div class="toc-title">На этой странице</div>
+      <ul class="toc-list" id="tocList"></ul>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Слабости и границы</h1>
+    <p class="lead">Честный список того, что в Bash устроено плохо, и признаки, по которым видно: задача уже не его. Без этого раздела предыдущий был бы рекламой.</p>
+
+    <div class="box key" id="key-idea">
+      <h2>Главная мысль страницы <a class="yakor" href="#key-idea" aria-label="ссылка на этот блок">#</a></h2>
+      <p>У Bash четыре слабости, которые нельзя обойти мастерством: дырявая обработка ошибок, отсутствие структур данных, целочисленная арифметика и параллелизм без синхронизации. К ним добавляются две приобретённые: читаемость, падающая после трёхсот строк, и переносимость, которая ломается сразу по двум независимым причинам - другая оболочка и другие утилиты. Ни одна из них не делает язык плохим: они очерчивают область, в которой он лучший. Опасность не в слабостях, а в том, чтобы не заметить, как задача из этой области вышла. Последний раздел страницы - список признаков, по которым это видно заранее.</p>
+    </div>
+
+    <h2 id="error-handling">1 · Обработка ошибок: <code>set -e</code> дырявый <a class="yakor" href="#error-handling">#</a></h2>
+    <p>Главная слабость, и она же самая опасная, потому что выглядит как решённая проблема.
+    <code>set -e</code> создаёт <strong>ощущение</strong> защиты, а дыр в нём больше, чем помнит
+    наизусть любой инженер.</p>
+<pre><code>set -euo pipefail
+
+f() { false; echo "выполнится"; }
+if f; then :; fi        # -e отключён
+
+local x=$(false)        # local вернёт 0
+yes | head -n 1         # 141 (SIGPIPE)</code></pre>
+    <p><strong>Правило:</strong> внутри условия, слева от <code>&amp;&amp;</code> и
+    <code>||</code>, в теле функции, вызванной из условия, и в <code>local x=$(cmd)</code> -
+    <code>set -e</code> не действует. И наоборот: включённый <code>pipefail</code> внезапно роняет
+    исправный конвейер с <code>head</code> или <code>grep -q</code>, когда правое звено закрывает
+    трубу раньше времени, а левое получает от ядра <code>SIGPIPE</code> (код 141). Добавьте сюда
+    отсутствие исключений и стека вызовов - и получите язык, в котором <strong>надёжная обработка
+    ошибок требует дисциплины, а не поддержки языка.</strong></p>
+    <div class="prints"><strong>Что спрашивают:</strong> «В каких случаях <code>set -e</code> не срабатывает и почему <code>pipefail</code> падает на <code>head -n 1</code>?»</div>
+
+    <h2 id="text-not-data">2 · Данных нет, есть текст <a class="yakor" href="#text-not-data">#</a></h2>
+    <p>В Bash один настоящий тип - строка. Массивы есть, но они не передаются в функции, не
+    вкладываются друг в друга и не возвращаются наружу. Структур нет вовсе.</p>
+<pre><code># это не массив массивов,
+# это строка с пробелами
+arr=("a b" "c")
+other=("${arr[@]}")   # копия - так
+
+f() { local -n ref=$1; }  # bash 4.3+
+# передать массив иначе нельзя
+
+cat data.json | jq -r '.items[].id'
+# JSON в bash - всегда через jq</code></pre>
+    <p>Любая работа с JSON, YAML или CSV - это внешняя программа: <code>jq</code>,
+    <code>yq</code>, <code>awk</code>. Пока данных мало, это нормально. Как только появляется
+    вложенность, соединение двух источников или изменение структуры - <strong>вы пишете
+    программу на jq внутри программы на bash</strong>, и читать это будет некому.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Как в Bash передать массив в функцию и почему это неудобно?»</div>
+
+    <h2 id="integer-math">3 · Арифметика только целочисленная <a class="yakor" href="#integer-math">#</a></h2>
+    <p>Встроенная арифметика Bash не знает дробей. Совсем.</p>
+<pre><code>echo $(( 7 / 2 ))        # 3
+echo $(( 10 * 95 / 100 )) # 9
+
+echo 'scale=2; 7/2' | bc  # 3.50
+awk 'BEGIN{print 7/2}'    # 3.5</code></pre>
+    <p>Любой процент, среднее, время в секундах с долями - это вызов <code>bc</code> или
+    <code>awk</code>, то есть внешний процесс на каждое вычисление. <strong>Если в задаче есть
+    математика, Bash - неправильный инструмент</strong>, и это не вопрос мастерства.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Как в Bash посчитать среднее или процент и почему это неудобно?»</div>
+
+    <h2 id="parallelism">4 · Параллелизм без синхронизации <a class="yakor" href="#parallelism">#</a></h2>
+    <p>Запустить сто задач одновременно просто. Сделать это <strong>правильно</strong> - нет:
+    в языке нет ни мьютексов, ни очередей, ни безопасной записи в общее состояние.</p>
+<pre><code>for f in *.log; do
+  process "$f" &amp;
+done
+wait            # код возврата - не ваш
+
+# ограничить и поймать отказ:
+printf '%s\0' *.log \
+  | xargs -0 -P4 -n1 process</code></pre>
+    <p>Два фоновых процесса, пишущих в один файл, перемешают строки. Счётчик, увеличенный в
+    сабшелле, снаружи не изменится. А <code>wait</code> без аргументов <strong>всегда возвращает 0</strong> -
+    даже если упал единственный фоновый процесс; узнать об отказе можно, только дожидаясь
+    каждого идентификатора отдельно. <code>xargs -P</code> и <code>parallel</code> закрывают простые случаи;
+    <strong>всё, что сложнее «обработать N независимых файлов», - повод уйти из Bash.</strong></p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Как ограничить число параллельных задач в shell и как узнать, что одна из них упала?»</div>
+
+    <h2 id="readability">5 · Читаемость падает после трёхсот строк <a class="yakor" href="#readability">#</a></h2>
+    <p>Синтаксис Bash оптимизирован под набор в одну строку, а не под чтение через полгода.
+    Цитирование, подстановки и проверки складываются в текст, который трудно просматривать глазами.</p>
+<pre><code>[[ -n "${v:-}" ]] &amp;&amp; [[ "${v}" != "x" ]] \
+  || { echo "нет"; exit 1; }
+
+# условие, действие и обработка
+# ошибки - в одной строке</code></pre>
+    <p>Добавьте отсутствие пространств имён, глобальные переменные по умолчанию и то, что ошибку
+    в имени переменной ловит только <code>set -u</code>. <strong>Практический порог - около
+    трёхсот строк:</strong> дальше скрипт начинает требовать от читателя тех же знаний, что и от
+    автора, а это ровно то, чего избегает поддерживаемый код.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Где граница, после которой скрипт пора переписывать на другом языке?»</div>
+
+    <h2 id="portability">6 · Переносимость: два разных мира <a class="yakor" href="#portability">#</a></h2>
+    <p>«Работает на моей машине» в shell имеет две независимые причины: <strong>не та оболочка</strong>
+    и <strong>не те утилиты</strong>.</p>
+<pre><code>#!/bin/sh
+echo ${arr[0]}   # в dash - ошибка
+
+sed -i 's/a/b/' f   # GNU
+sed -i '' 's/a/b/' f # BSD/macOS
+
+stat -c %s f     # GNU; BSD: -f %z
+date -d @0       # GNU; BSD: -r 0</code></pre>
+    <p><code>/bin/sh</code> в Debian и Ubuntu - это <code>dash</code>, а не Bash: массивов,
+    <code>[[ ]]</code>, подстановки процессов и замены по шаблону <code>${v//a/b}</code> там нет.
+    (<code>local</code>, вопреки распространённому мнению, в <code>dash</code> есть.) В Alpine внутри контейнера оболочка -
+    <code>ash</code> из busybox, и половина привычных ключей утилит работает иначе. В macOS Bash
+    версии 3.2, а утилиты - BSD.</p>
+    <p><strong>Решение честное и скучное:</strong> либо явный <code>#!/usr/bin/env bash</code> и
+    отказ от POSIX-совместимости, либо проверка через <code>shellcheck -s sh</code> и отказ от
+    удобств. Середины нет, и выбирать надо осознанно.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Чем <code>sh</code> отличается от <code>bash</code> и почему скрипт ломается в Alpine или на macOS?»</div>
+
+    <h2 id="when-to-leave">7 · Когда уходить, и куда <a class="yakor" href="#when-to-leave">#</a></h2>
+    <div class="box">
+      <p><strong>Признаки, что Bash уже не тот инструмент</strong> - любого одного достаточно:</p>
+      <ul>
+        <li>в задаче есть структуры данных или JSON сложнее плоского списка;</li>
+        <li>нужна арифметика с дробями;</li>
+        <li>нужна настоящая обработка ошибок с восстановлением;</li>
+        <li>параллелизм сложнее «N независимых задач»;</li>
+        <li>скрипт перевалил за триста строк и растёт;</li>
+        <li>его будут читать и править люди, которые Bash не знают.</li>
+      </ul>
+      <p><strong>Куда.</strong> Python - когда нужны данные и библиотеки. <strong>Go или Rust</strong> -
+      когда нужен один бинарник без зависимостей на целевой машине; Go дешевле по времени
+      разработки, Rust - по надёжности в долгой эксплуатации, и для замены скрипта обычно
+      решает первое. Make - когда задача про зависимости между
+      шагами, а не про последовательность. Ansible или Terraform - когда задача про желаемое
+      состояние, а не про действия.</p>
+      <p class="dim">И обратное правило, не менее важное: <strong>двадцать строк на Bash не надо
+      переписывать на Python</strong> ради принципа. Цена сопровождения растёт не от языка,
+      а от размера.</p>
+    </div>
+
+
+    <h2 id="artifacts">Артефакты: что у вас есть после этой страницы <a class="yakor" href="#artifacts">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Чтение &gt;&gt; Ваш квант времени жизни · Партнёрство достоинства вместе с AI · Перестройка вашей нейросети</p>
+      <p><strong>Умение сказать «здесь Bash не подходит» и назвать причину.</strong> Время потрачено не зря, если вы перестали спорить о языках вообще и начали называть конкретное свойство задачи: дроби, вложенные данные, восстановление после ошибки, размер. Это и есть перестройка нейросети - выбор инструмента перестаёт быть вопросом вкуса и становится вопросом цены, которую вы можете назвать вслух.</p>
+    </div>
+    <ol>
+      <li><strong>Дыры <code>set -e</code>:</strong> условие, <code>&amp;&amp;</code>, функция из условия, подстановка в аргументе.</li>
+      <li><strong>Один тип данных</strong> и почему JSON в Bash всегда означает <code>jq</code>.</li>
+      <li><strong>Целочисленная арифметика</strong> и цена каждого <code>bc</code>.</li>
+      <li><strong>Параллелизм без синхронизации</strong> и граница применимости <code>xargs -P</code>.</li>
+      <li><strong>Порог трёхсот строк</strong> как практический сигнал.</li>
+      <li><strong>Две причины непереносимости:</strong> другая оболочка и другие утилиты.</li>
+      <li><strong>Список признаков ухода</strong> и куда уходить: Python, Go, Make, Ansible.</li>
+    </ol>
+
+    <footer>
+      Следующая страница - взаимосвязи: где Bash стыкуется с Git, CI, Docker и systemd. Что отложено и почему - в <a href="../lessons/potom.md">potom.md</a>.
+    </footer>
+  </main>
+
+</div>
+</div>
+<script src="../assets/swa.js"></script>
+<script src="../assets/terms.js"></script>
+<script src="../assets/cp.js"></script>
+</body>
+</html>

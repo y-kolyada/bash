@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DevOps practices in Bash · devops-bash · ai|</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+<script>
+  (function() {
+    var t = localStorage.getItem('ai-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+    var f = localStorage.getItem('ai-font');
+    if (f) document.documentElement.setAttribute('data-font', f);
+  })();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand-group">
+    <a class="home" href="index.html">
+      <span class="badge-ai">ai|</span>
+      <span class="sub-brand">devops-bash</span>
+    </a>
+    <div class="three" aria-hidden="true">tools · <span class="topic">Bash</span> · practice · 150 questions</div>
+  </div>
+  <div class="utility-tray" role="toolbar" aria-label="Display settings and language">
+    <div class="lang-switcher" aria-label="Language">
+      <a href="08.html" class="active" aria-current="page">EN</a>
+      <a href="../ru/08.html">RU</a>
+      <a href="../uk/08.html">UK</a>
+      <a href="../de/08.html">DE</a>
+    </div>
+    <div class="font-scaler" role="group" aria-label="Font size">
+      <button type="button" class="font-btn font-s" data-size="s" title="Small text" aria-label="Small text">A</button>
+      <button type="button" class="font-btn font-m active" data-size="m" title="Default text" aria-label="Default text">A</button>
+      <button type="button" class="font-btn font-l" data-size="l" title="Large text" aria-label="Large text">A</button>
+    </div>
+    <button type="button" class="theme-toggle" id="themeToggle" title="Switch theme (day/night)" aria-label="Switch theme day/night">
+      <span class="theme-icon" aria-hidden="true"><svg class="icon" data-icon="sun" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="3.8"/><path d="M10 1.2v2.2M10 16.6v2.2M1.2 10h2.2M16.6 10h2.2M3.7 3.7l1.6 1.6M14.7 14.7l1.6 1.6M16.3 3.7l-1.6 1.6M5.3 14.7l-1.6 1.6"/></svg></span>
+    </button>
+  </div>
+</header>
+
+<div class="cols">
+
+  <nav class="sessions" aria-label="Site sections">
+    <ol>
+      <li><a href="01.html"><span class="num">1</span>Key components</a></li>
+      <li><a href="02.html"><span class="num">2</span>Writing scripts</a></li>
+      <li><a href="03.html"><span class="num">3</span>The strength of Bash</a></li>
+      <li><a href="04.html"><span class="num">4</span>Weaknesses and limits</a></li>
+      <li><a href="05.html"><span class="num">5</span>Interconnections</a></li>
+      <li><a href="06.html"><span class="num">6</span>Practices in an AI context</a></li>
+      <li><a href="07.html"><span class="num">7</span>Practices in the cloud</a></li>
+      <li><a href="08.html" aria-current="page"><span class="num">8</span>DevOps practices</a></li>
+      <li><a href="09.html"><span class="num">9</span>SRE practices</a></li>
+      <li><a href="10.html"><span class="num">10</span>Examples · Noob</a></li>
+      <li><a href="11.html"><span class="num">11</span>Examples · Pro</a></li>
+      <li><a href="12.html"><span class="num">12</span>Examples · IGL</a></li>
+      <li><a href="13.html"><span class="num">13</span>Questions · Noob</a></li>
+      <li><a href="14.html"><span class="num">14</span>Questions · Pro</a></li>
+      <li><a href="15.html"><span class="num">15</span>Questions · IGL</a></li>
+    </ol>
+    <div class="nav-extra">
+      <a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Glossary</a>
+    </div>
+    <div class="page-toc" id="pageToc" aria-label="Sections on this page" hidden>
+      <div class="toc-title">On this page</div>
+      <ul class="toc-list" id="tocList"></ul>
+    </div>
+  </nav>
+
+  <main>
+    <h1>DevOps practices</h1>
+    <p class="lead">Bash in delivery pipelines: builds, environments, deployments and rollbacks, pre-merge checks, and secret handling. Plus the warning signs that a pipeline has outgrown shell scripts.</p>
+
+    <div class="box key" id="key-idea">
+      <h2>Key idea of this page <a class="yakor" href="#key-idea" aria-label="link to this section">#</a></h2>
+      <p>In the delivery pipeline, Bash is used most frequently and mistakes cost the most, because a CI step is your script executed by an external runner: with someone else's flags, in a fresh process, and in a reset directory. Hence the first rule: every step must be self-contained, and non-trivial logic should live in a repository script that can be run locally. The second rule governs builds: version strings come from version control, and <code>latest</code> is not a version because you cannot roll back to it. The third: one script across all environments with a mandatory environment argument, because defaults eventually trigger accidental deployments to production. And the fourth, most common interview topic: design the rollback before writing the deployment.</p>
+    </div>
+
+    <h2 id="ci-step">1 · Bash in pipelines: whose process is this? <a class="yakor" href="#ci-step">#</a></h2>
+    <p>A CI step is your script run by someone else's runner. Three facts about this execution define nearly all its behavior.</p>
+<pre><code># 1. runner sets flags, not you
+#    without shell: -&gt; bash -e
+#    shell: bash -&gt; + pipefail
+set -euo pipefail   # -u is yours alone
+
+# 2. each step is a new process
+echo "VER=$v" &gt;&gt; "$GITHUB_ENV"
+
+# 3. working directory is reset
+cd "$GITHUB_WORKSPACE"</code></pre>
+    <p><strong>The resulting rule: every step must be self-contained.</strong> It cannot rely on <code>export</code> from a preceding step, cannot assume a persistent working directory, and must declare its own strict mode explicitly. Extract multi-line logic into a <code>.sh</code> file in the repository: it can be executed locally, verified with <code>shellcheck</code>, and reviewed cleanly in diffs - unlike twenty lines inlined in YAML.</p>
+    <div class="prints"><strong>What gets asked:</strong> “Why is a variable set in one CI step invisible in the next, and how do you pass data between steps?”</div>
+
+    <h2 id="build">2 · Building artifacts: reproducibility over speed <a class="yakor" href="#build">#</a></h2>
+    <p>A build script answers a single question: <strong>will tomorrow's build produce the exact same artifact as today's?</strong> Everything else is secondary.</p>
+<pre><code>ver=$(git describe --tags --always --dirty)
+sha=$(git rev-parse --short HEAD)
+
+docker build \
+  --build-arg VER="$ver" \
+  -t "app:$sha" .
+
+# artifact is named by version,
+# never latest</code></pre>
+    <p>Three rules catch the majority of build issues. <strong>Version strings must come from version control, not environment variables</strong> - preventing stale version numbers. <strong><code>latest</code> is not a version</strong>: rolling back to it is impossible. <strong>The <code>--dirty</code> suffix</strong> signals an uncommitted working tree - producing an artifact that cannot be reproduced from Git history, a condition that must be detected immediately.</p>
+    <div class="prints"><strong>What gets asked:</strong> “Where should artifact versions originate, and why is deploying <code>latest</code> prohibited?”</div>
+
+    <h2 id="environments">3 · Environments Dev → QA → Prod: one script, distinct parameters <a class="yakor" href="#environments">#</a></h2>
+    <p>A classic anti-pattern is maintaining three similar scripts, one per environment. Within a month they diverge, and a production deployment no longer mirrors what was tested on QA.</p>
+<pre><code>#!/usr/bin/env bash
+set -euo pipefail
+env="${1:?dev|qa|prod}"
+cfg="deploy/$env.env"
+[ -f "$cfg" ] || { echo "missing $cfg" &gt;&amp;2; exit 2; }
+# shellcheck source=/dev/null
+source "$cfg"
+
+[ "$env" = prod ] &amp;&amp; : "${APPROVED:?confirmation required}"</code></pre>
+    <p><strong>One script, external configuration, mandatory environment argument.</strong> Never provide default values for the target environment: a script defaulting to production without arguments will eventually deploy to production by accident. Gate production deployments behind an explicit approval variable, not an easily ignored file header comment.</p>
+    <div class="prints"><strong>What gets asked:</strong> “How does a single script serve three environments, and how do you guard production from accidental execution?”</div>
+
+    <h2 id="deploy-rollback">4 · Deployment and rollback: design rollback first <a class="yakor" href="#deploy-rollback">#</a></h2>
+    <p>The question asked more frequently in interviews than deployment itself: <strong>how do you roll back?</strong> If the answer requires a new build, it is the wrong answer.</p>
+<pre><code># releases side by side, current is a symlink
+ln -sfn "/opt/app/rel/$ver" /opt/app/next
+mv -T /opt/app/next /opt/app/current
+systemctl reload app
+
+# rollback = identical step targeting previous version</code></pre>
+    <p>Combining <code>ln -sfn</code> with <code>mv -T</code> provides an <strong>atomic cutover</strong>: at any instant, the symlink points either to the old release or the new release, with no intermediate state. A naive <code>rm symlink &amp;&amp; ln -s</code> lacks this guarantee: between the two commands, the symlink does not exist at all.</p>
+    <p>Post-deployment validation belongs in the script as well: <strong>querying <code>/health</code> with a bounded retry loop and triggering an automated rollback</strong> to the previous release if health checks fail.</p>
+    <div class="prints"><strong>What gets asked:</strong> “How do you make release symlink switching atomic, and how is automated rollback structured?”</div>
+
+    <h2 id="pipeline-quality">5 · Pipeline quality: pre-merge checks <a class="yakor" href="#pipeline-quality">#</a></h2>
+    <p>Linting shell scripts is just as vital a CI stage as application unit tests. It takes seconds and catches bugs that would otherwise surface in production.</p>
+<pre><code>- run: |
+    shopt -s globstar
+    shellcheck **/*.sh
+- run: shfmt -d -i 2 .
+- run: bats tests/</code></pre>
+    <p>Mirror the exact same checks locally via <code>pre-commit</code> so failing scripts never reach CI. <strong>Local and CI checks must run the exact same command</strong> - otherwise teams face “works on my machine, fails in CI” syndrome, eroding trust in the verification suite.</p>
+    <div class="prints"><strong>What gets asked:</strong> “Which shell code checks do you include in CI pipelines, and why must they match local hooks?”</div>
+
+    <h2 id="secrets">6 · Secrets and CI logs <a class="yakor" href="#secrets">#</a></h2>
+    <p>CI logs are visible to anyone with repository access and persist far longer than memory of the secret.</p>
+<pre><code># no:
+set -x               # prints everything
+echo "token=$TOKEN"
+curl -u "u:$PASS" …  # visible in ps
+
+# yes:
+curl --netrc-file "$f" …
+printf '%s' "$TOKEN" | cmd --token-stdin</code></pre>
+    <p>Three rules. <strong>Never pass secrets as command arguments</strong> - arguments are visible in <code>ps</code> to any user on the system; pass them via stdin, credentials files, or environment variables. <strong>Never enable shell execution tracing in steps handling secrets.</strong> <strong>CI secret masking is not a guarantee:</strong> it relies on exact string matching, meaning split secrets or alternate encodings will leak unmasked.</p>
+    <div class="prints"><strong>What gets asked:</strong> “Why must passwords never be passed as command-line arguments, and what are the limits of CI secret masking?”</div>
+
+    <h2 id="beyond-scripts">7 · When a pipeline outgrows shell scripts <a class="yakor" href="#beyond-scripts">#</a></h2>
+    <div class="box">
+      <p><strong>Signs that logic should move out of shell scripts:</strong></p>
+      <ul>
+        <li>the script manages state that must persist between invocations;</li>
+        <li>steps have non-linear dependencies - suited for Make or a CI DAG rather than a linear sequence;</li>
+        <li>identical logic is duplicated across three pipelines;</li>
+        <li>understanding the script requires knowing runner-specific CI environment variables.</li>
+      </ul>
+      <p>State calls for dedicated state management tools; non-linear workflows call for dependency graphs; duplication calls for shared repository scripts or custom CI actions; and runner coupling calls for extracting logic into standalone scripts runnable locally with identical arguments.</p>
+      <p class="dim"><strong>And the converse:</strong> a fifteen-line Bash pipeline made readable by three comments does not need to become a custom plugin. The complexity of the tooling must be justified by the complexity of the problem, not its importance.</p>
+    </div>
+
+
+    <h2 id="artifacts">Artifacts: what you take away from this page <a class="yakor" href="#artifacts">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Reading &gt;&gt; Your life quantum · Dignity partnership with AI · Rewiring your neural network</p>
+      <p><strong>Understanding that a CI step is an external execution of your code.</strong> Your time was well spent if you stopped being puzzled by differing behavior in CI and started checking: what flags were passed, which process executed it, and where the working directory points. That is the essence of rewiring: the pipeline stops being a black box and becomes a transparent environment running your own commands.</p>
+    </div>
+    <ol>
+      <li><strong>Three facts about CI steps:</strong> runner-defined flags, fresh processes, reset working directory.</li>
+      <li><strong>Git-derived versions</strong> and the absolute prohibition of <code>latest</code> in deployments.</li>
+      <li><strong>One script across three environments</strong> with a mandatory environment argument and production gates.</li>
+      <li><strong>Atomic cutover</strong> via <code>ln -sfn</code> and <code>mv -T</code>, and rolling back with the exact same step.</li>
+      <li><strong>Pre-merge verification</strong> identical to local developer tooling.</li>
+      <li><strong>Secret security rules:</strong> never in arguments, no execution tracing, masking is not infallible.</li>
+      <li><strong>Indicators that a pipeline has outgrown shell</strong>, and the appropriate remedy for each.</li>
+    </ol>
+
+    <footer>
+      Next page - SRE practices: incident triage, logs, load shedding, and metrics. Deferred items and rationale - in <a href="../lessons/potom.md">potom.md</a>.
+    </footer>
+  </main>
+
+</div>
+</div>
+<script src="../assets/swa.js"></script>
+<script src="../assets/terms.js"></script>
+<script src="../assets/cp.js"></script>
+</body>
+</html>

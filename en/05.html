@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interconnections · devops-bash · ai|</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+<script>
+  (function() {
+    var t = localStorage.getItem('ai-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+    var f = localStorage.getItem('ai-font');
+    if (f) document.documentElement.setAttribute('data-font', f);
+  })();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand-group">
+    <a class="home" href="index.html">
+      <span class="badge-ai">ai|</span>
+      <span class="sub-brand">devops-bash</span>
+    </a>
+    <div class="three" aria-hidden="true">tools · <span class="topic">Bash</span> · practice · 150 questions</div>
+  </div>
+  <div class="utility-tray" role="toolbar" aria-label="Display settings and language">
+    <div class="lang-switcher" aria-label="Language">
+      <a href="05.html" class="active" aria-current="page">EN</a>
+      <a href="../ru/05.html">RU</a>
+      <a href="../uk/05.html">UK</a>
+      <a href="../de/05.html">DE</a>
+    </div>
+    <div class="font-scaler" role="group" aria-label="Font size">
+      <button type="button" class="font-btn font-s" data-size="s" title="Small text" aria-label="Small text">A</button>
+      <button type="button" class="font-btn font-m active" data-size="m" title="Default text" aria-label="Default text">A</button>
+      <button type="button" class="font-btn font-l" data-size="l" title="Large text" aria-label="Large text">A</button>
+    </div>
+    <button type="button" class="theme-toggle" id="themeToggle" title="Switch theme (day/night)" aria-label="Switch theme day/night">
+      <span class="theme-icon" aria-hidden="true"><svg class="icon" data-icon="sun" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="3.8"/><path d="M10 1.2v2.2M10 16.6v2.2M1.2 10h2.2M16.6 10h2.2M3.7 3.7l1.6 1.6M14.7 14.7l1.6 1.6M16.3 3.7l-1.6 1.6M5.3 14.7l-1.6 1.6"/></svg></span>
+    </button>
+  </div>
+</header>
+
+<div class="cols">
+
+  <nav class="sessions" aria-label="Site sections">
+    <ol>
+      <li><a href="01.html"><span class="num">1</span>Key components</a></li>
+      <li><a href="02.html"><span class="num">2</span>Writing scripts</a></li>
+      <li><a href="03.html"><span class="num">3</span>The strength of Bash</a></li>
+      <li><a href="04.html"><span class="num">4</span>Weaknesses and limits</a></li>
+      <li><a href="05.html" aria-current="page"><span class="num">5</span>Interconnections</a></li>
+      <li><a href="06.html"><span class="num">6</span>Practices in an AI context</a></li>
+      <li><a href="07.html"><span class="num">7</span>Practices in the cloud</a></li>
+      <li><a href="08.html"><span class="num">8</span>DevOps practices</a></li>
+      <li><a href="09.html"><span class="num">9</span>SRE practices</a></li>
+      <li><a href="10.html"><span class="num">10</span>Examples · Noob</a></li>
+      <li><a href="11.html"><span class="num">11</span>Examples · Pro</a></li>
+      <li><a href="12.html"><span class="num">12</span>Examples · IGL</a></li>
+      <li><a href="13.html"><span class="num">13</span>Questions · Noob</a></li>
+      <li><a href="14.html"><span class="num">14</span>Questions · Pro</a></li>
+      <li><a href="15.html"><span class="num">15</span>Questions · IGL</a></li>
+    </ol>
+    <div class="nav-extra">
+      <a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Glossary</a>
+    </div>
+    <div class="page-toc" id="pageToc" aria-label="Sections on this page" hidden>
+      <div class="toc-title">On this page</div>
+      <ul class="toc-list" id="tocList"></ul>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Interconnections</h1>
+    <p class="lead">Where Bash interfaces with Git, CI, Docker, systemd, Make, and Ansible - and what breaks most often at each seam.</p>
+
+    <div class="box key" id="key-idea">
+      <h2>Key idea <a class="yakor" href="#key-idea" aria-label="link to this block">#</a></h2>
+      <p>Bash rarely runs in isolation: it lives inside other tools, and most bugs arise at the boundary. A Git hook decides the fate of a commit via its exit status. CI executes steps with custom flags and a fresh process for each step. Docker string syntax sets PID 1 to a shell, preventing containers from stopping gracefully on signals. systemd parses <code>ExecStart</code> natively, without a shell. Make and Ansible execute each line in a separate shell process. Mastering these six boundaries resolves the core of assessment questions - and the majority of real-world production incidents.</p>
+    </div>
+
+    <h2 id="git">1 · Git: hooks and filters <a class="yakor" href="#git">#</a></h2>
+    <p>Git lacks a built-in extension language: it launches executable files, and nearly always that means a shell script. A hook receives input via arguments or stdin and <strong>decides outcomes by exit status</strong>: non-zero aborts the operation.</p>
+<pre><code>#!/usr/bin/env bash
+# .git/hooks/pre-commit
+set -euo pipefail
+
+files=$(git diff --cached --name-only \
+        --diff-filter=ACM | grep '\.sh$' || true)
+[ -z "$files" ] &amp;&amp; exit 0
+shellcheck $files</code></pre>
+    <p>Two pitfalls. First: <code>grep</code> without matches exits with 1, which under <code>set -e</code> will crash the hook - hence <code>|| true</code>. Second: <strong>hooks are not stored in the repository</strong>; the <code>.git/hooks</code> directory is unversioned. Consequently, version hooks in a dedicated folder and enable them via <code>git config core.hooksPath</code>, or teammates will never run them.</p>
+    <div class="prints"><strong>What gets asked:</strong> “How do you make a hook reject a commit, and why do hooks not propagate to other developers automatically?”</div>
+
+    <h2 id="ci">2 · CI and GitHub Actions: default shell <a class="yakor" href="#ci">#</a></h2>
+    <p>A <code>run:</code> step is a shell script written to a temporary file and executed by CI. Knowing the flags matters, and there is a subtle trap: without an explicit <code>shell:</code>, GitHub Actions runs <code>bash -e {0}</code> - <code>set -e</code> is active, but <code>pipefail</code> is absent. If you specify <code>shell: bash</code> explicitly, it runs as <code>bash --noprofile --norc -eo pipefail {0}</code> - <code>pipefail</code> is added. <strong>Neither variant enables <code>-u</code>.</strong></p>
+<pre><code>- name: build
+  shell: bash          # gives -eo pipefail
+  run: |
+    set -euo pipefail  # supply own -u
+    ./build.sh
+
+# each step is a new process:
+# export in one step is invisible
+# to the next
+echo "VER=1.2" &gt;&gt; "$GITHUB_ENV"</code></pre>
+    <p><strong>Every step runs in a fresh process</strong>, so environment variables must be passed across steps via files (<code>$GITHUB_ENV</code>, <code>$GITHUB_OUTPUT</code>), not <code>export</code>. An extra warning: <code>set -x</code> inside a CI step prints variable expansions, <strong>exposing secrets in build logs</strong> - masking does not catch everything.</p>
+    <div class="prints"><strong>What gets asked:</strong> “What flags does CI use to execute <code>run:</code> steps, and how do you persist values across steps?”</div>
+
+    <h2 id="docker">3 · Docker: PID 1, signals, and syntax form <a class="yakor" href="#docker">#</a></h2>
+    <p>The most common <code>ENTRYPOINT</code> defect involves process hierarchy rather than shell syntax. In shell string form, the command runs via <code>/bin/sh -c</code>, and <strong>PID 1 belongs to the shell rather than your application</strong> - <code>SIGTERM</code> never reaches it, turning container stop into a forced SIGKILL timeout.</p>
+<pre><code># bad: PID 1 is sh
+ENTRYPOINT /app/run.sh
+
+# good: exec form
+ENTRYPOINT ["/app/run.sh"]
+
+# and in the script itself, at the end:
+exec /app/server "$@"</code></pre>
+    <p><code>exec</code> replaces the shell process with the application binary - PID 1 becomes the application, and signals arrive intact. Containers <strong>lack an init system</strong>, so zombie processes are never reaped; if your script spawns background tasks, use <code>--init</code> or <code>tini</code>. And remember Alpine: <code>/bin/sh</code> there is BusyBox <code>ash</code>, and <code>bash</code> is absent altogether.</p>
+    <div class="prints"><strong>What gets asked:</strong> “Why does a container fail to stop on <code>docker stop</code>, and how does <code>ENTRYPOINT</code> syntax cause it?”</div>
+
+    <h2 id="systemd">4 · systemd: when a script is redundant <a class="yakor" href="#systemd">#</a></h2>
+    <p>systemd handles natively much of what wrapper scripts were written for: automatic restarts, dependencies, resource limits, and logging. <strong>A wrapper that merely starts and restarts a service is superfluous.</strong></p>
+<pre><code>[Service]
+ExecStart=/usr/bin/app --port 8080
+Restart=on-failure
+EnvironmentFile=/etc/app.env
+
+# ExecStart is not a shell:
+# neither $VAR, nor | , nor &gt; work here
+ExecStart=/bin/bash -c 'app | tee -a log'
+# like this - only if strictly unavoidable</code></pre>
+    <p>The <code>ExecStart</code> directive is parsed directly by systemd, not a shell: variable substitutions, pipelines, and redirections do not work there. If strictly required, invoke <code>bash -c</code> explicitly and deliberately. Logs sent to stdout/stderr are ingested by <code>journalctl</code>; <strong>custom file rotation in scripts is almost always redundant work.</strong></p>
+    <div class="prints"><strong>What gets asked:</strong> “Why do redirections fail in <code>ExecStart</code>, and when is <code>bash -c</code> necessary?”</div>
+
+    <h2 id="make-ansible">5 · Make and Ansible: each line gets its own shell <a class="yakor" href="#make-ansible">#</a></h2>
+    <p>A shared trap in both tools: <strong>lines do not share execution state.</strong> In Make, every recipe line runs in a separate subshell, meaning a <code>cd</code> in the first line has no effect on the second.</p>
+<pre><code># does not work:
+build:
+	cd src
+	make all
+
+# works:
+build:
+	cd src &amp;&amp; make all
+
+# or a single shell for the entire recipe:
+.ONESHELL:</code></pre>
+    <p>In Ansible, the <code>shell</code> module similarly spins up a new shell instance for each task. Another frequent question: the <code>command</code> module executes binaries directly without a shell - no pipelines, substitutions, or globs; <code>shell</code> invokes an actual shell, with all features and all security risks. <strong>The rule: use <code>command</code> unless you have proven a shell is required.</strong></p>
+    <div class="prints"><strong>What gets asked:</strong> “Why does <code>cd</code> in a Makefile not persist into the next line, and how does <code>command</code> differ from <code>shell</code> in Ansible?”</div>
+
+    <h2 id="boundaries">6 · Where Bash ends: jq, awk, Python <a class="yakor" href="#boundaries">#</a></h2>
+    <p>Ecosystem neighbors divide labor by data structure, and knowing the boundaries saves hours.</p>
+<pre><code># structured data - jq
+jq -r '.items[] | select(.ok).id' f.json
+
+# columns and arithmetic - awk
+awk -F, '{s+=$3} END{print s/NR}' f.csv
+
+# everything else - a real language
+python3 -c 'import json, sys; ...'</code></pre>
+    <p><strong><code>jq</code></strong> handles anything with nested hierarchies. <strong><code>awk</code></strong> handles line-oriented data with columns and arithmetic; it often replaces a pipeline of <code>grep | cut | sort</code> with a single process. <strong>Python</strong> takes over when you need third-party libraries, networking beyond <code>curl</code>, or stateful multi-step execution.</p>
+    <p class="dim">Practical indicator: once a script contains a second <code>jq</code> invocation with a multi-line expression, the task has outgrown Bash.</p>
+    <div class="prints"><strong>What gets asked:</strong> “When do you pick <code>awk</code> over a <code>grep | cut</code> pipeline, and when do you migrate to Python?”</div>
+
+    <h2 id="artifacts">Artifacts: what you have after this page <a class="yakor" href="#artifacts">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Reading &gt;&gt; Your quantum of life's time · A partnership of dignity with AI · Rewiring your neural network</p>
+      <p><strong>A map of integration seams instead of disjointed recipes.</strong> Time was well spent if you now ask the right questions about external tools: what invokes my string, in which process, and what does it do with the exit status? That is the neural rewire: replacing “why does it fail” with “who executes this”.</p>
+    </div>
+    <ol>
+      <li><strong>Git:</strong> decisions via exit status; hooks require <code>core.hooksPath</code> to be versioned.</li>
+      <li><strong>CI:</strong> default <code>run:</code> lacks <code>pipefail</code>; <code>shell: bash</code> adds it; <code>-u</code> is never enabled by default; cross-step state via files.</li>
+      <li><strong>Docker:</strong> exec form, <code>exec</code> at the script's end, and the absence of an init process.</li>
+      <li><strong>systemd:</strong> <code>ExecStart</code> is not a shell; stream logs to the journal, not files.</li>
+      <li><strong>Make and Ansible:</strong> each line runs in an isolated shell; <code>command</code> versus <code>shell</code>.</li>
+      <li><strong>The boundary with jq, awk, and Python</strong> defined by data structure rather than habit.</li>
+    </ol>
+
+    <footer>
+      Next up: practices in an AI context. What is deferred and why: in <a href="../lessons/potom.md">potom.md</a>.
+    </footer>
+  </main>
+
+</div>
+</div>
+<script src="../assets/swa.js"></script>
+<script src="../assets/terms.js"></script>
+<script src="../assets/cp.js"></script>
+</body>
+</html>

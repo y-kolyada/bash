@@ -1,0 +1,224 @@
+#!/usr/bin/env python3
+"""Page shell: asset paths, links between languages, inline icons.
+
+Header, navigation and the language switcher must be identical on every page.
+By hand that does not hold: one forgotten page and a reader lands in a 404 or
+loses the copy button. The mechanics live in this script so they can be run
+again after any move or new page.
+
+    python3 tools/build-nav.py              every language
+    python3 tools/build-nav.py ru en        these folders only
+    python3 tools/build-nav.py --relink en  repoint cross-page anchors
+    python3 tools/build-nav.py --migrate    one-off rule for the folder move
+
+Idempotent: a second run changes nothing.
+
+--migrate adds the rule that only held while pages lived in a flat root, where
+a name without a language suffix meant the Russian page. It switches itself off
+on a page that already moved, because a second run with it would otherwise
+repoint every non-Russian navigation link at the Russian pages.
+
+What it rewrites: asset paths into ../assets/; links between pages, where the
+filename is the same in every language and the folder carries the language;
+links to lesson files in lessons/; and icons, as inline SVG rather than emoji,
+which render as empty boxes without an emoji font.
+
+Output is Russian: it speaks to the person who accepts the work.
+"""
+
+import os
+import re
+import sys
+
+LANGS = ('ru', 'en', 'uk', 'de')
+ASSETS = ('style.css', 'swa.js', 'terms.js', 'cp.js')
+PAGE = re.compile(r'(?P<attr>href=")(?P<name>index|glossary|[0-9]{2})(?:-(?P<lang>en|uk|de))?\.html')
+LESSON = re.compile(r'(href=")((?:zadanie|zapis)-[0-9]+\.md|potom\.md|review-gemini-[0-9]+\.md)"')
+
+# Icons live here, not in the pages: each one carries data-icon, so the shape
+# can be redrawn everywhere at once. The drawing fills its box, or the icon
+# reads as a superscript next to text.
+def icon(name, body):
+    return ('<svg class="icon" data-icon="%s" viewBox="0 0 20 20" width="16" height="16" '
+            'fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" '
+            'stroke-linejoin="round" aria-hidden="true">%s</svg>' % (name, body))
+
+
+BOOK = icon('book',
+            '<path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/>'
+            '<path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/>')
+TARGET = icon('target',
+              '<circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/>'
+              '<circle cx="10" cy="10" r="0.7" fill="currentColor"/>')
+SUN = icon('sun',
+           '<circle cx="10" cy="10" r="3.8"/><path d="M10 1.2v2.2M10 16.6v2.2M1.2 10h2.2'
+           'M16.6 10h2.2M3.7 3.7l1.6 1.6M14.7 14.7l1.6 1.6M16.3 3.7l-1.6 1.6'
+           'M5.3 14.7l-1.6 1.6"/>')
+ICONS = {'book': BOOK, 'target': TARGET, 'sun': SUN}
+REDRAW = re.compile(r'<svg class="icon".*?</svg>', re.S)
+
+
+def which(svg):
+    """Which icon this is: by data-icon, or for older markup by its drawing -
+    two paths and no circles is a book, three circles a target, both a sun."""
+    mark = re.search(r'data-icon="([a-z]+)"', svg)
+    if mark:
+        return mark.group(1) if mark.group(1) in ICONS else None
+    circles, paths = svg.count('<circle'), svg.count('<path')
+    if circles and paths:
+        return 'sun'
+    if circles:
+        return 'target'
+    return 'book' if paths == 2 else None
+
+
+def rewrite(text, lang, migrate=False):
+    counts = {'assets': 0, 'pages': 0, 'lessons': 0, 'icons': 0}
+    if '../assets/' in text:
+        migrate = False  # page already moved, the one-off rule is done
+
+    for name in ASSETS:
+        for attr in ('href', 'src'):
+            before = text
+            text = text.replace('%s="%s' % (attr, name), '%s="../assets/%s' % (attr, name))
+            if text != before:
+                counts['assets'] += 1
+
+    def page(m):
+        other = m.group('lang')
+        name = m.group('name')
+        attr = m.group('attr')
+        if other is None:
+            if lang == 'ru' or not migrate:
+                return m.group(0)
+            counts['pages'] += 1
+            return '%s../ru/%s.html' % (attr, name)
+        counts['pages'] += 1
+        if other == lang:
+            return '%s%s.html' % (attr, name)
+        return '%s../%s/%s.html' % (attr, other, name)
+
+    text = PAGE.sub(page, text)
+
+    # The small-font button was labelled with a Cyrillic A: same glyph, wrong
+    # alphabet, and the only Cyrillic character on an English page.
+    before_font = text
+    text = re.sub(r'(class="font-btn font-s"[^>]*>)\u0410(</button>)', r'\1A\2', text)
+    if text != before_font:
+        counts['icons'] += 1
+
+    # A link to a folder lists the folder when the page is opened from the
+    # file system, so the path is always explicit.
+    before_dir = text
+    text = text.replace('href="./"', 'href="index.html"')
+    if text != before_dir:
+        counts['pages'] += 1
+
+    def lesson(m):
+        counts['lessons'] += 1
+        return '%s../lessons/%s"' % (m.group(1), m.group(2))
+
+    text = LESSON.sub(lesson, text)
+
+    for emoji, svg in (('📖', BOOK), ('🎯', TARGET), ('☼', SUN), ('☾', SUN)):
+        counts['icons'] += text.count(emoji)
+        text = text.replace(emoji, svg)
+
+    def redraw(m):
+        name = which(m.group(0))
+        if name is None:
+            return m.group(0)
+        fresh = ICONS[name]
+        if fresh != m.group(0):
+            counts['icons'] += 1
+        return fresh
+
+    text = REDRAW.sub(redraw, text)
+
+    return text, counts
+
+
+ANCHOR_LINK = re.compile(r'href="(?:\.\./ru/)?(index|glossary|[0-9]{2})\.html#([A-Za-z0-9_-]+)"')
+
+
+def anchors_of(path):
+    if path not in anchors_of.cache:
+        try:
+            with open(path, encoding='utf-8') as handle:
+                anchors_of.cache[path] = set(re.findall(r'\bid="([^"]+)"', handle.read()))
+        except OSError:
+            anchors_of.cache[path] = set()
+    return anchors_of.cache[path]
+
+
+anchors_of.cache = {}
+
+
+def cross_links(text, lang):
+    """A section link points where that section exists.
+
+    While a page is still a stub it has no anchors, so a cross-page link
+    dangles. Until then the link points at the Russian page, and it returns to
+    its own language as soon as the anchor appears there.
+    """
+    moved = [0]
+
+    def fix(m):
+        page, anchor = m.group(1), m.group(2)
+        here = anchors_of(os.path.join(lang, page + '.html'))
+        if anchor in here:
+            link = 'href="%s.html#%s"' % (page, anchor)
+        else:
+            link = 'href="../ru/%s.html#%s"' % (page, anchor)
+        if link != m.group(0):
+            moved[0] += 1
+        return link
+
+    return ANCHOR_LINK.sub(fix, text), moved[0]
+
+
+def main(argv):
+    args = [a for a in argv[1:] if not a.startswith('--')]
+    migrate = '--migrate' in argv[1:]
+    relink = '--relink' in argv[1:]
+    roots = [d for d in (args or LANGS) if os.path.isdir(d)]
+    if not roots:
+        print('нет папок языков - запускайте из корня репозитория')
+        return 2
+
+    total = {'files': 0, 'touched': 0, 'assets': 0, 'pages': 0, 'lessons': 0, 'icons': 0}
+    for lang in roots:
+        for name in sorted(os.listdir(lang)):
+            if not name.endswith('.html'):
+                continue
+            path = os.path.join(lang, name)
+            with open(path, encoding='utf-8') as handle:
+                before = handle.read()
+            after, counts = rewrite(before, lang, migrate)
+            if relink and lang != 'ru':
+                after, moved = cross_links(after, lang)
+                counts['pages'] += moved
+            total['files'] += 1
+            for key in counts:
+                total[key] += counts[key]
+            if after != before:
+                total['touched'] += 1
+                with open(path, 'w', encoding='utf-8') as handle:
+                    handle.write(after)
+
+    print()
+    print('  Оболочка страниц')
+    print('  ' + '-' * 46)
+    print('  страниц просмотрено:   %d' % total['files'])
+    print('  страниц изменено:      %d' % total['touched'])
+    print('  путей к оснастке:      %d' % total['assets'])
+    print('  ссылок между страницами: %d' % total['pages'])
+    print('  ссылок на занятия:     %d' % total['lessons'])
+    print('  значков заменено:      %d' % total['icons'])
+    print('  ' + '-' * 46)
+    print()
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))

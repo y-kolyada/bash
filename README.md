@@ -1,100 +1,103 @@
-# Шаблон продукта · AI Bootcamp
+# devops-bash · сайт-ассессмент по Bash
 
-**Отсюда начинается твой продукт.** Нажми зелёную кнопку **«Use this template»** - и у тебя появится свой репозиторий со своей историей. Не форк, не копия чужого: твой.
+Сайт для инженера, который готовится к ассессменту, сертификации или интервью по Bash:
+ключевые компоненты языка, сила и границы, взаимосвязи с остальным инструментом, практики в
+контексте AI, Clouds, DevOps и SRE, разборы трёх уровней и банк из 150 вопросов с ответами.
 
-> **Репозиторий** - папка проекта, которая помнит все свои изменения.
+Один из сайтов серии **AI Factory**. Архитектура - **Simple Web Architecture**: статический
+HTML и CSS, минимум ванильного JavaScript, ноль бэкенда, ноль сборки. Страницу можно открыть
+двойным щелчком из файловой системы, и она работает целиком.
+
+**Опубликовано:** https://y-kolyada.github.io/bash/
 
 ---
 
-## Что здесь лежит, и почему так мало
+## Как здесь всё лежит
 
-Пять файлов. Их **можно прочитать целиком за одно занятие** - это условие, а не случайность.
+| Где | Что |
+| :-- | :-- |
+| `index.html` | дверь: выбор языка и переход на `ru/` |
+| `check.sh` | проверка сайта одной командой: ЗЕЛЁНОЕ или КРАСНОЕ |
+| `ru/` `en/` `uk/` `de/` | страницы: по 17 на язык, имена одинаковые (`index.html`, `01.html` … `15.html`, `glossary.html`) |
+| `assets/` | оснастка: `style.css`, `swa.js`, `terms.js`, `cp.js`, картинки в `assets/img/` |
+| `tools/` | проверки и генераторы |
+| `lessons/` | задания, записи занятий и `potom.md` |
+| `AGENTS.md` | правила для ИИ-агентов: роли, стоп-кран, инварианты страницы |
 
-| Файл | Что это |
-| --- | --- |
-| [`index.html`](./index.html) | страница. Пока это заглушка, и ты её заменишь |
-| [`zadanie-1.md`](./zadanie-1.md) | **задание** первого занятия: что нужно сделать. Пишешь **ты**, до того как попросить ИИ |
-| [`zapis-1.md`](./zapis-1.md) | **действие** первого занятия: что получилось на самом деле. Файл называется `zapis`, потому что действие кончается следом - иначе проверке нечего читать |
-| [`check.sh`](./check.sh) | **проверка**: отвечает «ЗЕЛЁНОЕ» или «КРАСНОЕ», без мнений |
-| [`potom.md`](./potom.md) | **потом**: то, что ты решил делать не сейчас - с причиной по каждой строке |
-
-Эти три слова - **задание · действие · проверка** - повторяются на каждом занятии все восемь раз. Больше в курсе ничего нет.
-
-**Пятый файл, `potom.md`, не про работу, а про отказ от неё.** Хорошая мысль приходит не вовремя: записал одной строкой с причиной «почему не сейчас» - и пошёл дальше. Идея, которую не записал, возвращается в последний день словами «я же хотел…».
-
-### Номер в имени файла - это номер занятия
-
-`zadanie-1.md` и `zapis-1.md` - первое занятие. На втором ты сделаешь себе вторую пару, скопировав первую:
+**Имя файла одно на все языки, язык задаёт папка.** Ссылка на свою страницу - то же имя
+рядом, на чужой язык - `../<язык>/<имя>.html`. Оболочку страниц (пути к оснастке, ссылки
+между языками, значки) переписывает скрипт, а не руки:
 
 ```bash
-cp zadanie-1.md zadanie-2.md
-cp zapis-1.md zapis-2.md
+python3 tools/build-nav.py
 ```
 
-**Почему не один файл на всё.** Задание третьего занятия ты будешь уточнять и возвращать по нему работу - и это не должно задевать задание первого. А ещё так видно историю каждого задания отдельно: `git log zadanie-3.md` расскажет только про него.
-
-Страница у тебя одна, `index.html`, и она растёт от занятия к занятию. Пар `задание · запись` будет восемь.
-
 ---
 
-## Что делать прямо сейчас
+## Проверка
 
 ```bash
-git clone https://github.com/<твой-ник>/<твой-репозиторий>.git
-cd <твой-репозиторий>
+npm i playwright                                     # один раз
+npx playwright install chromium chromium-headless-shell
 ./check.sh
 ```
 
-**Она покраснеет.** Так и должно быть: заголовок страницы всё ещё наш - «Замени этот заголовок». Это первая строка, которую ты исправишь.
+`./check.sh` отвечает одним словом и запускает четыре проверки из `tools/`. По отдельности
+они нужны, когда надо понять причину:
 
-Если вместо проверки ответили `Permission denied` - запусти `bash check.sh` и скажи об этом тренеру. **Это наша ошибка, не твоя.**
+| Команда | Что устанавливает |
+| :-- | :-- |
+| `tools/check-page.sh ru/01.html` | страница есть, не пустая, заголовок свой |
+| `tools/check-claims.sh` | утверждения сайта о Bash выполняются в терминале прямо сейчас |
+| `python3 tools/check-links.py` | все внутренние ссылки и якоря: сколько и сколько битых |
+| `node tools/check-pages.mjs` | все страницы на экране 390px и липкая панель навигации |
+| `node tools/glaza.mjs ru/01.html` | снимок одной страницы: `telefon.png`, смотреть глазами |
 
-Дальше:
-
-1. Открой `zadanie-1.md` и напиши **своё** задание. **До** того, как попросишь ИИ.
-2. Попроси ИИ сделать страницу по заданию.
-3. Запиши в `zapis-1.md`, что получилось.
-4. Запусти `./check.sh` ещё раз.
-5. Пройди по своим предикатам и реши сам: **принял или вернул.**
-
----
-
-## Чего здесь нет нарочно
-
-**Нет готовой страницы.** Её делает ИИ по твоему заданию. Если бы она тут лежала, тебе нечего было бы просить.
-
-**Нет настоящих тестов.** `check.sh` смотрит только, что страница есть, не пустая и что заголовок уже твой. Он **не смотрит, то ли на странице, что ты просил.** Настоящую проверку ты напишешь сам на четвёртом занятии.
-
-**Нет автоматической проверки на GitHub.** Она появится на пятом занятии, и поставишь её ты. Тогда же публикация станет условной: **красное не публикуется.**
-
-**Запомни `check.sh` таким, какой он сейчас.** На седьмом занятии разговор будет про зелёную проверку, которая ничего не доказывает. Вот она и есть. Зелёная - и почти ничего не доказывает.
+**Зелёная проверка - не доказательство, что страница правдива.** Она доказывает, что
+страница существует, не разъезжается и что проверяемые утверждения выполнились. Смысл
+читает человек.
 
 ---
 
-## Как страница попадает в интернет
+## Языки
 
-GitHub умеет показывать `index.html` из твоего репозитория как настоящий сайт. Это называется **GitHub Pages**, и включается один раз, руками, на сайте GitHub:
+Порядок переключателя - `EN | RU | UK | DE`. Русский полный. Английский переведён частично:
+лендинг, первый раздел и словарь. Украинский и немецкий - честные заглушки со ссылкой на
+русскую версию: это решение, а не отставание, и оно написано прямо на тех страницах.
 
-1. В своём репозитории сверху открой **Settings**.
-2. В левом столбце найди **Pages**.
-3. **Source** → `Deploy from a branch`, **Branch** → `main`, папка → `/(root)`, и нажми **Save**.
+---
 
-Через минуту-две адрес будет такой:
+## Ветки и публикация
 
-```
-https://<твой-ник>.github.io/<твой-репозиторий>/
-```
+`dev` - работа. `prod` - то, что отдано в GitHub Pages. Мерж `dev → prod` делается через
+`--no-ff` и только на зелёной проверке, чтобы каждая поставка была видна в истории одним
+узлом. `git push` и мерж в `prod` делает человек.
 
-**Эту ссылку можно кинуть другу.** В этом весь смысл первого занятия.
+---
+
+## Как это делается
+
+Три артефакта на каждое занятие: **задание** (`lessons/zadanie-N.md`) пишется до работы,
+**запись** (`lessons/zapis-N.md`) фиксирует, что получилось на самом деле, и **проверка**
+отвечает ЗЕЛЁНОЕ или КРАСНОЕ. Отложенное уходит в `lessons/potom.md` строкой из трёх полей:
+что, зачем, **почему не сейчас**. Правила работы ИИ в этом репозитории - в
+[`AGENTS.md`](./AGENTS.md).
 
 ---
 
 ## The same, in English
 
-**This is the starting point for a participant's product in the AI Bootcamp course.** Press **Use this template** to get your own repository with your own history.
+**devops-bash** is a Bash assessment site from the AI Factory series: key components of the
+language, its strengths and limits, how it connects to Git, CI, containers and systemd,
+practices for AI, cloud, DevOps and SRE contexts, worked examples at three levels and a bank
+of 150 interview questions with answers.
 
-Five files, readable in full in one session: a page, a **task** you write before asking the AI, a **record** of what actually happened, a **check** that answers green or red with no opinions, and **`potom.md`** - what you decided not to do yet, each line carrying why not now. **The number in a filename is the session number** - `zadanie-1.md` and `zapis-1.md` are session one's pair, and each later session gets its own pair, copied from the last, so one task's history stays its own. Those three words - task, record, check - are the whole course, repeated eight times.
+It is a **Simple Web Architecture** project: static HTML and CSS, a little vanilla
+JavaScript, no backend, no build step. Pages live under one folder per language (`ru/`, `en/`,
+`uk/`, `de/`) and share the same filenames; the engine is in `assets/`, the checks and
+generators in `tools/`, the lesson records in `lessons/`. Russian is complete, English is
+partial (landing page, key components, glossary), Ukrainian and German are honest stubs.
 
-**What is deliberately absent:** the finished page (the AI makes it from your task), real tests (you write them in session 4), and CI (you add it in session 5, when publishing becomes conditional on green). `check.sh` is **green while proving almost nothing** - it is session 7's own specimen of that problem.
-
-Russian is the working language of the course, so the files and the check's output are in Russian.
+`./check.sh` answers green or red: it verifies that pages exist, that every internal link and
+anchor resolves, that the site's claims about Bash still hold when executed in a terminal, and
+that nothing overflows a 390px screen.

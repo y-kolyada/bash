@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Взаимосвязи Bash · devops-bash · ai|</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+<script>
+  (function() {
+    var t = localStorage.getItem('ai-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+    var f = localStorage.getItem('ai-font');
+    if (f) document.documentElement.setAttribute('data-font', f);
+  })();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand-group">
+    <a class="home" href="index.html">
+      <span class="badge-ai">ai|</span>
+      <span class="sub-brand">devops-bash</span>
+    </a>
+    <div class="three" aria-hidden="true">инструменты · <span class="topic">Bash</span> · практика · 150 вопросов</div>
+  </div>
+  <div class="utility-tray" role="toolbar" aria-label="Настройки отображения и язык">
+    <div class="lang-switcher" aria-label="Выбор языка">
+      <a href="../en/05.html">EN</a>
+      <a href="05.html" class="active" aria-current="page">RU</a>
+      <a href="../uk/05.html">UK</a>
+      <a href="../de/05.html">DE</a>
+    </div>
+    <div class="font-scaler" role="group" aria-label="Размер шрифта">
+      <button type="button" class="font-btn font-s" data-size="s" title="Мелкий шрифт" aria-label="Мелкий шрифт">A</button>
+      <button type="button" class="font-btn font-m active" data-size="m" title="Стандартный шрифт" aria-label="Стандартный шрифт">A</button>
+      <button type="button" class="font-btn font-l" data-size="l" title="Крупный шрифт" aria-label="Крупный шрифт">A</button>
+    </div>
+    <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему (День/Ночь)" aria-label="Сменить тему день/ночь">
+      <span class="theme-icon" aria-hidden="true"><svg class="icon" data-icon="sun" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="3.8"/><path d="M10 1.2v2.2M10 16.6v2.2M1.2 10h2.2M16.6 10h2.2M3.7 3.7l1.6 1.6M14.7 14.7l1.6 1.6M16.3 3.7l-1.6 1.6M5.3 14.7l-1.6 1.6"/></svg></span>
+    </button>
+  </div>
+</header>
+
+<div class="cols">
+
+  <nav class="sessions" aria-label="Разделы сайта">
+    <ol>
+      <li><a href="01.html"><span class="num">1</span>Ключевые компоненты</a></li>
+      <li><a href="02.html"><span class="num">2</span>Написание скриптов</a></li>
+      <li><a href="03.html"><span class="num">3</span>Сила Bash</a></li>
+      <li><a href="04.html"><span class="num">4</span>Слабости и границы</a></li>
+      <li><a href="05.html" aria-current="page"><span class="num">5</span>Взаимосвязи</a></li>
+      <li><a href="06.html"><span class="num">6</span>Практики в контексте AI</a></li>
+      <li><a href="07.html"><span class="num">7</span>Практики в Clouds</a></li>
+      <li><a href="08.html"><span class="num">8</span>Практики DevOps</a></li>
+      <li><a href="09.html"><span class="num">9</span>Практики SRE</a></li>
+      <li><a href="10.html"><span class="num">10</span>Примеры · Noob</a></li>
+      <li><a href="11.html"><span class="num">11</span>Примеры · Pro</a></li>
+      <li><a href="12.html"><span class="num">12</span>Примеры · IGL</a></li>
+      <li><a href="13.html"><span class="num">13</span>Вопросы · Noob</a></li>
+      <li><a href="14.html"><span class="num">14</span>Вопросы · Pro</a></li>
+      <li><a href="15.html"><span class="num">15</span>Вопросы · IGL</a></li>
+    </ol>
+    <div class="nav-extra">
+      <a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словарь понятий</a>
+    </div>
+    <div class="page-toc" id="pageToc" aria-label="Разделы этой страницы" hidden>
+      <div class="toc-title">На этой странице</div>
+      <ul class="toc-list" id="tocList"></ul>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Взаимосвязи</h1>
+    <p class="lead">Где Bash стыкуется с Git, CI, Docker, systemd, Make и Ansible - и что в каждом из этих швов ломается чаще всего.</p>
+
+    <div class="box key" id="key-idea">
+      <h2>Главная мысль страницы <a class="yakor" href="#key-idea" aria-label="ссылка на этот блок">#</a></h2>
+      <p>Bash редко работает сам по себе: он живёт внутри чужих инструментов, и большинство проблем возникает не в нём, а на границе. Git-хук решает судьбу коммита кодом возврата. CI запускает ваш шаг с собственным набором ключей и новым процессом на каждый шаг. Docker в строчной форме ставит PID 1 оболочкой, и контейнер перестаёт останавливаться по сигналу. systemd разбирает <code>ExecStart</code> сам, без оболочки. Make и Ansible выполняют каждую строку в своей оболочке. Выучив шесть этих швов, вы закрываете основную часть вопросов на ассессменте - и большую часть реальных инцидентов.</p>
+    </div>
+
+    <h2 id="git">1 · Git: хуки и фильтры <a class="yakor" href="#git">#</a></h2>
+    <p>Git не имеет собственного языка расширения - он запускает исполняемые файлы, и почти
+    всегда это shell. Хук получает данные через аргументы или stdin, а <strong>решение принимает
+    кодом возврата</strong>: ненулевой отменяет операцию.</p>
+<pre><code>#!/usr/bin/env bash
+# .git/hooks/pre-commit
+set -euo pipefail
+
+files=$(git diff --cached --name-only \
+        --diff-filter=ACM | grep '\.sh$' || true)
+[ -z "$files" ] &amp;&amp; exit 0
+shellcheck $files</code></pre>
+    <p>Две ловушки. Первая: <code>grep</code> без совпадений возвращает 1 и под
+    <code>set -e</code> уронит хук - отсюда <code>|| true</code>. Вторая: <strong>хуки не
+    хранятся в репозитории</strong>, папка <code>.git/hooks</code> не версионируется; поэтому
+    хуки кладут в отдельный каталог и включают через
+    <code>git config core.hooksPath</code>, иначе у коллег их просто не будет.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Как заставить хук отменить коммит и почему хуки не попадают к другим разработчикам сами?»</div>
+
+    <h2 id="ci">2 · CI и GitHub Actions: shell по умолчанию <a class="yakor" href="#ci">#</a></h2>
+    <p>Шаг <code>run:</code> - это shell-скрипт, который CI пишет во временный файл и запускает.
+    Важно знать, с какими ключами, и здесь есть тонкость, о которую спотыкаются: если
+    <code>shell:</code> не указан, GitHub Actions запускает <code>bash -e {0}</code> -
+    <code>set -e</code> есть, <code>pipefail</code> нет. Если указать <code>shell: bash</code>
+    явно, запуск становится <code>bash --noprofile --norc -eo pipefail {0}</code> -
+    <code>pipefail</code> появляется. <strong><code>-u</code> нет ни в одном варианте.</strong></p>
+<pre><code>- name: build
+  shell: bash          # даёт -eo pipefail
+  run: |
+    set -euo pipefail  # -u всё равно свой
+    ./build.sh
+
+# каждый шаг - новый процесс:
+# export в одном шаге не виден
+# в следующем
+echo "VER=1.2" &gt;&gt; "$GITHUB_ENV"</code></pre>
+    <p><strong>Каждый шаг - отдельный процесс</strong>, поэтому переменные между шагами
+    передаются через файлы (<code>$GITHUB_ENV</code>, <code>$GITHUB_OUTPUT</code>), а не через
+    <code>export</code>. И отдельная осторожность: <code>set -x</code> в шаге печатает значения
+    переменных, то есть <strong>выводит секреты в журнал</strong> - маскирование спасает не всегда.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «С какими ключами CI запускает ваш <code>run:</code> и как передать значение между шагами?»</div>
+
+    <h2 id="docker">3 · Docker: PID 1, сигналы и форма записи <a class="yakor" href="#docker">#</a></h2>
+    <p>Самая частая ошибка в <code>ENTRYPOINT</code> не про shell, а про процессы. В строчной
+    форме команда запускается через <code>/bin/sh -c</code>, и <strong>PID 1 получает оболочка,
+    а не ваше приложение</strong> - сигнал <code>SIGTERM</code> до него не дойдёт, и остановка
+    контейнера превратится в убийство по таймауту.</p>
+<pre><code># плохо: PID 1 - это sh
+ENTRYPOINT /app/run.sh
+
+# хорошо: exec-форма
+ENTRYPOINT ["/app/run.sh"]
+
+# и в самом скрипте, в конце:
+exec /app/server "$@"</code></pre>
+    <p><code>exec</code> заменяет процесс оболочки процессом приложения - PID 1 становится
+    приложением, сигналы доходят. В контейнере <strong>нет init</strong>, поэтому зомби-процессы
+    никто не собирает; если ваш скрипт порождает фоновые задачи, нужен <code>--init</code> или
+    <code>tini</code>. И помните про Alpine: там <code>/bin/sh</code> - это busybox
+    <code>ash</code>, и <code>bash</code> отсутствует вовсе.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Почему контейнер не останавливается по <code>docker stop</code> и причём тут форма записи <code>ENTRYPOINT</code>?»</div>
+
+    <h2 id="systemd">4 · systemd: когда скрипт не нужен <a class="yakor" href="#systemd">#</a></h2>
+    <p>systemd умеет многое из того, ради чего пишут скрипты-обёртки: перезапуск, зависимости,
+    ограничение ресурсов, журнал. <strong>Обёртка, которая только запускает и перезапускает,
+    лишняя.</strong></p>
+<pre><code>[Service]
+ExecStart=/usr/bin/app --port 8080
+Restart=on-failure
+EnvironmentFile=/etc/app.env
+
+# ExecStart - не shell:
+# ни $VAR, ни | , ни &gt; тут нет
+ExecStart=/bin/bash -c 'app | tee -a log'
+# так - только если без этого никак</code></pre>
+    <p>Строка <code>ExecStart</code> разбирается самим systemd, а не оболочкой: подстановки,
+    конвейеры и перенаправления там не работают. Если они действительно нужны - вызов
+    <code>bash -c</code> явный и осознанный. Логи пишутся в stdout/stderr и попадают в
+    <code>journalctl</code>; <strong>самодельная ротация файлов в скрипте - почти всегда
+    лишняя работа.</strong></p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Почему в <code>ExecStart</code> не работает перенаправление и когда нужен <code>bash -c</code>?»</div>
+
+    <h2 id="make-ansible">5 · Make и Ansible: каждая строка - своя оболочка <a class="yakor" href="#make-ansible">#</a></h2>
+    <p>Общая ошибка обоих инструментов: <strong>строки не продолжают друг друга.</strong>
+    В Make каждая строка рецепта исполняется в отдельной оболочке, поэтому <code>cd</code> из
+    первой строки во второй уже не действует.</p>
+<pre><code># не работает:
+build:
+	cd src
+	make all
+
+# работает:
+build:
+	cd src &amp;&amp; make all
+
+# или один shell на весь рецепт:
+.ONESHELL:</code></pre>
+    <p>В Ansible то же самое: модуль <code>shell</code> запускает строку заново для каждой задачи.
+    И там ещё одно различие, которое спрашивают: <code>command</code> запускает программу
+    напрямую, без оболочки - без конвейеров, подстановок и шаблонов имён;
+    <code>shell</code> - через оболочку, со всеми возможностями и всеми рисками.
+    <strong>Правило: <code>command</code>, пока не доказано, что нужен <code>shell</code>.</strong></p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Почему <code>cd</code> в Makefile не действует на следующую строку и чем <code>command</code> отличается от <code>shell</code> в Ansible?»</div>
+
+    <h2 id="boundaries">6 · Где Bash заканчивается: jq, awk, Python <a class="yakor" href="#boundaries">#</a></h2>
+    <p>Соседи по экосистеме делят работу по типу данных, и знание границы экономит часы.</p>
+<pre><code># структура - jq
+jq -r '.items[] | select(.ok).id' f.json
+
+# колонки и арифметика - awk
+awk -F, '{s+=$3} END{print s/NR}' f.csv
+
+# всё остальное - язык
+python3 -c 'import json, sys; ...'</code></pre>
+    <p><strong><code>jq</code></strong> - для всего, что имеет вложенность.
+    <strong><code>awk</code></strong> - для построчных данных с колонками и подсчётами; он же
+    часто заменяет связку <code>grep | cut | sort</code> одной командой и одним процессом.
+    <strong>Python</strong> - когда нужны библиотеки, сеть сложнее <code>curl</code>, или
+    состояние между шагами.</p>
+    <p class="dim">Практический признак: как только в скрипте появился второй
+    <code>jq</code> с собственным выражением на три строки - задача уже не про Bash.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Когда вы берёте <code>awk</code> вместо связки <code>grep | cut</code> и когда уходите в Python?»</div>
+
+    <h2 id="artifacts">Артефакты: что у вас есть после этой страницы <a class="yakor" href="#artifacts">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Чтение &gt;&gt; Ваш квант времени жизни · Партнёрство достоинства вместе с AI · Перестройка вашей нейросети</p>
+      <p><strong>Карта швов вместо набора рецептов.</strong> Время потрачено не зря, если вы теперь спрашиваете про чужой инструмент правильное: кто здесь запускает мою строку, в каком процессе и что он сделает с кодом возврата. Это и есть перестройка нейросети: вопрос «почему не работает» заменяется вопросом «кто это выполняет».</p>
+    </div>
+    <ol>
+      <li><strong>Git:</strong> решение - кодом возврата; хуки не версионируются без <code>core.hooksPath</code>.</li>
+      <li><strong>CI:</strong> без <code>shell:</code> - <code>bash -e</code>, с <code>shell: bash</code> - ещё и <code>pipefail</code>; <code>-u</code> нет нигде; переменные между шагами - через файлы.</li>
+      <li><strong>Docker:</strong> exec-форма, <code>exec</code> в конце скрипта, отсутствие init.</li>
+      <li><strong>systemd:</strong> <code>ExecStart</code> - не оболочка; логи в журнал, а не в файл.</li>
+      <li><strong>Make и Ansible:</strong> каждая строка в своей оболочке; <code>command</code> против <code>shell</code>.</li>
+      <li><strong>Граница с jq, awk и Python</strong> по типу данных, а не по привычке.</li>
+    </ol>
+
+    <footer>
+      Следующая страница - практики в контексте AI. Что отложено и почему - в <a href="../lessons/potom.md">potom.md</a>.
+    </footer>
+  </main>
+
+</div>
+</div>
+<script src="../assets/swa.js"></script>
+<script src="../assets/terms.js"></script>
+<script src="../assets/cp.js"></script>
+</body>
+</html>

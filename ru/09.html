@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Практики SRE в Bash · devops-bash · ai|</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+<script>
+  (function() {
+    var t = localStorage.getItem('ai-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+    var f = localStorage.getItem('ai-font');
+    if (f) document.documentElement.setAttribute('data-font', f);
+  })();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand-group">
+    <a class="home" href="index.html">
+      <span class="badge-ai">ai|</span>
+      <span class="sub-brand">devops-bash</span>
+    </a>
+    <div class="three" aria-hidden="true">инструменты · <span class="topic">Bash</span> · практика · 150 вопросов</div>
+  </div>
+  <div class="utility-tray" role="toolbar" aria-label="Настройки отображения и язык">
+    <div class="lang-switcher" aria-label="Выбор языка">
+      <a href="../en/09.html">EN</a>
+      <a href="09.html" class="active" aria-current="page">RU</a>
+      <a href="../uk/09.html">UK</a>
+      <a href="../de/09.html">DE</a>
+    </div>
+    <div class="font-scaler" role="group" aria-label="Размер шрифта">
+      <button type="button" class="font-btn font-s" data-size="s" title="Мелкий шрифт" aria-label="Мелкий шрифт">A</button>
+      <button type="button" class="font-btn font-m active" data-size="m" title="Стандартный шрифт" aria-label="Стандартный шрифт">A</button>
+      <button type="button" class="font-btn font-l" data-size="l" title="Крупный шрифт" aria-label="Крупный шрифт">A</button>
+    </div>
+    <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему (День/Ніч)" aria-label="Сменить тему день/ночь">
+      <span class="theme-icon" aria-hidden="true"><svg class="icon" data-icon="sun" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="3.8"/><path d="M10 1.2v2.2M10 16.6v2.2M1.2 10h2.2M16.6 10h2.2M3.7 3.7l1.6 1.6M14.7 14.7l1.6 1.6M16.3 3.7l-1.6 1.6M5.3 14.7l-1.6 1.6"/></svg></span>
+    </button>
+  </div>
+</header>
+
+<div class="cols">
+
+  <nav class="sessions" aria-label="Разделы сайта">
+    <ol>
+      <li><a href="01.html"><span class="num">1</span>Ключевые компоненты</a></li>
+      <li><a href="02.html"><span class="num">2</span>Написание скриптов</a></li>
+      <li><a href="03.html"><span class="num">3</span>Сила Bash</a></li>
+      <li><a href="04.html"><span class="num">4</span>Слабости и границы</a></li>
+      <li><a href="05.html"><span class="num">5</span>Взаимосвязи</a></li>
+      <li><a href="06.html"><span class="num">6</span>Практики в контексте AI</a></li>
+      <li><a href="07.html"><span class="num">7</span>Практики в Clouds</a></li>
+      <li><a href="08.html"><span class="num">8</span>Практики DevOps</a></li>
+      <li><a href="09.html" aria-current="page"><span class="num">9</span>Практики SRE</a></li>
+      <li><a href="10.html"><span class="num">10</span>Примеры · Noob</a></li>
+      <li><a href="11.html"><span class="num">11</span>Примеры · Pro</a></li>
+      <li><a href="12.html"><span class="num">12</span>Примеры · IGL</a></li>
+      <li><a href="13.html"><span class="num">13</span>Вопросы · Noob</a></li>
+      <li><a href="14.html"><span class="num">14</span>Вопросы · Pro</a></li>
+      <li><a href="15.html"><span class="num">15</span>Вопросы · IGL</a></li>
+    </ol>
+    <div class="nav-extra">
+      <a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словарь понятий</a>
+    </div>
+    <div class="page-toc" id="pageToc" aria-label="Разделы этой страницы" hidden>
+      <div class="toc-title">На этой странице</div>
+      <ul class="toc-list" id="tocList"></ul>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Практики SRE</h1>
+    <p class="lead">Триаж инцидента за минуту, скрытые отказы диска и памяти, разбор логов без добивания узла, защита продакшна от самих скриптов и метрики для мониторинга.</p>
+
+    <div class="box key" id="key-idea">
+      <h2>Главная мысль страницы <a class="yakor" href="#key-idea" aria-label="ссылка на этот блок">#</a></h2>
+      <p>Для SRE Bash - это инструмент первой минуты инцидента и одновременно главный источник рукотворных аварий, если эксплуатационный скрипт написан без тормозов. Когда узел деградирует, графики запаздывают, а агенты мониторинга могут уже лежать; на сломанной машине гарантированно есть только оболочка и директория <code>/proc</code>. Поэтому инженер держит в руках фиксированный маршрут триажа и знает ловушки ядра: почему место кончилось при полупустом <code>du</code>, почему <code>kill -9</code> не берёт зомби и где искать след OOM-killer. Вторая половина работы SRE - сделать так, чтобы ремонтный скрипт, бэкап или цикл повторов сам не добил живую систему по диску, процессору и сети. И правило, отделяющее зрелую эксплуатацию от ремесла: скрипт, запускаемый по расписанию, обязан отдавать наружу свои метрики - иначе его тихую смерть заметят только по аварии.</p>
+    </div>
+
+    <h2 id="triage">1 · Первая минута инцидента: чек-лист на живой машине <a class="yakor" href="#triage">#</a></h2>
+    <p>На сломанной машине, куда вы только что вошли по <code>ssh</code>, Bash незаменим: это
+    <strong>единственное, что там гарантированно работает.</strong> Осмотр идёт по жёсткому
+    маршруту, чтобы не тратить время на догадки.</p>
+<pre><code>df -h; df -i; free -m    # диск, иноды, ОЗУ
+uptime; vmstat 1 3       # очередь и CPU
+ss -lntp | head -15      # кто слушает порт
+systemctl is-active app  # жив ли юнит
+journalctl -u app -n 50 --no-pager
+ps -eo pid,stat,rss,cmd \
+  --sort=-rss | head -6</code></pre>
+    <p>Порядок не случаен: <strong>место и индексные дескрипторы → память и своп → нагрузка и
+    порты → статус сервиса и его журнал → самые тяжёлые процессы.</strong> В большинстве
+    инцидентов причина находится на первых двух строках, поэтому начинать с чтения кода или
+    перезапуска сервиса до осмотра ресурсов - ошибка.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «С каких команд и в каком порядке вы начинаете разбор инцидента на незнакомом сервере?»</div>
+
+    <h2 id="hidden-failures">2 · Скрытые отказы: почему <code>df</code> спорит с <code>du</code>, зомби и OOM <a class="yakor" href="#hidden-failures">#</a></h2>
+    <p>Три классических сценария на собеседованиях SRE - это ситуации, где стандартная команда
+    показывает «норму» или не срабатывает, потому что причина лежит в ядре.</p>
+<pre><code># 1. df = 100%, а du видит свободное место
+lsof +L1                 # удалён, но открыт
+: &gt; /proc/PID/fd/N      # освободить, не убивая
+df -i                    # кончились иноды
+
+# 2. процесс исчез без следа в логе приложения
+dmesg -T | grep -i 'killed process'
+
+# 3. зомби (Z) не убивается через kill -9
+ps -eo pid,ppid,stat,cmd \
+  | awk '$3 ~ /^Z/'</code></pre>
+    <p>Если лог-файл удалили через <code>rm</code>, пока процесс держит его дескриптор открытым,
+    имя из каталога исчезает (<code>du</code> его не считает), но блоки на диске освободятся только
+    после закрытия дескриптора. Если процесс перезапускать нельзя, файл усекают через его
+    дескриптор: <code>: &gt; /proc/PID/fd/N</code>. <strong><code>truncate -s 0</code> по старому
+    имени не поможет:</strong> имени больше нет, и команда создаст рядом новый пустой файл, не
+    освободив ни байта. Зомби-процесс (<code>Z</code>) уже
+    мёртв и не занимает памяти - в таблице процессов осталась только запись с кодом возврата, пока
+    родитель (<code>PPID</code>) не вызовет <code>wait()</code>; сигналить самому зомби
+    бессмысленно.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Почему <code>df -h</code> показывает 100%, когда <code>du -sh</code> видит свободное место, и почему <code>kill -9</code> не убивает зомби?»</div>
+
+    <h2 id="logs">3 · Логи на живом узле: найти причину, не добив диск <a class="yakor" href="#logs">#</a></h2>
+    <p>Разбор гигабайтных журналов конвейером быстрее загрузки в стороннюю систему, если не сделать
+    двух ошибок: <strong>не забить диск распаковкой и не зависнуть на буферизации трубы.</strong></p>
+<pre><code># топ кодов или ошибок без имён файлов
+grep -h ERROR /var/log/app/*.log \
+  | awk '{print $5}' \
+  | sort | uniq -c | sort -rn | head
+
+# срез по времени и чтение архивов на лету
+awk '/12:03:/,/12:06:/' app.log
+zgrep -h '502 Bad' /var/log/nginx/*.gz
+
+# поток вживую без задержки буфера
+tail -f app.log \
+  | grep --line-buffered ' 5[0-9][0-9] '</code></pre>
+    <p>Три детали решают исход: <code>grep -h</code> убирает префикс с именем файла, чтобы не
+    сдвигать колонки в <code>awk</code>; <code>--line-buffered</code> заставляет <code>grep</code>
+    сбрасывать каждую строку сразу, а не копить буфер на 4 КБ; <code>zgrep</code> и
+    <code>zcat</code> читают сжатые логи потоком в памяти, не создавая временных файлов на
+    переполненном разделе.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Как искать в ротированных архивах на переполненном диске и почему <code>tail -f | grep</code> долго молчит?»</div>
+
+    <h2 id="node-protection">4 · Скрипт не должен положить прод: <code>flock</code>, <code>nice</code> и <code>ionice</code> <a class="yakor" href="#node-protection">#</a></h2>
+    <p>Тяжёлый скрипт обслуживания - архивация, ротация, сверка чек-сумм - запущенный на боевой
+    машине с обычным приоритетом, <strong>отбирает диск и CPU у рабочего трафика и сам становится
+    аварией.</strong></p>
+<pre><code>#!/usr/bin/env bash
+set -euo pipefail
+
+exec 9&gt;/var/lock/backup.lock
+flock -n 9 || exit 0   # второй не стартует
+
+nice -n 19 ionice -c3 \
+  tar -czf /backup/app.tgz /var/lib/app</code></pre>
+    <p>Два предохранителя обязательны для любой периодической задачи на узле. Первый -
+    <code>flock -n</code>: если предыдущий запуск завис на медленном диске, следующий по
+    <code>cron</code> не наложится поверх него лавиной из двадцати копий. Второй -
+    <code>nice -n 19 ionice -c3</code>: класс <code>Idle</code> (<code>-c3</code>) отдаёт диску
+    команды скрипта только тогда, когда ни один боевой процесс к диску не обращается.</p>
+    <p><strong>Оговорка, без которой это самообман:</strong> классы <code>ionice</code> соблюдает
+    только планировщик BFQ (и CFQ в старых ядрах). При <code>none</code> и
+    <code>mq-deadline</code> - частый выбор для NVMe и облачных дисков - <code>ionice</code>
+    молча ничего не делает. Проверка - <code>cat /sys/block/&lt;диск&gt;/queue/scheduler</code>.
+    Если там не BFQ, ограничивают не приоритет, а полосу: <code>--bwlimit</code> у
+    <code>rsync</code> или <code>IOWriteBandwidthMax=</code> через <code>systemd-run</code> -
+    это работает при любом планировщике.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Как защитить боевой сервер от деградации во время работы тяжёлого cron-скрипта?»</div>
+
+    <h2 id="cascading-failures">5 · Каскадные отказы: <code>backoff + jitter</code> против шторма повторов <a class="yakor" href="#cascading-failures">#</a></h2>
+    <p>Когда внешний сервис или база начинает отвечать с ошибкой, две сотни узлов, повторяющих
+    запрос в цикле через каждые две секунды, <strong>добивают сервис окончательно и не дают ему
+    подняться.</strong></p>
+<pre><code># случайный сдвиг старта в cron / скрипте
+sleep $(( RANDOM % 30 ))
+
+# экспоненциальная пауза + разброс (jitter)
+retry() {
+  local n
+  for n in 1 2 3 4 5; do
+    curl -sf --max-time 5 "$url" &amp;&amp; return 0
+    (( n == 5 )) &amp;&amp; break
+    sleep $(( (1 &lt;&lt; n) + RANDOM % 5 ))
+  done
+  echo "сервис недоступен" &gt;&amp;2
+  return 1
+}
+retry || exit 1</code></pre>
+    <p>Два правила для парков машин: <strong>расписание никогда не бьёт в секунду <code>00</code>
+    одновременно</strong> (используют <code>RandomizedDelaySec</code> в systemd-таймерах или
+    начальный сдвиг по <code>RANDOM</code>), а пауза между повторами растёт экспоненциально со
+    случайной добавкой (<code>jitter</code>), чтобы рассинхронизировать волну запросов после сбоя. <strong>И цикл обязан закончиться
+    честным отказом:</strong> без явного <code>return 1</code> после последней попытки он вернёт
+    код последней команды цикла, и полная недоступность сервиса будет выглядеть как успех.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Почему наивный цикл повторов в скрипте на парке серверов превращает кратковременный сбой в долгую аварию?»</div>
+
+    <h2 id="metrics">6 · Наблюдаемость скрипта и ловушка «самоисцеления» <a class="yakor" href="#metrics">#</a></h2>
+    <p>Фоновый скрипт умирает двумя способами: падает с ошибкой или <strong>перестаёт запускаться
+    вовсе</strong>. Если он пишет только в локальный лог, о потере бэкапов узнают в день, когда
+    понадобится восстановление.</p>
+<pre><code>t0=$SECONDS; rc=0
+run_backup || rc=$?
+dur=$(( SECONDS - t0 ))
+
+prom=/var/lib/node_exporter/backup.prom
+cat &lt;&lt;EOF &gt; "$prom.$$"
+backup_last_exit_code $rc
+backup_duration_seconds $dur
+backup_last_run_timestamp $(date +%s)
+EOF
+mv "$prom.$$" "$prom"   # атомарно</code></pre>
+    <p>Атомарная запись трёх чисел в <code>textfile collector</code> через временный файл и
+    <code>mv</code> позволяет настроить два алерта: на ненулевой код и на устаревание метки времени
+    (<code>time() - backup_last_run_timestamp &gt; 90000</code>). И обратное правило SRE:
+    <strong>скрипт «проверь и тихо перезапусти сервис» без счётчика и алерта вреден</strong> - он
+    скрывает утечку памяти и деградацию вплоть до момента, когда перезапуск перестанет помогать.</p>
+    <div class="prints"><strong>Что спрашивают:</strong> «Как мониторить выполнение фонового bash-скрипта и почему тихий авторестарт сервиса из cron опасен?»</div>
+
+    <h2 id="artifacts">Артефакты: что у вас есть после этой страницы <a class="yakor" href="#artifacts">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Чтение &gt;&gt; Ваш квант времени жизни · Партнёрство достоинства вместе с AI · Перестройка вашей нейросети</p>
+      <p><strong>Маршрут триажа и тормоза для автоматики.</strong> Время потрачено не зря, если при разборе аварии вы проверяете открытые удалённые дескрипторы и иноды раньше, чем перезапускаете сервис, а в каждый фоновый скрипт автоматически ставите неблокирующий <code>flock</code>, <code>ionice</code> и выгрузку метки времени. Это и есть перестройка нейросети: скрипт перестаёт быть невидимым для мониторинга и опасным для соседей по узлу.</p>
+    </div>
+    <ol>
+      <li><strong>Маршрут первой минуты:</strong> диск и иноды, память, порты, юнит, журнал, тяжёлые процессы.</li>
+      <li><strong>Три ядерные ловушки:</strong> <code>lsof +L1</code> и <code>df -i</code> при расхождении с <code>du</code>, OOM в <code>dmesg</code>, зомби в статусе <code>Z</code>.</li>
+      <li><strong>Разбор логов без вреда:</strong> <code>grep -h</code>, <code>--line-buffered</code>, <code>zgrep</code> без распаковки на диск.</li>
+      <li><strong>Изоляция нагрузки:</strong> <code>flock -n</code> от наложения запусков и <code>nice</code> / <code>ionice -c3</code> для сохранения диска - и проверка, что планировщик это соблюдает.</li>
+      <li><strong>Защита от шторма:</strong> случайный сдвиг старта и <code>exponential backoff + jitter</code>.</li>
+      <li><strong>Метрики из скрипта:</strong> атомарная запись кода, длительности и времени в мониторинг через <code>mv</code>.</li>
+    </ol>
+
+    <footer>
+      Следующие три страницы - примеры по уровням зрелости: Noob, Pro, IGL. Что отложено и почему - в <a href="../lessons/potom.md">potom.md</a>.
+    </footer>
+  </main>
+
+</div>
+</div>
+<script src="../assets/swa.js"></script>
+<script src="../assets/terms.js"></script>
+<script src="../assets/cp.js"></script>
+</body>
+</html>
