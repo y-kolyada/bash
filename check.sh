@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# Проверка сайта. Одна команда - один ответ.
+#
+#     ./check.sh
+#
+# ПОЧЕМУ ОДНА КОМАНДА, А НЕ ЧЕТЫРЕ. Проверка, которую нужно вспоминать по
+# частям, не запускается перед публикацией - запускается та, что одна и
+# отвечает ЗЕЛЁНОЕ или КРАСНОЕ. Сами проверки лежат в tools/ и запускаются
+# по отдельности, когда нужно понять причину:
+#
+#     tools/check-page.sh ru/01.html      страница существует и у неё свой заголовок
+#     tools/check-claims.sh               утверждения сайта выполняются в терминале
+#     python3 tools/check-links.py        внутренние ссылки и якоря
+#     node tools/check-pages.mjs          телефон 390px и липкая панель, все страницы
+#     node tools/glaza.mjs ru/01.html     снимок одной страницы, чтобы посмотреть глазами
+#
+# Браузерная проверка требует playwright (npm i playwright). Если его нет,
+# она честно говорит об этом и считается КРАСНОЙ: зелёный ответ без браузера
+# означал бы, что страницы никто не смотрел.
+
+set -uo pipefail
+cd "$(dirname "$0")" || exit 2
+
+FAIL=0
+NAMES=()
+CODES=()
+
+g() { printf '\033[32m%s\033[0m' "$1"; }
+r() { printf '\033[31m%s\033[0m' "$1"; }
+
+run() {
+  local name=$1
+  shift
+  "$@"
+  local code=$?
+  NAMES+=("$name")
+  CODES+=("$code")
+  [ "$code" -eq 0 ] || FAIL=$((FAIL + 1))
+}
+
+run "страница и заголовок" ./tools/check-page.sh ru/index.html
+run "утверждения сайта"    ./tools/check-claims.sh
+run "ссылки и якоря"       python3 tools/check-links.py
+run "телефон и панель"     node tools/check-pages.mjs
+
+echo
+echo "  Итог проверки сайта"
+echo "  ----------------------------------------------"
+for i in "${!NAMES[@]}"; do
+  if [ "${CODES[$i]}" -eq 0 ]; then
+    printf '  [ %s ] %s\n' "$(g 'ДА ')" "${NAMES[$i]}"
+  else
+    printf '  [ %s ] %s\n' "$(r 'НЕТ')" "${NAMES[$i]}"
+  fi
+done
+echo "  ----------------------------------------------"
+if [ "$FAIL" -eq 0 ]; then
+  printf '  %s\n\n' "$(g 'ЗЕЛЁНОЕ')"
+else
+  printf '  %s  - проверок со словом НЕТ: %s\n\n' "$(r 'КРАСНОЕ')" "$FAIL"
+fi
+
+[ "$FAIL" -eq 0 ]

@@ -5,7 +5,8 @@
   "description": "Сайт-ассессмент по Bash из серии AI Factory. Simple Web Architecture: без бэкенда, без сборки.",
   "type": "module",
   "scripts": {
-    "glaza": "node glaza.mjs index.html"
+    "check": "./check.sh",
+    "glaza": "node tools/glaza.mjs ru/index.html"
   },
   "license": "ISC",
   "dependencies": {

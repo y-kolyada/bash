@@ -42,13 +42,14 @@ body {
   font: var(--base-font-size)/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
-.wrap { max-width: 68rem; margin: 0 auto; padding: 24px 16px 64px; }
+.wrap { max-width: 68rem; margin: 0 auto; padding: 0 16px 64px; }
 
 /* --- шапка и двухуровневый логотип --- */
 header.top {
   border-bottom: 1px solid var(--line);
-  margin-bottom: 20px;
-  padding-bottom: 14px;
+  margin-bottom: 18px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -71,7 +72,7 @@ header.top a.home {
   display: inline-block;
   width: 44px;
   height: 26px;
-  background: url('imgs/ai-badge.png') no-repeat center / contain;
+  background: url('img/ai-badge.png') no-repeat center / contain;
   font-size: 0;
   color: transparent;
   vertical-align: middle;
@@ -82,12 +83,12 @@ header.top a.home {
 }
 /* Инверсия цветов логотипа в ночном режиме */
 html[data-theme="dark"] .badge-ai {
-  background-image: url('imgs/ai-badge-invert.png');
+  background-image: url('img/ai-badge-invert.png');
   box-shadow: 0 0 12px rgba(252, 189, 74, 0.35);
 }
 @media (prefers-color-scheme: dark) {
   html:not([data-theme="light"]) .badge-ai {
-    background-image: url('imgs/ai-badge-invert.png');
+    background-image: url('img/ai-badge-invert.png');
     box-shadow: 0 0 12px rgba(252, 189, 74, 0.35);
   }
 }
@@ -260,6 +261,7 @@ nav.sessions .num { display: inline-block; width: 1.4em; color: var(--dim); flex
     max-height: calc(100vh - 36px);
     overflow-y: auto;
     overscroll-behavior: contain;
+    overflow-anchor: none;
     margin: 0;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -267,6 +269,28 @@ nav.sessions .num { display: inline-block; width: 1.4em; color: var(--dim); flex
   nav.sessions::-webkit-scrollbar {
     display: none;
   }
+}
+
+/* ВСТРОЕННЫЕ ЗНАЧКИ, И ЭТО ИСПРАВЛЕНИЕ, А НЕ СТИЛЬ. В навигации и в словаре
+   стояли эмодзи (📖 и 🎯), а на машине без шрифта с эмодзи они рисуются пустым
+   квадратом - ровно то, что уже случилось со значком кнопки копирования (⧉).
+   SVG не зависит ни от шрифта, ни от внешнего файла и берёт цвет текста через
+   currentColor. */
+.icon {
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: -0.22em;
+  flex: none;
+}
+
+/* В навигации значок стоит рядом с набором строчных букв, а не в строке текста:
+   там работает не базовая линия, а выравнивание по центру строки, и значок
+   кажется поднятым, как верхний индекс. Поэтому здесь он крупнее и опущен на
+   пиксель - подобрано глазами на снимке, а не вычислено. */
+nav.sessions .nav-extra .icon {
+  width: 1.45em;
+  height: 1.45em;
+  margin-top: 1px;
 }
 
 /* --- текст --- */
@@ -770,5 +794,77 @@ nav.sessions .nav-extra a[aria-current="page"] {
   }
 }
 
+/* --- липкая панель: дно страницы принадлежит правой колонке --- */
 
+/* ЭТО ИСПРАВЛЕНИЕ, А НЕ СТИЛЬ. Липкий элемент не может выйти за границу своего
+   контейнера - здесь это сетка .cols. Под сеткой лежало пустое дно: 64px у
+   .wrap и 72px у body (запас под плавающую кнопку .svernut, которой на этом
+   сайте нет ни на одной странице). На дне страницы панель навигации
+   прижималась к границе сетки и уезжала вверх на 136 - 18 = 118px: два первых
+   раздела сайта становились недостижимы ни прокруткой панели (её scrollTop уже
+   0), ни прокруткой страницы (она уже внизу). Нашёл Приёмщик руками, мерит
+   tools/check-pages.mjs.
 
+   Блок стоит в конце файла намеренно: правило body { padding-bottom: 72px }
+   объявлено ниже медиазапроса с панелью, и при равной специфичности побеждает
+   то, что записано позже. */
+@media (min-width: 56rem) {
+  body { padding-bottom: 0; }
+  .wrap { padding-bottom: 0; }
+  main { padding-bottom: 64px; }
+}
+
+/* --- закреплённая шапка --- */
+
+/* ШАПКА НЕ УЕЗЖАЕТ ВВЕРХ НА ШИРОКОМ ЭКРАНЕ. Решение Архитектора: язык, тема и
+   размер шрифта должны быть под рукой на любой высоте страницы. На телефоне
+   шапка остаётся обычной - там она стоила бы седьмой части экрана.
+
+   --header-h ставит swa.js по настоящей высоте шапки: она меняется от размера
+   шрифта и длины слогана, и вычислить её в CSS нельзя. Значения по умолчанию
+   рассчитаны на средний шрифт и нужны до того, как отработает скрипт. */
+@media (min-width: 56rem) {
+  header.top {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--bg);
+  }
+
+  /* ВОЗДУХ ПОД ЧЕРТОЙ, И ЭТО НЕ УКРАШЕНИЕ. Панель навигации закреплена на 12px
+     ниже шапки, и её пункты в черту не врезаются. Текст в правой колонке
+     проезжает под шапкой сплошняком и упирается в черту вплотную. Полоса цвета
+     страницы продолжает шапку вниз: первые 12px - тот же воздух, что у панели,
+     дальше цвет уходит в прозрачность. Без этого растворения под краем полосы
+     видна нижняя кромка уезжающей строки - буквы, срезанные поперёк. */
+  header.top::after {
+    content: "";
+    position: absolute;
+    /* Отступ в процентах считается от внутренней рамки, а нижняя граница
+       лежит на пиксель ниже: без этой поправки полоса накрывала саму черту,
+       и шапка переставала отделяться от панели и от текста. */
+    top: calc(100% + 1px);
+    left: 0;
+    right: 0;
+    height: 22px;
+    background: linear-gradient(to bottom, var(--bg) 55%, rgba(0, 0, 0, 0));
+    pointer-events: none;
+  }
+  nav.sessions {
+    top: calc(var(--header-h, 68px) + 12px);
+    max-height: calc(100vh - var(--header-h, 68px) - 24px);
+  }
+}
+
+/* На телефоне шапка не закреплена, и прижимать её к самому верху экрана незачем:
+   воздух над логотипом там читается как поля страницы. */
+@media (max-width: 56rem) {
+  header.top { padding-top: 16px; }
+}
+
+/* Куда пришли по якорю - не под шапкой. Переменная равна нулю, пока шапка не
+   закреплена, поэтому на телефоне отступ остаётся прежним. */
+:target,
+.glossary-term:target {
+  scroll-margin-top: calc(var(--header-h, 0px) + 14px);
+}

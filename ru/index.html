@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bash · компоненты, практики и 150 вопросов · ai|</title>
-<link rel="stylesheet" href="style.css?v=1">
+<link rel="stylesheet" href="../assets/style.css?v=1">
 <script>
   (function() {
     var t = localStorage.getItem('b1-theme');
@@ -19,7 +19,7 @@
 
 <header class="top">
   <div class="brand-group">
-    <a class="home" href="./">
+    <a class="home" href="index.html">
       <span class="badge-ai">ai|</span>
       <span class="sub-brand">devops-bash</span>
     </a>
@@ -27,10 +27,10 @@
   </div>
   <div class="utility-tray" role="toolbar" aria-label="Настройки отображения и язык">
     <div class="lang-switcher" aria-label="Выбор языка">
-      <a href="index-en.html">EN</a>
+      <a href="../en/index.html">EN</a>
       <a href="index.html" class="active" aria-current="page">RU</a>
-      <a href="index-uk.html">UK</a>
-      <a href="index-de.html">DE</a>
+      <a href="../uk/index.html">UK</a>
+      <a href="../de/index.html">DE</a>
     </div>
     <div class="font-scaler" role="group" aria-label="Размер шрифта">
       <button type="button" class="font-btn font-s" data-size="s" title="Мелкий шрифт" aria-label="Мелкий шрифт">А</button>
@@ -38,7 +38,7 @@
       <button type="button" class="font-btn font-l" data-size="l" title="Крупный шрифт" aria-label="Крупный шрифт">A</button>
     </div>
     <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему (День/Ночь)" aria-label="Сменить тему день/ночь">
-      <span class="theme-icon" aria-hidden="true">☼</span>
+      <span class="theme-icon" aria-hidden="true"><svg class="icon" data-icon="sun" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="3.8"/><path d="M10 1.2v2.2M10 16.6v2.2M1.2 10h2.2M16.6 10h2.2M3.7 3.7l1.6 1.6M14.7 14.7l1.6 1.6M16.3 3.7l-1.6 1.6M5.3 14.7l-1.6 1.6"/></svg></span>
     </button>
   </div>
 </header>
@@ -64,7 +64,7 @@
       <li><a href="15.html"><span class="num">15</span>Вопросы · IGL</a></li>
     </ol>
     <div class="nav-extra">
-      <a href="glossary.html">📖 Словарь понятий</a>
+      <a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словарь понятий</a>
     </div>
     <div class="page-toc" id="pageToc" aria-label="Разделы этой страницы" hidden>
       <div class="toc-title">На этой странице</div>
@@ -98,10 +98,10 @@
     <h3>Чем Bash устроен</h3>
     <ol>
       <li><strong><a href="01.html">Ключевые компоненты</a></strong><br>
-      Анатомия: разбор командной строки, раскрытия и <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">словоделение</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Словоделение</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Разбиение результата подстановки на слова по пробелам - причина большинства поломок на путях с пробелами.</span><span class="term-links"><a href="glossary.html#slovodelenie">В словарь понятий 📖</a></span></span></span>, процессы и перенаправления,
-      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">конвейеры</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Конвейер</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Цепочка команд через <code>|</code>: вывод одной становится вводом следующей. Все звенья запускаются одновременно.</span><span class="term-links"><a href="glossary.html#konveyer">В словарь понятий 📖</a></span></span></span>, переменные и области видимости, <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">коды возврата</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Код возврата</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Число 0–255, которым команда сообщает об успехе (0) или об ошибке (не 0). Единственный машинный признак провала.</span><span class="term-links"><a href="glossary.html#kod-vozvrata">В словарь понятий 📖</a></span></span></span>, сигналы и ловушки.</li>
+      Анатомия: разбор командной строки, раскрытия и <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">словоделение</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Словоделение</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Разбиение результата подстановки на слова по пробелам - причина большинства поломок на путях с пробелами.</span><span class="term-links"><a href="glossary.html#slovodelenie">В словарь понятий <svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg></a></span></span></span>, процессы и перенаправления,
+      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">конвейеры</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Конвейер</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Цепочка команд через <code>|</code>: вывод одной становится вводом следующей. Все звенья запускаются одновременно.</span><span class="term-links"><a href="glossary.html#konveyer">В словарь понятий <svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg></a></span></span></span>, переменные и области видимости, <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">коды возврата</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Код возврата</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Число 0–255, которым команда сообщает об успехе (0) или об ошибке (не 0). Единственный машинный признак провала.</span><span class="term-links"><a href="glossary.html#kod-vozvrata">В словарь понятий <svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg></a></span></span></span>, сигналы и ловушки.</li>
       <li><strong><a href="02.html">Написание скриптов</a></strong><br>
-      Правила и техники: структура скрипта, <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">shebang</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Shebang</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Первая строка скрипта <code>#!/usr/bin/env bash</code>: указывает ядру, каким интерпретатором его запускать.</span><span class="term-links"><a href="glossary.html#shebang">В словарь понятий 📖</a></span></span></span>, строгий режим, функции и аргументы,
+      Правила и техники: структура скрипта, <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">shebang</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Shebang</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Первая строка скрипта <code>#!/usr/bin/env bash</code>: указывает ядру, каким интерпретатором его запускать.</span><span class="term-links"><a href="glossary.html#shebang">В словарь понятий <svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg></a></span></span></span>, строгий режим, функции и аргументы,
       идемпотентность, логирование, <code>shellcheck</code>. Отдельно - <strong>два режима
       Bash</strong>: интерактивная оболочка, где человек набирает команды, и интерпретатор
       скриптов, где тот же язык исполняется без человека. Половина «необъяснимых» отличий между
@@ -170,9 +170,9 @@
       <p>Вопрос: «Что делает <code>set -e</code>?»</p>
       <p><strong>Noob:</strong> прерывает скрипт на первой ошибке. <strong>Pro:</strong> прерывает -
       но не внутри
-      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">конвейера</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Конвейер</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Цепочка команд через <code>|</code>. Код возврата по умолчанию берётся только у последнего звена - ошибка первого теряется.</span><span class="term-links"><a href="glossary.html#konveyer">В словарь понятий 📖</a></span></span></span>
+      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">конвейера</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Конвейер</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Цепочка команд через <code>|</code>. Код возврата по умолчанию берётся только у последнего звена - ошибка первого теряется.</span><span class="term-links"><a href="glossary.html#konveyer">В словарь понятий <svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg></a></span></span></span>
       и не в условиях, поэтому нужен
-      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">pipefail</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">set -euo pipefail</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Три предохранителя: падать на ошибке, падать на необъявленной переменной, не терять ошибку внутри конвейера.</span><span class="term-links"><a href="glossary.html#pipefail">В словарь понятий 📖</a></span></span></span>.
+      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">pipefail</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">set -euo pipefail</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Три предохранителя: падать на ошибке, падать на необъявленной переменной, не терять ошибку внутри конвейера.</span><span class="term-links"><a href="glossary.html#pipefail">В словарь понятий <svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg></a></span></span></span>.
       <strong>IGL:</strong> даёт ложное чувство безопасности - на длинной логике это повод перейти
       на язык с настоящими исключениями.</p>
     </div>
@@ -181,14 +181,14 @@
     <p>Simple Web Architecture: статический HTML и CSS, около 160 строк ванильного JavaScript,
     ноль бэкенда, ноль сборки. Страницы лежат плоско в корне, без подпапок - так ссылки не ломаются
     на статическом хостинге.</p>
-    <p>У сайта есть своё задание, написанное <em>до</em> работы ИИ - <a href="zadanie-1.md">zadanie-1.md</a>,
-    запись о том, что получилось на самом деле - <a href="zapis-1.md">zapis-1.md</a>,
-    и список отложенного с причиной по каждой строке - <a href="potom.md">potom.md</a>.
+    <p>У сайта есть своё задание, написанное <em>до</em> работы ИИ - <a href="../lessons/zadanie-1.md">zadanie-1.md</a>,
+    запись о том, что получилось на самом деле - <a href="../lessons/zapis-1.md">zapis-1.md</a>,
+    и список отложенного с причиной по каждой строке - <a href="../lessons/potom.md">potom.md</a>.
     Проверка - <code>./check.sh</code>, отвечает ЗЕЛЁНОЕ или КРАСНОЕ. Страницу на ширине телефона
     меряет <code>node glaza.mjs index.html</code>: он находит то, что уехало за край, и возвращает
     код возврата, поэтому годится в автоматическую проверку.</p>
     <p class="dim">Каждый
-    <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">shebang</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Shebang</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Первая строка скрипта <code>#!/usr/bin/env bash</code>: указывает ядру, каким интерпретатором его запускать.</span><span class="term-links"><a href="glossary.html#shebang">В словарь понятий 📖</a></span></span></span>
+    <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">shebang</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Shebang</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Первая строка скрипта <code>#!/usr/bin/env bash</code>: указывает ядру, каким интерпретатором его запускать.</span><span class="term-links"><a href="glossary.html#shebang">В словарь понятий <svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg></a></span></span></span>
     в этом репозитории - <code>#!/usr/bin/env bash</code>, и это не вкусовщина: так скрипт найдёт
     тот Bash, который стоит у пользователя, а не только тот, что лежит в <code>/bin</code>.</p>
 
@@ -220,8 +220,8 @@
 
 </div>
 </div>
-<script src="swa.js"></script>
-<script src="terms.js"></script>
-<script src="cp.js"></script>
+<script src="../assets/swa.js"></script>
+<script src="../assets/terms.js"></script>
+<script src="../assets/cp.js"></script>
 </body>
 </html>
