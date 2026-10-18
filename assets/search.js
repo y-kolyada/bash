@@ -56,7 +56,7 @@
   let picked = -1;
 
   try {
-    const saved = JSON.parse(sessionStorage.getItem('ai-search') || 'null');
+    const saved = JSON.parse(sessionStorage.getItem('swa-bash-search') || 'null');
     if (saved && saved.q) {
       input.value = saved.q;
       picked = typeof saved.idx === 'number' ? saved.idx : -1;
@@ -66,10 +66,10 @@
   function saveState(idx, url, active) {
     try {
       if (!input.value.trim()) {
-        sessionStorage.removeItem('ai-search');
+        sessionStorage.removeItem('swa-bash-search');
         return;
       }
-      sessionStorage.setItem('ai-search', JSON.stringify({
+      sessionStorage.setItem('swa-bash-search', JSON.stringify({
         q: input.value,
         idx,
         url: url || '',
