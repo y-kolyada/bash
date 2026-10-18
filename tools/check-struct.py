@@ -96,9 +96,11 @@ def shape(code):
     """Shape of a block: line count and its code-like words. Prose differs
     between languages, but {a,b}, $var and *.txt must match."""
     text = unescape(code)
+    text = re.sub(r'(\$\{[^}:]+\:\?)[^}]*\}', r'\1""}', text)
     tokens = [t.strip("\"'") for t in text.split()]
     tokens = [t for t in tokens if any(ch in CODEISH for ch in t)]
     return (len(text.strip().splitlines()), tokens)
+
 
 
 def is_scheme(code):

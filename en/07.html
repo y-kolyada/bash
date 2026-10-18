@@ -74,23 +74,127 @@
 
   <main>
     <h1>Practices in the cloud</h1>
+    <p class="lead">Cloud CLIs, awaiting readiness, access without static keys, API limits, guardrails against the wrong account, and tag-based cleanup - and where the boundary with Terraform lies.</p>
 
-    <div class="stub-card">
-      <h2>The English version is in preparation</h2>
-      <p>The full working version of this page is published in Russian (на русском языке).</p>
-      <p>Open the full version:</p>
-      <div class="stub-actions">
-        <a href="../ru/07.html" class="btn-primary">Practices in the cloud in Russian (на русском языке) →</a>
-      </div>
+    <div class="box key" id="key-idea">
+      <h2>Key idea of this page <a class="yakor" href="#key-idea" aria-label="link to this section">#</a></h2>
+      <p>In the cloud, Bash orchestrates calls to external APIs, where every request costs latency, quota, and money. Four rules define a robust cloud script: explicitly wait for asynchronous resources with a hard attempt limit; never store keys in code or expose them under <code>set -x</code>; batch queries with pagination and API rate limits in mind instead of firing hundreds of calls in a loop; and verify on the very first line which account and region the script targets. Everything created for a task must be discoverable and deletable by tag. The architectural boundary is clear: one-off operations belong in Bash; persistent infrastructure state belongs in Terraform. Triage of live instances and logs is covered separately under SRE practices.</p>
     </div>
 
+    <h2 id="cloud-cli">1 · Cloud CLIs are regular programs and behave like programs <a class="yakor" href="#cloud-cli">#</a></h2>
+    <p>The first shift in mindset: a cloud CLI is not an administrative interactive shell, but a CLI utility with an exit status and machine-readable output. The same rules apply to it as to <code>grep</code>.</p>
+<pre><code>aws ec2 describe-instances \
+  --filters Name=tag:app,Values=web \
+  --query 'Reservations[].Instances[].InstanceId' \
+  --output text
+
+aws s3api head-object … &gt;/dev/null 2&gt;&amp;1 \
+  &amp;&amp; echo exists || echo missing</code></pre>
+    <p>Two habits save the most time. <strong><code>--query</code> filters on the CLI client side</strong> before data reaches <code>jq</code>: less output, simpler parsing. <strong>A missing object returns a non-zero exit status</strong>, not an empty string; inspect the exit code rather than stdout. And disable the built-in pager via <code>AWS_PAGER=""</code> to prevent scripts from hanging waiting for a <code>q</code> keystroke.</p>
+    <div class="prints"><strong>What gets asked:</strong> “How does <code>--query</code> differ from <code>jq</code>, and how do you test in a script whether a cloud resource exists?”</div>
+
+    <h2 id="provisioning">2 · Resource provisioning: waiting is part of the job <a class="yakor" href="#provisioning">#</a></h2>
+    <p>Cloud calls are asynchronous: returning an ID does not mean the resource is ready. <strong>A script that does not wait fails intermittently</strong> and manifests as a flaky bug.</p>
+<pre><code>id=$(aws ec2 run-instances … \
+     --query 'Instances[0].InstanceId' \
+     --output text)
+
+aws ec2 wait instance-running \
+  --instance-ids "$id"
+
+# custom polling with an attempt limit
+for i in {1..30}; do
+  ready &amp;&amp; break
+  sleep 5
+done</code></pre>
+    <p>Use built-in waiters (<code>wait</code>) provided by CLIs whenever available. Where absent, write polling loops <strong>with a strict attempt limit</strong>: infinite polling in CI means jobs hang until runner timeout, burning minutes. Tag everything you provision so it can be located and torn down later.</p>
+    <div class="prints"><strong>What gets asked:</strong> “How do you wait for cloud resource readiness in a script, and what happens without polling?”</div>
+
+    <h2 id="credentials">3 · Credentials: what must never appear in scripts <a class="yakor" href="#credentials">#</a></h2>
+    <p>The costliest mistakes in cloud scripting are disciplinary rather than technical - <strong>credentials leaked into a repository or CI log.</strong></p>
+<pre><code># no:
+AWS_SECRET_ACCESS_KEY=AKIA…
+
+# yes: instance role or named profile
+aws --profile prod s3 ls
+
+# secrets from a vault into a variable,
+# never echoed and never under set -x
+token=$(aws secretsmanager \
+  get-secret-value --secret-id t \
+  --query SecretString --output text)</code></pre>
+    <p>Order of preference: <strong>instance roles or OIDC</strong> - zero credentials to store; <strong>named profiles</strong> - keys remain in user configuration, not in code; <strong>environment variables</strong> - strictly as a last resort. Crucially: <code>set -x</code> prints parameter values, dumping secrets directly into CI logs; never enable shell execution tracing on steps handling secrets.</p>
+    <div class="prints"><strong>What gets asked:</strong> “How does a script access cloud APIs without storing static credentials, and why is <code>set -x</code> dangerous there?”</div>
+
+    <h2 id="throttling">4 · Pagination, API throttling, and avoiding CLI loops <a class="yakor" href="#throttling">#</a></h2>
+    <p>Invoking a cloud CLI in a <code>for</code> loop across hundreds of resources guarantees hitting <code>ThrottlingException</code> (<code>Rate exceeded</code>) and inflating runtime to thirty minutes: each invocation boots a Python/Go runtime and establishes a new TLS handshake.</p>
+<pre><code># no: N API calls in a loop
+for id in $ids; do
+  aws ec2 describe-instances --instance-ids "$id"
+done
+
+# yes: single batch request with adaptive retries
+export AWS_RETRY_MODE=adaptive
+export AWS_MAX_ATTEMPTS=6
+aws ec2 describe-instances \
+  --instance-ids $ids</code></pre>
+    <p>Two rules for scale: <strong>pass IDs as batches or apply server-side API filters</strong> instead of iterative queries, and enable built-in adaptive retries (<code>AWS_RETRY_MODE=adaptive</code>) to automatically back off upon receiving <code>429</code> or <code>503</code> responses. When querying large listings, remember that without autopagination or <code>--next-token</code>, only the first page is returned.</p>
+    <div class="prints"><strong>What gets asked:</strong> “Why do cloud scripts suddenly fail with Rate Exceeded errors, and how do you eliminate CLI loops?”</div>
+
+    <h2 id="account-guard">5 · Guardrails against the wrong account, region, or context <a class="yakor" href="#account-guard">#</a></h2>
+    <p>The most destructive cloud outages occur when a valid cleanup script runs in a terminal retaining yesterday's production profile or cluster context.</p>
+<pre><code>#!/usr/bin/env bash
+set -euo pipefail
+
+export AWS_PAGER=""
+region="${AWS_REGION:?specify region}"
+want_acc="123456789012"
+
+got_acc=$(aws sts get-caller-identity \
+  --query Account --output text)
+[ "$got_acc" = "$want_acc" ] || {
+  echo "wrong account: $got_acc" &gt;&amp;2
+  exit 1
+}</code></pre>
+    <p>Any script modifying or deleting cloud resources must in its first lines <strong>verify the active account and cluster against expectations</strong> (<code>aws sts get-caller-identity</code>, <code>gcloud config get-value project</code>, <code>kubectl config current-context</code>) and require explicit region parameters rather than inheriting stale environment variables from an engineer's shell.</p>
+    <div class="prints"><strong>What gets asked:</strong> “How do you ensure a staging cleanup script never touches production resources?”</div>
+
+    <h2 id="cleanup">6 · Cleanup and the boundary with Terraform <a class="yakor" href="#cleanup">#</a></h2>
+    <p>Clouds bill for forgotten resources. A script that provisions must be capable of tearing down - identifying targets <strong>by metadata tags rather than mental lists.</strong></p>
+<pre><code>aws ec2 describe-instances \
+  --filters Name=tag:tmp,Values=yes \
+  --query '…[].InstanceId' --output text \
+  | xargs -r aws ec2 terminate-instances \
+      --instance-ids</code></pre>
+    <p><code>xargs -r</code> prevents execution when stdin is empty - without it, deleting “all” matched resources can degenerate into an argumentless command with unpredictable blast radius.</p>
+    <div class="box">
+      <p><strong>Where the boundary lies.</strong> Bash excels when the task is an <em>action</em>: ephemeral one-hour setups, account-wide auditing snapshots, bucket migrations, tag-based cleanups. Terraform and CloudFormation excel when the task is <em>state</em>: resources that must exist permanently. A script attempting state management inevitably degenerates into a defective Terraform clone - complete with custom state files, hand-rolled drift detection, and unique bugs.</p>
+    </div>
+    <div class="prints"><strong>What gets asked:</strong> “Where does provisioning via shell script end and Terraform begin?”</div>
+
+    <h2 id="artifacts">Artifacts: what you take away from this page <a class="yakor" href="#artifacts">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Reading &gt;&gt; Your life quantum · Dignity partnership with AI · Rewiring your neural network</p>
+      <p><strong>Account validation at the entrypoint and tag-based cleanup at exit.</strong> Your time was well spent if you stopped looping cloud CLI calls one resource at a time, and now begin every script by confirming account identity and every temporary resource with a tracking tag. That is the essence of rewiring: the cloud ceases to be a minefield of surprise billing and mistaken regions.</p>
+    </div>
+    <ol>
+      <li><strong>CLI as a standard program:</strong> exit status, client-side <code>--query</code>, disabling <code>AWS_PAGER</code>.</li>
+      <li><strong>Explicit readiness polling</strong> via <code>wait</code> or bounded loops.</li>
+      <li><strong>Credential hierarchy:</strong> instance roles or OIDC → named profiles → environment variables; strict prohibition of <code>set -x</code> with secrets.</li>
+      <li><strong>Batch requests and <code>AWS_RETRY_MODE=adaptive</code></strong> instead of per-item CLI loops.</li>
+      <li><strong>Account and region validation</strong> on line one before executing any mutating operations.</li>
+      <li><strong>Tag-based cleanup</strong>, <code>xargs -r</code>, and the architectural boundary: actions in Bash, state in Terraform.</li>
+    </ol>
+
     <footer>
-      Part of the AI Factory series. Built with the same toolchain as the rest: plain HTML and CSS, a bash check, published through GitHub Pages.
+      Next page - DevOps practices: builds, deployments, and pipelines. Deferred items and rationale - in <a href="../lessons/potom.md">potom.md</a>.
     </footer>
   </main>
 
 </div>
 </div>
 <script src="../assets/swa.js"></script>
+<script src="../assets/terms.js"></script>
+<script src="../assets/cp.js"></script>
 </body>
 </html>
