@@ -11,6 +11,7 @@
 #     tools/check-page.sh ru/01.html      страница существует и у неё свой заголовок
 #     tools/check-claims.sh               утверждения сайта выполняются в терминале
 #     python3 tools/check-links.py        внутренние ссылки и якоря
+#     python3 tools/build-search.py       пересобрать индекс поиска
 #     node tools/check-pages.mjs          телефон 390px и липкая панель, все страницы
 #     node tools/glaza.mjs ru/01.html     снимок одной страницы, чтобы посмотреть глазами
 #
@@ -41,6 +42,7 @@ run() {
 run "страница и заголовок" ./tools/check-page.sh ru/index.html
 run "утверждения сайта"    ./tools/check-claims.sh
 run "ссылки и якоря"       python3 tools/check-links.py
+run "индекс поиска"        python3 tools/build-search.py --check
 run "телефон и панель"     node tools/check-pages.mjs
 
 echo

@@ -128,6 +128,58 @@ for (const file of files) {
 
   for (const why of floats) bad.push([file, why + ' (телефон)']);
 
+  // Search opens, finds, highlights the chosen section, remembers the picked item,
+  // and closes cleanly via button and Escape after reopening.
+  if (/\/02\.html$/.test(file.replace(/\\/g, '/'))) {
+    const search = await phone.evaluate(async () => {
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      const button = document.querySelector('.find-btn');
+      const clearMark = document.querySelector('.clear-mark-btn');
+      if (!button) return ['кнопки поиска нет в шапке'];
+      if (!clearMark) return ['кнопки снятия подсветки нет в шапке'];
+      if (getComputedStyle(clearMark).display !== 'none') return ['кнопка снятия подсветки видна до поиска'];
+      button.click();
+      for (let i = 0; i < 60 && !document.querySelector('.search-input'); i++) await sleep(50);
+      const panel = document.querySelector('.search-panel');
+      const input = document.querySelector('.search-input');
+      if (!panel || !input) return ['панель поиска не открылась'];
+      const empty = (window.SEARCH && window.SEARCH.i.length === 0);
+      input.value = 'pipefail';
+      input.dispatchEvent(new Event('input'));
+      await sleep(120);
+      const links = [...document.querySelectorAll('.search-results a')];
+      const note = document.querySelector('.search-empty');
+      if (empty && !note) return ['пустой индекс языка не объяснён читателю'];
+      if (!empty && !links.length) return ['поиск по слову pipefail не нашёл ничего'];
+      if (!empty) {
+        if (!links[0].getAttribute('href').includes('#')) return ['результат ведёт на страницу без якоря'];
+        const samePage = links.find((a) => (a.getAttribute('href') || '').startsWith('02.html#'));
+        if (!samePage) return ['среди результатов нет раздела текущей страницы 02.html'];
+        samePage.click();
+        if (getComputedStyle(panel).display !== 'none') return ['поиск не закрылся при переходе к разделу'];
+        if (!document.querySelectorAll('mark.search-mark').length) return ['найденные слова не подсвечены в разделе'];
+        if (getComputedStyle(clearMark).display === 'none') return ['кнопка снятия подсветки не появилась'];
+        button.click();
+        if (getComputedStyle(panel).display === 'none') return ['поиск не открылся повторно'];
+        if (!document.querySelector('.search-results a.picked')) return ['выбранный пункт не сохранил подсветку в списке'];
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        if (getComputedStyle(panel).display !== 'none') return ['повторно открытый поиск не закрылся по Escape'];
+        clearMark.click();
+        if (document.querySelectorAll('mark.search-mark').length) return ['подсветка слов не снялась кнопкой очистки'];
+        if (getComputedStyle(clearMark).display !== 'none') return ['кнопка снятия подсветки не скрылась после очистки'];
+        return [];
+      }
+      document.querySelector('.search-close').click();
+      if (getComputedStyle(panel).display !== 'none') return ['поиск не закрылся кнопкой закрытия'];
+      button.click();
+      if (getComputedStyle(panel).display === 'none') return ['поиск не открылся повторно'];
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      if (getComputedStyle(panel).display !== 'none') return ['повторно открытый поиск не закрылся по Escape'];
+      return [];
+    });
+    for (const why of search) bad.push([file, why]);
+  }
+
   // Reader preference keys must carry no product marker: a page copied from
   // another site would quietly bring its own storage keys back.
   const keys = await phone.evaluate(() => {

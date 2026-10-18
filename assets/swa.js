@@ -153,7 +153,153 @@
     }
   }
 
-  // 5. Floating scroll buttons: to the top and to the bottom. Paging by screen
+  // 5. Search. The button lives in the tray; the panel and the index for this
+  //    language are fetched on the first click, so a reader who never searches
+  //    pays nothing for it.
+  const FIND = { ru: 'Искать по сайту', en: 'Search the site',
+                 uk: 'Шукати на сайті', de: 'Website durchsuchen' };
+  const CLEAR_MARK = { ru: 'Снять подсветку найденных слов', en: 'Clear word highlighting',
+                       uk: 'Зняти підсвічування знайдених слів', de: 'Wortmarkierung aufheben' };
+
+  const tray = document.querySelector('.utility-tray');
+
+  if (tray && document.querySelector('nav.sessions')) {
+    const langCode = document.documentElement.lang || 'ru';
+    const label = FIND[langCode] || FIND.ru;
+    const clearLabel = CLEAR_MARK[langCode] || CLEAR_MARK.ru;
+
+    const clearBtn = document.createElement('button');
+    clearBtn.type = 'button';
+    clearBtn.className = 'clear-mark-btn';
+    clearBtn.hidden = true;
+    clearBtn.setAttribute('aria-label', clearLabel);
+    clearBtn.title = clearLabel;
+    clearBtn.innerHTML = '<svg class="icon" data-icon="clear-mark" viewBox="0 0 20 20" width="16"'
+      + ' height="16" fill="none" stroke="currentColor" stroke-width="1.7"'
+      + ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+      + '<path d="M12.5 3.5l4 4L8 16H4v-4L12.5 3.5z"/><path d="M3 18h14"/><path d="M14.5 11.5l3.5 3.5M18 11.5l-3.5 3.5"/></svg>';
+
+    const find = document.createElement('button');
+    find.type = 'button';
+    find.className = 'find-btn';
+    find.setAttribute('aria-label', label);
+    find.title = label;
+    find.innerHTML = '<svg class="icon" data-icon="find" viewBox="0 0 20 20" width="16"'
+      + ' height="16" fill="none" stroke="currentColor" stroke-width="1.7"'
+      + ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+      + '<circle cx="8.6" cy="8.6" r="5.4"/><path d="M12.6 12.6l4 4"/></svg>';
+
+    const norm = (s) => s.toLowerCase().replace(/ё/g, 'е');
+
+    function clearSearchHighlight(keepState) {
+      document.querySelectorAll('mark.search-mark').forEach((m) => {
+        const parent = m.parentNode;
+        if (!parent) return;
+        parent.replaceChild(document.createTextNode(m.textContent), m);
+        parent.normalize();
+      });
+      clearBtn.hidden = true;
+      if (!keepState) {
+        try {
+          const raw = sessionStorage.getItem('ai-search');
+          if (raw) {
+            const state = JSON.parse(raw);
+            state.active = false;
+            sessionStorage.setItem('ai-search', JSON.stringify(state));
+          }
+        } catch (_) {}
+      }
+    }
+
+    function applySearchHighlight(anchorId, query) {
+      clearSearchHighlight(true);
+      const needle = norm((query || '').trim());
+      if (!anchorId || needle.length < 2) return 0;
+      const target = document.getElementById(anchorId);
+      if (!target) return 0;
+
+      const roots = [target];
+      if (target.tagName === 'H2') {
+        let sib = target.nextElementSibling;
+        while (sib && sib.tagName !== 'H2' && !sib.classList.contains('glossary-term')) {
+          roots.push(sib);
+          sib = sib.nextElementSibling;
+        }
+      }
+
+      let count = 0;
+      roots.forEach((root) => {
+        const nodes = [];
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        let n;
+        while ((n = walker.nextNode())) {
+          const p = n.parentElement;
+          if (!p || p.closest('.yakor, script, style, mark.search-mark')) continue;
+          if (norm(n.nodeValue).indexOf(needle) >= 0) nodes.push(n);
+        }
+        nodes.forEach((textNode) => {
+          const text = textNode.nodeValue;
+          const lower = norm(text);
+          const frag = document.createDocumentFragment();
+          let pos = 0;
+          let at;
+          while ((at = lower.indexOf(needle, pos)) >= 0) {
+            if (at > pos) frag.appendChild(document.createTextNode(text.slice(pos, at)));
+            const mark = document.createElement('mark');
+            mark.className = 'search-mark';
+            mark.textContent = text.slice(at, at + needle.length);
+            frag.appendChild(mark);
+            count++;
+            pos = at + needle.length;
+          }
+          if (pos < text.length) frag.appendChild(document.createTextNode(text.slice(pos)));
+          const step = textNode.parentElement && textNode.parentElement.closest('details.step');
+          if (step && !step.open) step.open = true;
+          textNode.parentNode.replaceChild(frag, textNode);
+        });
+      });
+
+      clearBtn.hidden = count === 0;
+      return count;
+    }
+
+    clearBtn.addEventListener('click', () => clearSearchHighlight(false));
+    window.applySearchHighlight = applySearchHighlight;
+    window.clearSearchHighlight = clearSearchHighlight;
+
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('ai-search') || 'null');
+      if (saved && saved.active && saved.q) {
+        const hashAnchor = location.hash ? decodeURIComponent(location.hash.slice(1)) : '';
+        const savedAnchor = (saved.url && saved.url.includes('#')) ? saved.url.split('#')[1] : '';
+        const anchor = hashAnchor || savedAnchor;
+        if (anchor) applySearchHighlight(anchor, saved.q);
+      }
+    } catch (_) {}
+
+    let loading = false;
+    find.addEventListener('click', () => {
+      if (window.openSearch) { window.openSearch(); return; }
+      if (loading) return;
+      loading = true;
+      const lang = document.documentElement.lang || 'ru';
+      load('../assets/search-' + lang + '.js', () => load('../assets/search.js', () => {
+        loading = false;
+      }));
+    });
+    tray.insertBefore(find, tray.firstChild);
+    tray.insertBefore(clearBtn, find);
+  }
+
+  function load(src, done) {
+    const tag = document.createElement('script');
+    tag.src = src;
+    tag.onload = done;
+    tag.onerror = done;
+    document.head.appendChild(tag);
+  }
+
+  // 6. Floating scroll buttons: to the top and to the bottom. Paging by screen
   //    is left to the finger and the wheel. Built here, not in the markup, so
   //    no page has to be edited to gain them.
   const SAY = {
@@ -206,7 +352,7 @@
     floats.hidden = doc.scrollHeight < window.innerHeight * LONG_ENOUGH;
   }
 
-  // 6. One handler for everything that depends on scrolling and window size,
+  // 7. One handler for everything that depends on scrolling and window size,
   //    throttled to an animation frame to avoid forced layout on every event.
   let ticking = false;
 
@@ -234,7 +380,7 @@
   fitFloats();
   markActive();
 
-  // 7. Print and PDF: expand every step for the booklet
+  // 8. Print and PDF: expand every step for the booklet
   window.addEventListener('beforeprint', () => {
     document.querySelectorAll('details.step:not([open])').forEach((d) => {
       d.setAttribute('data-was-closed', 'true');
