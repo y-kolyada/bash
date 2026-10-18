@@ -122,7 +122,21 @@
         tocList.querySelectorAll('a').forEach((link) => {
           link.classList.toggle('active', link.getAttribute('href') === '#' + current.id);
         });
+        carryAnchor(current.id);
       };
+
+      // Switching language keeps the place: anchors are identical in every
+      // language, so the switcher only has to carry the current one. At the top
+      // of a page the links stay clean; a language that lacks the section simply
+      // opens at its beginning.
+      function carryAnchor(id) {
+        const doc = document.scrollingElement || document.documentElement;
+        const keep = doc.scrollTop > 40;
+        document.querySelectorAll('.lang-switcher a').forEach((link) => {
+          const base = (link.getAttribute('href') || '').split('#')[0];
+          link.setAttribute('href', keep ? base + '#' + id : base);
+        });
+      }
 
       // The sidebar is as tall as what is visible below it, not as the window:
       // otherwise its last items sit off screen while the header is still there.

@@ -188,6 +188,12 @@ for (const file of files) {
       const active = document.querySelector('#tocList a.active');
       const spyOk = !links.length || (active && active === lastLink);
 
+      // Switching language keeps the place: every switcher link carries the
+      // anchor of the section that is current, and nothing while at the top.
+      const langs = [...document.querySelectorAll('.lang-switcher a')];
+      const wanted = active ? active.getAttribute('href') : '';
+      const carried = !links.length || langs.every((a) => a.getAttribute('href').endsWith(wanted));
+
       // 3. The sidebar fits the window, so every item is reachable. Its edge is
       //    measured rather than scrolling, which the browser clamps to the old
       //    size. Worst case: the top of the page, header still in place.
@@ -195,14 +201,17 @@ for (const file of files) {
       await waitFor(() => Math.round(document.scrollingElement.scrollTop) === 0);
       await sleep();
       const below = Math.round(nav.getBoundingClientRect().bottom - window.innerHeight);
+      const clean = langs.every((a) => !a.getAttribute('href').includes('#'));
 
-      return { hidden, spyOk, below: Math.max(0, below) };
+      return { hidden, spyOk, below: Math.max(0, below), carried, clean };
     }, STICKY_TOP);
 
     if (!seen) continue;
     const where = ' (окно ' + viewport.height + 'px)';
     if (seen.hidden) bad.push([file, 'на дне страницы панель спрятана над окном на ' + seen.hidden + 'px' + where]);
     if (!seen.spyOk) bad.push([file, 'на дне страницы последний раздел не подсвечен в навигаторе' + where]);
+    if (!seen.carried) bad.push([file, 'переключатель языков не уносит текущий раздел' + where]);
+    if (!seen.clean) bad.push([file, 'в начале страницы в ссылках языков остался якорь' + where]);
     if (seen.below > 1) bad.push([file, 'панель не помещается в окно: её низ ниже края на ' + seen.below + 'px' + where]);
   }
 }
