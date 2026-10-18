@@ -177,19 +177,27 @@
       на язык с настоящими исключениями.</p>
     </div>
 
-    <h2 id="toolchain">Оснастка: чем сделан этот сайт <a class="anchor-link" href="#toolchain">#</a></h2>
-    <p>Simple Web Architecture: статический HTML и CSS, около 160 строк ванильного JavaScript,
-    ноль бэкенда, ноль сборки. Страницы лежат плоско в корне, без подпапок - так ссылки не ломаются
-    на статическом хостинге.</p>
-    <p>У сайта есть своё задание, написанное <em>до</em> работы ИИ - <a href="../lessons/zadanie-1.md">zadanie-1.md</a>,
-    запись о том, что получилось на самом деле - <a href="../lessons/zapis-1.md">zapis-1.md</a>,
-    и список отложенного с причиной по каждой строке - <a href="../lessons/potom.md">potom.md</a>.
-    Проверка - <code>./check.sh</code>, отвечает ЗЕЛЁНОЕ или КРАСНОЕ. Страницу на ширине телефона
-    меряет <code>node shot.mjs index.html</code>: он находит то, что уехало за край, и возвращает
-    код возврата, поэтому годится в автоматическую проверку.</p>
+    <h2 id="features">Что умеет этот сайт <a class="anchor-link" href="#features">#</a></h2>
+    <p>Мелочи, которые помогают читать. Выбор запоминается между визитами, а страница
+    работает и без интернета.</p>
+    <ul>
+      <li><strong>Поиск по сайту</strong> - лупа в шапке: ищет по разделам, вопросам и словарю,
+      подсвечивает найденное. Индекс грузится при первом поиске, открытие страниц он не
+      замедляет.</li>
+      <li><strong>Карточки терминов</strong> - пунктирное подчёркивание: определение и ссылка
+      в словарь, не теряя места. Попробуйте на слове чуть ниже.</li>
+      <li><strong>Четыре языка, одно место</strong> - переключатель оставляет вас в том же
+      разделе.</li>
+      <li><strong>Размер шрифта и тема</strong> - «А А А» и день / ночь, на всю страницу.</li>
+      <li><strong>Копирование кода</strong> - кнопка в каждом блоке.</li>
+      <li><strong>Навигатор и быстрая прокрутка</strong> - подсвечен раздел, который вы
+      читаете; на длинных страницах кнопки в начало и в конец.</li>
+      <li><strong>Примеры проверены запуском</strong> - код со страниц «Примеры» исполняется
+      перед публикацией.</li>
+    </ul>
     <p class="dim">Каждый
     <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">shebang</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Shebang</strong><button type="button" class="term-close" aria-label="Закрыть">×</button></span><span class="term-desc">Первая строка скрипта <code>#!/usr/bin/env bash</code>: указывает ядру, каким интерпретатором его запускать.</span><span class="term-links"><a href="glossary.html#shebang">В словарь понятий <svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg></a></span></span></span>
-    в этом репозитории - <code>#!/usr/bin/env bash</code>, и это не вкусовщина: так скрипт найдёт
+    на этом сайте - <code>#!/usr/bin/env bash</code>, и это не вкусовщина: так скрипт найдёт
     тот Bash, который стоит у пользователя, а не только тот, что лежит в <code>/bin</code>.</p>
 
     <h2 id="artifacts">Артефакты: что у вас есть после этой страницы <a class="anchor-link" href="#artifacts">#</a></h2>
@@ -208,8 +216,8 @@
       ярлык.</li>
       <li><strong>Шесть терминов,</strong> которые дальше не объясняются: shebang, код возврата,
       конвейер, <code>set -euo pipefail</code>, словоделение, сабшелл.</li>
-      <li><strong>Оснастка в руках:</strong> понимание, как этот сайт проверяет себя сам -
-      <code>./check.sh</code> и <code>shot.mjs</code>.</li>
+      <li><strong>Привычка проверять запуском:</strong> любое утверждение о Bash проверяется
+      в терминале за секунды - и этот сайт проверяет свои примеры так же.</li>
     </ol>
 
     <footer>
