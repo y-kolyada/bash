@@ -309,7 +309,7 @@
       <p class="glossary-lead">An execution mode where the script prints planned mutations without executing them.</p>
       <p>It provides reliable guarantees only when engineered systematically: every state-mutating command routes through a single wrapper function that prints instead of executing when dry run is active. Retrofitted haphazardly, it inevitably misses dangerous branches. Furthermore, wrappers cannot prevent shell redirection side effects: <code>run cmd &gt; file</code> truncates the target file even in dry-run mode because <code>&gt;</code> is processed by the shell prior to function execution. For AI agents, dry run is the principal method for validating logic safely; for engineers, it enables review before changes take effect.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>First seen in:</strong> <a href="../ru/11.html#getopts">Examples · Pro · Options and --dry-run</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>First seen in:</strong> <a href="11.html#getopts">Examples · Pro · Options and --dry-run</a>
       </div>
     </div>
 
@@ -348,7 +348,7 @@
       <p class="glossary-lead">A concurrency guard ensuring that multiple instances of the same task never execute simultaneously.</p>
       <p><code>flock</code> maintains an exclusive lock tied to an open file descriptor, which the operating system automatically releases when the process terminates - including on unexpected crashes. Primitive PID file-based locks lack this kernel protection: after an unhandled crash, stale lock files remain on disk, blocking subsequent runs indefinitely. Its standard application is a scheduled cron job that might overrun its execution window.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>First seen in:</strong> <a href="../ru/11.html#flock">Examples · Pro · Single instance</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>First seen in:</strong> <a href="11.html#flock">Examples · Pro · Single instance</a>
       </div>
     </div>
 
