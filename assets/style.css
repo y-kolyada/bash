@@ -554,11 +554,14 @@ mark.search-mark {
   opacity: .55;
   transition: opacity .15s ease, border-color .15s ease, color .15s ease;
 }
+/* Янтарный, а не синий: синим на сайте окрашены ссылки, а это кнопка. Тот же
+   цвет носят остальные инструменты читателя - кнопка копирования кода и сброс
+   подсветки найденных слов. */
 .float-btn:hover,
 .float-btn:focus-visible {
   opacity: 1;
-  border-color: var(--acc);
-  color: var(--acc);
+  color: var(--term-accent);
+  border-color: var(--target-line);
 }
 .float-btn .icon {
   width: 22px;
