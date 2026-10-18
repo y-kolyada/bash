@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Практики Bash у Clouds · devops-bash · ai|</title>
+<title>Практики у Clouds · devops-bash · ai|</title>
 <link rel="stylesheet" href="../assets/style.css?v=1">
 <script>
   (function() {
@@ -45,7 +45,7 @@
 
 <div class="cols">
 
-  <nav class="sessions" aria-label="Розділи сайту">
+  <nav class="contents" aria-label="Розділи сайту">
     <ol>
       <li><a href="01.html"><span class="num">1</span>Ключові компоненти</a></li>
       <li><a href="02.html"><span class="num">2</span>Написання скриптів</a></li>
@@ -74,23 +74,127 @@
 
   <main>
     <h1>Практики у Clouds</h1>
+    <p class="lead">CLI хмари, очікування готовності, доступи без ключів, ліміти API, захист від чужого акаунту та прибирання за тегами - і де проходить межа з Terraform.</p>
 
-    <div class="stub-card">
-      <h2>Переклад українською готується</h2>
-      <p>Повна робоча версія цієї сторінки опублікована російською мовою (на русском языке).</p>
-      <p>Відкрити повну версію:</p>
-      <div class="stub-actions">
-        <a href="../ru/07.html" class="btn-primary">Практики у Clouds російською (на русском языке) →</a>
-      </div>
+    <div class="box key" id="key-idea">
+      <h2>Головна думка сторінки <a class="anchor-link" href="#key-idea" aria-label="посилання на цей блок">#</a></h2>
+      <p>У хмарі Bash керує викликами чужого API, де кожен запит коштує часу, квоти та грошей. Якість хмарного скрипту визначають чотири правила: він чекає на готовність асинхронних ресурсів явно і з межею спроб; ніколи не зберігає ключі в коді й не світить їх під <code>set -x</code>; запитує дані пачками з урахуванням пагінації та лімітів API замість сотень викликів у циклі; і на першому ж рядку перевіряє, у який акаунт і регіон він дивиться. Все, що скрипт створив для завдання, він зобов'язаний уміти знайти та видалити за тегом. А архітектурна межа проста: одноразова дія - це Bash, постійний стан інфраструктури - це Terraform. Тріаж самої живої машини та її логів винесено в окремий розділ практик SRE.</p>
     </div>
 
+    <h2 id="cloud-cli">1 · CLI хмари - звичайна програма, і поводиться як програма <a class="anchor-link" href="#cloud-cli">#</a></h2>
+    <p>Перше, що змінює ставлення до хмарного CLI: це не консоль адміністратора, а утиліта з кодом повернення та машинним виводом. Отже, до неї застосовні ті самі правила, що й до <code>grep</code>.</p>
+<pre><code>aws ec2 describe-instances \
+  --filters Name=tag:app,Values=web \
+  --query 'Reservations[].Instances[].InstanceId' \
+  --output text
+
+aws s3api head-object … &gt;/dev/null 2&gt;&amp;1 \
+  &amp;&amp; echo є || echo немає</code></pre>
+    <p>Два прийоми економлять найбільше часу. <strong><code>--query</code> фільтрує на боці CLI</strong>, до того як дані дійдуть до <code>jq</code>: менше тексту, менше розбору. <strong>Відсутність об'єкта - це ненульовий код повернення</strong>, а не порожній рядок; перевіряти треба код, а не вивід. І вимикайте вбудований пейджер через <code>AWS_PAGER=""</code>, щоб скрипт не завис в очікуванні клавіші <code>q</code>.</p>
+    <div class="prints"><strong>Що запитують:</strong> «Чим <code>--query</code> відрізняється від <code>jq</code> і як у скрипті перевірити, чи існує ресурс?»</div>
+
+    <h2 id="provisioning">2 · Створення ресурсів: очікування - частина роботи <a class="anchor-link" href="#provisioning">#</a></h2>
+    <p>Хмарні виклики асинхронні: команда повернула ідентифікатор - це не означає, що ресурс готовий. <strong>Скрипт, який не чекає, падає через раз</strong> і виглядає як «плаваюча помилка».</p>
+<pre><code>id=$(aws ec2 run-instances … \
+     --query 'Instances[0].InstanceId' \
+     --output text)
+
+aws ec2 wait instance-running \
+  --instance-ids "$id"
+
+# власне очікування - з межею
+for i in {1..30}; do
+  ready &amp;&amp; break
+  sleep 5
+done</code></pre>
+    <p>У CLI є вбудовані очікування (<code>wait</code>) - беріть їх. Там, де їх немає, пишіть цикл <strong>з обов'язковою межею спроб</strong>: нескінченне очікування в CI означає, що завдання висить до таймауту і витрачає хвилини. І позначайте все, що створюєте, тегами - за ними ви потім це знайдете і видалите.</p>
+    <div class="prints"><strong>Що запитують:</strong> «Як у скрипті дочекатися готовності хмарного ресурсу і що буде без очікування?»</div>
+
+    <h2 id="credentials">3 · Доступи: чого в скрипті бути не повинно <a class="anchor-link" href="#credentials">#</a></h2>
+    <p>Найдорожча помилка в хмарних скриптах не технічна, а дисциплінарна - <strong>ключ, що потрапив у репозиторій або в журнал.</strong></p>
+<pre><code># ні:
+AWS_SECRET_ACCESS_KEY=AKIA…
+
+# так: роль інстансу або профіль
+aws --profile prod s3 ls
+
+# секрет - зі сховища, у змінну,
+# і ніколи в echo і не під set -x
+token=$(aws secretsmanager \
+  get-secret-value --secret-id t \
+  --query SecretString --output text)</code></pre>
+    <p>Порядок переваги: <strong>роль інстансу або OIDC</strong> - нічого зберігати не потрібно; <strong>профіль</strong> - ключі лежать у користувача, а не в коді; <strong>змінні оточення</strong> - лише як останній засіб. Окремо: <code>set -x</code> друкує значення, тобто виводить секрет у журнал CI; вмикати трасування в кроці, який працює з секретами, не можна.</p>
+    <div class="prints"><strong>Що запитують:</strong> «Як скрипт отримує доступ до хмари без зберігання ключів і чому <code>set -x</code> там небезпечний?»</div>
+
+    <h2 id="throttling">4 · Пагінація, тротлінг API та заборона на виклики в циклі <a class="anchor-link" href="#throttling">#</a></h2>
+    <p>Виклик хмарного CLI в циклі <code>for</code> за сотнею ресурсів - надійний спосіб упертися в <code>ThrottlingException</code> (<code>Rate exceeded</code>) і розтягнути скрипт на пів години: кожен виклик підіймає Python/Go-рантайм і відкриває нову TLS-сесію.</p>
+<pre><code># ні: N викликів API в циклі
+for id in $ids; do
+  aws ec2 describe-instances --instance-ids "$id"
+done
+
+# так: один пакетний запит і адаптивний retry
+export AWS_RETRY_MODE=adaptive
+export AWS_MAX_ATTEMPTS=6
+aws ec2 describe-instances \
+  --instance-ids $ids</code></pre>
+    <p>Два правила для великих хмар: <strong>передавати ідентифікатори пачкою або фільтром на боці API</strong> замість поштучного перебору, і вмикати вбудований адаптивний режим повторів (<code>AWS_RETRY_MODE=adaptive</code>), який сам знижує частоту запитів при відповіді <code>429</code>/<code>503</code>. А при читанні великих списків пам'ятати, що без автопагінації або <code>--next-token</code> повернеться лише перша сторінка.</p>
+    <div class="prints"><strong>Що запитують:</strong> «Чому хмарний скрипт раптово падає з помилкою Rate Exceeded і як позбутися викликів CLI в циклі?»</div>
+
+    <h2 id="account-guard">5 · Захист від не того акаунту, регіону та контексту <a class="anchor-link" href="#account-guard">#</a></h2>
+    <p>Найбільш руйнівна аварія в хмарі стається, коли правильний скрипт очищення запускають у терміналі, де з учорашнього дня залишився профіль або контекст продакшену.</p>
+<pre><code>#!/usr/bin/env bash
+set -euo pipefail
+
+export AWS_PAGER=""
+region="${AWS_REGION:?вкажіть регіон}"
+want_acc="123456789012"
+
+got_acc=$(aws sts get-caller-identity \
+  --query Account --output text)
+[ "$got_acc" = "$want_acc" ] || {
+  echo "чужий акаунт: $got_acc" &gt;&amp;2
+  exit 1
+}</code></pre>
+    <p>Будь-який скрипт, який змінює або видаляє хмарні ресурси, зобов'язаний у перших рядках <strong>звірити фактичний акаунт і кластер з очікуваним</strong> (<code>aws sts get-caller-identity</code>, <code>gcloud config get-value project</code>, <code>kubectl config current-context</code>) і вимагати явного зазначення регіону, не покладаючись на змінні, випадково успадковані з інтерактивної оболонки інженера.</p>
+    <div class="prints"><strong>Що запитують:</strong> «Як гарантувати, що скрипт для тестової хмари випадково не видалить ресурси в продакшені?»</div>
+
+    <h2 id="cleanup">6 · Прибирання та межа з Terraform <a class="anchor-link" href="#cleanup">#</a></h2>
+    <p>Хмара бере гроші за забуте. Скрипт, який створює, зобов'язаний уміти видаляти - і знаходити те, що потрібно видалити, <strong>за тегами, а не за списком у голові.</strong></p>
+<pre><code>aws ec2 describe-instances \
+  --filters Name=tag:tmp,Values=yes \
+  --query '…[].InstanceId' --output text \
+  | xargs -r aws ec2 terminate-instances \
+      --instance-ids</code></pre>
+    <p><code>xargs -r</code> не запустить команду на порожньому вводі - без нього видалення «всього» може перетворитися на команду без аргументів із непередбачуваною поведінкою.</p>
+    <div class="box">
+      <p><strong>Де проходить межа.</strong> Bash хороший там, де завдання про <em>дію</em>: створити на годину, зібрати зріз за акаунтом, мігрувати бакет, видалити за тегом. Terraform та CloudFormation - там, де завдання про <em>стан</em>: що має існувати постійно. Скрипт, який намагається підтримувати стан, неминуче перетворюється на поганий Terraform - зі своїм файлом стану, своєю перевіркою розходжень і своїми помилками.</p>
+    </div>
+    <div class="prints"><strong>Що запитують:</strong> «Де закінчується скрипт провіжинінгу і починається Terraform?»</div>
+
+    <h2 id="artifacts">Артефакти: що у вас є після цієї сторінки <a class="anchor-link" href="#artifacts">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Читання &gt;&gt; Ваш квант часу життя · Партнерство гідності разом з AI · Перебудова вашої нейромережі</p>
+      <p><strong>Перевірка акаунту на вході та прибирання за тегом на виході.</strong> Час витрачено недаремно, якщо ви перестали викликати хмарний CLI в циклі по одному ресурсу і починаєте кожен скрипт зі звірки ідентифікатора акаунту, а створення кожного тимчасового ресурсу - з тегу. Це і є перебудова нейромережі: хмара перестає бути місцем випадкових рахунків і чужих регіонів.</p>
+    </div>
+    <ol>
+      <li><strong>CLI як програма:</strong> код повернення, <code>--query</code> на боці клієнта, вимкнення <code>AWS_PAGER</code>.</li>
+      <li><strong>Явне очікування готовності</strong> через <code>wait</code> або цикл із межею спроб.</li>
+      <li><strong>Порядок доступів:</strong> роль або OIDC → профіль → змінна; заборона на <code>set -x</code> із секретами.</li>
+      <li><strong>Пакетні запити та <code>AWS_RETRY_MODE=adaptive</code></strong> замість викликів CLI в циклі.</li>
+      <li><strong>Перевірка акаунту та регіону</strong> в першому рядку скрипту до будь-яких змін.</li>
+      <li><strong>Прибирання за тегами</strong>, <code>xargs -r</code> і межа: дія - Bash, стан - Terraform.</li>
+    </ol>
+
     <footer>
-      Сайт серії AI Factory. Зроблено тією самою оснасткою, що й решта: звичайний HTML і CSS, перевірка на bash, публікація через GitHub Pages.
+      Наступна сторінка - практики DevOps: збірка, деплой та конвеєри. Що відкладено і чому - в <a href="../lessons/potom.md">potom.md</a>.
     </footer>
   </main>
 
 </div>
 </div>
 <script src="../assets/swa.js"></script>
+<script src="../assets/terms.js"></script>
+<script src="../assets/cp.js"></script>
 </body>
 </html>

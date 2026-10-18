@@ -31,12 +31,12 @@ QA = re.compile(r'<ol class="qa"[^>]*>(.*?)</ol>', re.S | re.I)
 LI = re.compile(r'<li>(.*?)</li>', re.S | re.I)
 STRONG = re.compile(r'<strong\b[^>]*>(.*?)</strong>', re.S | re.I)
 TAG = re.compile(r'<[^>]+>')
-YAKOR = re.compile(r'<a class="yakor".*?</a>', re.S | re.I)
+ANCHOR_LINK = re.compile(r'<a class="anchor-link".*?</a>', re.S | re.I)
 GAP = re.compile(r'\s+([?!,.:;)])')
 
 
 def text_of(chunk):
-    plain = ' '.join(html.unescape(TAG.sub(' ', YAKOR.sub(' ', chunk))).split())
+    plain = ' '.join(html.unescape(TAG.sub(' ', ANCHOR_LINK.sub(' ', chunk))).split())
     return GAP.sub(r'\1', plain)
 
 

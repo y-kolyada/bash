@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bash · інструменти, практика та 150 питань · ai|</title>
+<title>Bash · компоненти, практики та 150 питань · ai|</title>
 <link rel="stylesheet" href="../assets/style.css?v=1">
 <script>
   (function() {
@@ -45,7 +45,7 @@
 
 <div class="cols">
 
-  <nav class="sessions" aria-label="Розділи сайту">
+  <nav class="contents" aria-label="Розділи сайту">
     <ol>
       <li><a href="01.html"><span class="num">1</span>Ключові компоненти</a></li>
       <li><a href="02.html"><span class="num">2</span>Написання скриптів</a></li>
@@ -74,23 +74,154 @@
 
   <main>
     <h1>Bash: те, що запитають на асесменті, і те, що знадобиться у проді</h1>
+    <p class="lead">Довідник-асесмент по Bash для інженера, який готується до сертифікації,
+    технічного інтерв’ю або просто хоче перестати вгадувати. Шість розділів, три рівні зрілості,
+    150 питань із відповідями.</p>
 
-    <div class="stub-card">
-      <h2>Переклад українською готується</h2>
-      <p>Повна робоча версія цієї сторінки опублікована російською мовою (на русском языке): шість розділів анатомії Bash, приклади коду та типові питання асесменту.</p>
-      <p>Відкрити повну версію:</p>
-      <div class="stub-actions">
-        <a href="../ru/index.html" class="btn-primary">Bash: те, що запитають на асесменті, і те, що знадобиться у проді російською (на русском языке) →</a>
-      </div>
+    <div class="box key" id="key-idea">
+      <h3>Головна думка сайту <a class="anchor-link" href="#key-idea" aria-label="посилання на цей блок">#</a></h3>
+      <p>Bash знають усі й майже ніхто - він виглядає простим рівно до першого продакшен-інциденту, де
+      скрипт мовчки проковтнув помилку й повернув нуль. Цей сайт розбирає Bash не як набір команд, а як
+      систему: з яких частин він складається, де в нього шви з іншими інструментами, де він слабший за
+      альтернативи та які його поведінки за замовчуванням небезпечні. Окрема лінія - робота з Bash разом із
+      ШІ-агентами: модель упевнено пише скрипти й так само впевнено пропускає лапки, розбиття на слова та
+      коди повернення, тому читати її вивід доведеться вам. Матеріал вибудований за трьома рівнями зрілості:
+      Noob, Pro, IGL - щоб ви бачили не лише відповідь, але й свій наступний горизонт. Усе викладено
+      гранично стисло: кожне формулювання або змінює ваше рішення, або його тут немає.</p>
     </div>
 
+    <h2 id="seven-goals">Що на цьому сайті є <a class="anchor-link" href="#seven-goals">#</a></h2>
+    <p>Сім цілей - спільна рамка всієї серії AI Factory: ключові компоненти, практики в контексті AI,
+    взаємозв’язки, слабкості, приклади за рівнями зрілості, банк зі 150 питань і гранична
+    лаконічність викладу. На треку Bash вони розкладені на п’ятнадцять розділів. Усі п’ятнадцять перекладені українською мовою.</p>
+
+    <h3>Чим Bash влаштований</h3>
+    <ol>
+      <li><strong><a href="01.html">Ключові компоненти</a></strong><br>
+      Анатомія: розбір командного рядка, розкриття та <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">розбиття на слова</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Розбиття на слова</strong><button type="button" class="term-close" aria-label="Закрити">×</button></span><span class="term-desc">Розбиття результату підстановки на слова за пробілами - причина більшості збоїв на шляхах із пробілами.</span><span class="term-links"><a href="glossary.html#word-splitting">До словника понять <svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg></a></span></span></span>, процеси та перенаправлення,
+      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">конвеєри</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Конвеєр</strong><button type="button" class="term-close" aria-label="Закрити">×</button></span><span class="term-desc">Ланцюжок команд через <code>|</code>: вивід однієї стає вводом наступної. Усі ланки запускаються одночасно.</span><span class="term-links"><a href="glossary.html#pipeline">До словника понять <svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg></a></span></span></span>, змінні та області видимості, <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">коди повернення</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Код повернення</strong><button type="button" class="term-close" aria-label="Закрити">×</button></span><span class="term-desc">Число 0–255, яким команда повідомляє про успіх (0) або про помилку (не 0). Єдина машинна ознака провалу.</span><span class="term-links"><a href="glossary.html#exit-code">До словника понять <svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg></a></span></span></span>, сигнали та пастки.</li>
+      <li><strong><a href="02.html">Написання скриптів</a></strong><br>
+      Правила й техніки: структура скрипта, <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">shebang</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Shebang</strong><button type="button" class="term-close" aria-label="Закрити">×</button></span><span class="term-desc">Перший рядок скрипта <code>#!/usr/bin/env bash</code>: вказує ядру, яким інтерпретатором його запускати.</span><span class="term-links"><a href="glossary.html#shebang">До словника понять <svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg></a></span></span></span>, суворий режим, функції та аргументи,
+      ідемпотентність, журналювання, <code>shellcheck</code>. Окремо - <strong>два режими
+      Bash</strong>: інтерактивна оболонка, де людина набирає команди, та інтерпретатор
+      скриптів, де та сама мова виконується без людини. Половина «незрозумілих» відмінностей між
+      терміналом і скриптом пояснюється цією межею.</li>
+    </ol>
+
+    <h3>Чесна оцінка</h3>
+    <ol start="3">
+      <li><strong><a href="03.html">Сила Bash</a></strong><br>
+      Чому він досі всюди: кілька мегабайтів виконуваного файлу, присутність у будь-якій
+      системі Linux за замовчуванням, миттєвий старт, прямий доступ до процесів та файлів, і живий
+      розвиток мови. Розділ існує, щоб порівняння зі слабкостями було чесним, а не
+      однобоким.</li>
+      <li><strong><a href="04.html">Слабкості та межі</a></strong><br>
+      Порівняння з Python, Go та zsh/fish. Що влаштовано погано: обробка помилок, масиви, числа з
+      рухомою комою, паралелізм, читаність після трьохсот рядків.</li>
+      <li><strong><a href="05.html">Взаємозв'язки</a></strong><br>
+      Шви з Git-хуками, CI, Docker (<code>ENTRYPOINT</code>, відсутність init), systemd, Ansible,
+      cron, Make та Python: де Bash - клей, а де його зона закінчується.</li>
+    </ol>
+
+    <h3>Практики: чотири різні території</h3>
+    <ol start="6">
+      <li><strong><a href="06.html">Практики в контексті AI</a></strong><br>
+      Робота з ШІ-агентами: як ставити завдання на скрипт, як перевіряти результат, чому
+      <code>shellcheck</code> у петлі агента коштує дорожче за будь-який промпт, де модель регулярно
+      помиляється - лапки, розбиття на слова, коди повернення.</li>
+      <li><strong><a href="07.html">Практики у Clouds</a></strong><br>
+      Провіжинінг і робота з API хмари: CLI як програма, явне очікування готовності, доступи без
+      ключів, пакетні виклики та троттлінг, захист від чужого акаунту та прибирання за тегами.</li>
+      <li><strong><a href="08.html">Практики DevOps</a></strong><br>
+      Конвеєри постачання: Bash на машині розробника, у збірці та деплої, в CI/CD та у просуванні
+      за середовищами Dev → QA → Prod.</li>
+      <li><strong><a href="09.html">Практики SRE</a></strong><br>
+      Інцидент і виживаність на живій машині: маршрут першої хвилини, чому <code>df</code> сперечається з
+      <code>du</code>, зомбі та OOM, розбір логів, захист вузла через <code>flock</code> та
+      <code>ionice</code>, <code>backoff + jitter</code> і метрики скрипта. Межі чотири: AI - про
+      агентів, Clouds - про ресурси, DevOps - про постачання, SRE - про інцидент та навантаження.</li>
+    </ol>
+
+    <h3>Рівні зрілості</h3>
+    <ol start="10">
+      <li><strong>Приклади:</strong> <a href="10.html">Noob</a> · <a href="11.html">Pro</a> · <a href="12.html">IGL</a><br>
+      <strong>Noob</strong> - фундамент без магії. <strong>Pro</strong> - бойове:
+      <code>set -euo pipefail</code>, <code>trap</code>, ідемпотентність, журналювання.
+      <strong>IGL</strong> - архітектурне: де скрипт зобов’язаний поступитися місцем інструменту.</li>
+      <li><strong>Питання:</strong> <a href="13.html">Noob</a> · <a href="14.html">Pro</a> · <a href="15.html">IGL</a><br>
+      Банк зі 150 питань, по 50 на рівень. Формат короткий: питання - відповідь однією-двома
+      фразами - чому про це запитують.</li>
+    </ol>
+
+    <p><strong>Сьома ціль - гранична лаконічність</strong> - не розділ, а правило викладу,
+    чинне на всіх сторінках: абзац, який не змінює ваше рішення, видаляється.</p>
+
+    <h2 id="levels">Три рівні, і навіщо вони розділені <a class="anchor-link" href="#levels">#</a></h2>
+    <p><strong>Noob</strong> - ви запускаєте скрипти й іноді їх правите. Завдання рівня: прибрати магію.<br>
+    <strong>Pro</strong> - ви пишете скрипти, які працюють на чужих машинах. Завдання рівня: прибрати
+    мовчазні відмови.<br>
+    <strong>IGL</strong> - ви вирішуєте, чи з’явиться скрипт узагалі. Завдання рівня: бачити ціну рішення
+    на рік уперед.</p>
+    <p>Одне й те саме питання на різних рівнях має різні правильні відповіді. Тому питання
+    розділені, а не відсортовані за складністю.</p>
+
+    <div class="box">
+      <h3>Приклад, чому рівні не зводяться до складності</h3>
+      <p>Питання: «Що робить <code>set -e</code>?»</p>
+      <p><strong>Noob:</strong> перериває скрипт на першій помилці. <strong>Pro:</strong> перериває -
+      але не всередині
+      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">конвеєра</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Конвеєр</strong><button type="button" class="term-close" aria-label="Закрити">×</button></span><span class="term-desc">Ланцюжок команд через <code>|</code>. Код повернення за замовчуванням береться лише в останньої ланки - помилка першої втрачається.</span><span class="term-links"><a href="glossary.html#pipeline">До словника понять <svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg></a></span></span></span>
+      і не в умовах, тому потрібен
+      <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">pipefail</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">set -euo pipefail</strong><button type="button" class="term-close" aria-label="Закрити">×</button></span><span class="term-desc">Три запобіжники: падати на помилці, падати на неоголошеній змінній, не втрачати помилку всередині конвеєра.</span><span class="term-links"><a href="glossary.html#strict-mode">До словника понять <svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg></a></span></span></span>.
+      <strong>IGL:</strong> дає оманливе відчуття безпеки - на довгій логіці це привід перейти
+      на мову зі справжніми винятками.</p>
+    </div>
+
+    <h2 id="toolchain">Оснащення: чим зроблено цей сайт <a class="anchor-link" href="#toolchain">#</a></h2>
+    <p>Simple Web Architecture: статичний HTML та CSS, близько 160 рядків ванільного JavaScript,
+    нуль бекенду, нуль збірки. Сторінки розкладені по папках мов - так посилання не ламаються
+    на статичному хостингу.</p>
+    <p>У сайту є своє завдання, написане <em>до</em> роботи ШІ - <a href="../lessons/zadanie-1.md">zadanie-1.md</a>,
+    запис про те, що вийшло насправді - <a href="../lessons/zapis-1.md">zapis-1.md</a>,
+    і список відкладеного з причиною по кожному рядку - <a href="../lessons/potom.md">potom.md</a>.
+    Перевірка - <code>./check.sh</code>, відповідає ЗЕЛЕНЕ або ЧЕРВОНЕ. Сторінку на ширині телефона
+    вимірює <code>node tools/shot.mjs index.html</code>: він знаходить те, що вилізло за край, і повертає
+    код повернення, тому підходить для автоматичної перевірки.</p>
+    <p class="dim">Кожен
+    <span class="term"><button type="button" class="term-btn" aria-expanded="false" style="background:none;border:none;padding:1px 4px;margin:-1px -4px;font:inherit;color:inherit;cursor:pointer;border-bottom:2px dashed var(--term-accent,#db8b0e);border-radius:4px;">shebang</button><span class="term-card" role="tooltip" hidden><span class="term-header"><strong class="term-title">Shebang</strong><button type="button" class="term-close" aria-label="Закрити">×</button></span><span class="term-desc">Перший рядок скрипта <code>#!/usr/bin/env bash</code>: вказує ядру, яким інтерпретатором його запускати.</span><span class="term-links"><a href="glossary.html#shebang">До словника понять <svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg></a></span></span></span>
+    у цьому репозиторії - <code>#!/usr/bin/env bash</code>, і це не смаківщина: так скрипт знайде
+    той Bash, який встановлено в користувача, а не лише той, що лежить у <code>/bin</code>.</p>
+
+    <h2 id="artifacts">Артефакти: що у вас є після цієї сторінки <a class="anchor-link" href="#artifacts">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Читання &gt;&gt; Ваш квант часу життя · Партнерство гідності разом з AI · Перебудова вашої нейромережі</p>
+      <p><strong>Час, витрачений на цю сторінку, непоправний.</strong> Тому вона зобов’язана повернути
+      більше, ніж забрала: не враження, а змінене рішення. «У вас» - означає особисто в кожного, хто
+      вклав сюди увагу: інженера перед асесментом, автора матеріалу, викладача. А «артефакти» -
+      це не лише файли й комміти, а й перебудована нейронна мережа читача: зрозуміла одного разу
+      механіка розбиття на слова залишається з вами й після того, як сайт буде закрито.</p>
+    </div>
+    <ol>
+      <li><strong>Карта предмета:</strong> шість областей Bash, за якими вас запитуватимуть, і
+      розуміння, яка з них у вас слабка.</li>
+      <li><strong>Рівнева рамка:</strong> Noob / Pro / IGL як шкала власної зрілості, а не як
+      ярлик.</li>
+      <li><strong>Шість термінів,</strong> які далі не пояснюються: shebang, код повернення,
+      конвеєр, <code>set -euo pipefail</code>, розбиття на слова, сабшел.</li>
+      <li><strong>Оснащення в руках:</strong> розуміння, як цей сайт перевіряє себе сам -
+      <code>./check.sh</code> та <code>shot.mjs</code>.</li>
+    </ol>
+
     <footer>
-      Сайт серії AI Factory. Зроблено тією самою оснасткою, що й решта: звичайний HTML і CSS, перевірка на bash, публікація через GitHub Pages.
+      Сайт серії AI Factory. Зроблено тією самою оснасткою, що й решта: звичайний HTML і CSS,
+      перевірка на bash, публікація через GitHub Pages.
     </footer>
   </main>
 
 </div>
 </div>
 <script src="../assets/swa.js"></script>
+<script src="../assets/terms.js"></script>
+<script src="../assets/cp.js"></script>
 </body>
 </html>

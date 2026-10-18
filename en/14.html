@@ -45,7 +45,7 @@
 
 <div class="cols">
 
-  <nav class="sessions" aria-label="Site sections">
+  <nav class="contents" aria-label="Site sections">
     <ol>
       <li><a href="01.html"><span class="num">1</span>Key components</a></li>
       <li><a href="02.html"><span class="num">2</span>Writing scripts</a></li>
@@ -77,11 +77,11 @@
     <p class="lead">Fifty production-grade questions. Here interviewers no longer ask what a command does - they ask what will happen when it fails.</p>
 
     <div class="box key" id="key-idea">
-      <h2>Key idea of this page <a class="yakor" href="#key-idea" aria-label="link to this section">#</a></h2>
+      <h2>Key idea of this page <a class="anchor-link" href="#key-idea" aria-label="link to this section">#</a></h2>
       <p>Questions at the Pro level almost exclusively target failure modes: where <code>set -e</code> fails to trigger, where exit statuses get lost, what happens to containers upon termination, and why an environment variable from one CI step vanishes in the next. Answers cannot be memorized - they are derived from understanding process trees, file descriptors, and expansion ordering. Consequently, questions are grouped by failure domain rather than documentation chapters. If an answer seems unfamiliar, the corresponding technique is walked through on the Pro examples page, and the underlying mechanics in key components.</p>
     </div>
 
-    <h2 id="strict-mode">Strict mode, errors, and signals (1–10) <a class="yakor" href="#strict-mode">#</a></h2>
+    <h2 id="strict-mode">Strict mode, errors, and signals (1–10) <a class="anchor-link" href="#strict-mode">#</a></h2>
     <ol class="qa" start="1">
       <li><strong>What exactly does each option in <code>set -euo pipefail</code> do?</strong><br><code>-e</code> exits on non-zero return code; <code>-u</code> treats unset variables as errors; <code>-o pipefail</code> sets the pipeline return code to that of the <strong>rightmost command</strong> to exit with a non-zero status.<br><span class="dim">Why this gets asked: tests whether you understand these as three separate architectural decisions rather than a single magic incantation.</span></li>
       <li><strong>Name the situations where <code>set -e</code> does not trigger.</strong><br>Inside <code>if</code>/<code>while</code> conditions, to the left of <code>&amp;&amp;</code> or <code>||</code>, inside functions invoked as part of a condition, in command substitutions evaluated in arguments, and in <code>local x=$(cmd)</code>: the return code of <code>local</code> masks the command substitution's failure code.<br><span class="dim">Why this gets asked: the quintessential reliability question; separates theoretical knowledge from production reality.</span></li>
@@ -95,7 +95,7 @@
       <li><strong>What is a zombie process and why does <code>kill -9</code> fail to remove it?</strong><br>It is an already-terminated process whose exit status has not yet been collected by its parent via <code>wait</code>. There is nothing to kill - it is dead; it disappears once the parent waits on it or the parent terminates. In containers lacking an init system, nobody collects orphans, causing zombies on PID 1.<br><span class="dim">Why this gets asked: connects signals, <code>wait</code>, and container PID 1 responsibilities in a single question.</span></li>
     </ol>
 
-    <h2 id="expansions-arrays">Expansions, arrays, and quoting (11–20) <a class="yakor" href="#expansions-arrays">#</a></h2>
+    <h2 id="expansions-arrays">Expansions, arrays, and quoting (11–20) <a class="anchor-link" href="#expansions-arrays">#</a></h2>
     <ol class="qa" start="11">
       <li><strong>How does <code>"$@"</code> differ from <code>$@</code> and <code>"$*"</code>?</strong><br><code>"$@"</code> expands to separate positional arguments preserving word boundaries; <code>$@</code> splits on <code>IFS</code>; <code>"$*"</code> collapses all arguments into a single string separated by the first character of <code>IFS</code>.<br><span class="dim">Why this gets asked: one of the most frequent interview questions; the answer instantly reveals skill level.</span></li>
       <li><strong>Why do professional scripts prefer <code>printf</code> over <code>echo</code>?</strong><br>Behavior of <code>echo</code> with flags like <code>-n</code>, <code>-e</code>, or trailing backslashes diverges across shells and operating systems; <code>printf</code> is strictly defined by POSIX and behaves consistently.<br><span class="dim">Why this gets asked: universal portability question asked in almost every assessment.</span></li>
@@ -109,7 +109,7 @@
       <li><strong>Why is <code>eval</code> considered hazardous?</strong><br>It executes a string as code after performing all expansions, converting untrusted input into executed commands. Safer alternatives exist almost always: arrays for argument lists, <code>printf -v</code>, or namerefs (<code>declare -n</code>).<br><span class="dim">Why this gets asked: checks whether you can spot remote code injection vulnerabilities.</span></li>
     </ol>
 
-    <h2 id="processes-pipelines">Processes, pipelines, and redirections (21–30) <a class="yakor" href="#processes-pipelines">#</a></h2>
+    <h2 id="processes-pipelines">Processes, pipelines, and redirections (21–30) <a class="anchor-link" href="#processes-pipelines">#</a></h2>
     <ol class="qa" start="21">
       <li><strong>In what order does Bash execute expansions?</strong><br>Five distinct stages: brace expansion; then a single left-to-right pass performing tilde expansion, parameter expansion, command substitution, arithmetic expansion, and process substitution; followed by word splitting; pathname expansion; and quote removal. That parameter and arithmetic expansion occur in the same pass is proven by <code>x=1; echo $((x=2)) $x</code>, which outputs <code>2 2</code>.<br><span class="dim">Why this gets asked: explains nearly all shell quirks at once; claiming “eight sequential steps” is a common inaccuracy.</span></li>
       <li><strong>Why does <code>{1..$n}</code> fail to expand?</strong><br>Brace expansion executes before parameter expansion, so <code>$n</code> has not yet been replaced with its value.<br><span class="dim">Why this gets asked: tests understanding of expansion precedence rather than mere syntax memorization.</span></li>
@@ -123,7 +123,7 @@
       <li><strong>What does <code>wait -n</code> do?</strong><br>It pauses until any single background job completes rather than waiting for all jobs (Bash 4.3+).<br><span class="dim">Why this gets asked: necessary for implementing custom worker pool limits.</span></li>
     </ol>
 
-    <h2 id="files-locking">Files, concurrency, and locking (31–40) <a class="yakor" href="#files-locking">#</a></h2>
+    <h2 id="files-locking">Files, concurrency, and locking (31–40) <a class="anchor-link" href="#files-locking">#</a></h2>
     <ol class="qa" start="31">
       <li><strong>Why should temporary files always be generated via <code>mktemp</code>?</strong><br>It guarantees cryptographically random filenames and restrictive file permissions; predictable paths in <code>/tmp</code> introduce race conditions and symlink hijacking exploits.<br><span class="dim">Why this gets asked: tests awareness of both operational reliability and system security.</span></li>
       <li><strong>How do you prevent concurrent execution of multiple script instances?</strong><br>Bind <code>flock</code> to a file descriptor: the lock releases automatically upon process termination, unlike brittle flag files.<br><span class="dim">Why this gets asked: essential requirement for cron jobs and schedulers.</span></li>
@@ -137,7 +137,7 @@
       <li><strong>What happens to <code>for f in *.log</code> if no matching files exist, and what do <code>nullglob</code> and <code>failglob</code> change?</strong><br>By default, the pattern remains an unexpanded literal string <code>*.log</code>, causing the loop to execute once on a non-existent path. <code>shopt -s nullglob</code> expands unmatched globs to an empty list; <code>failglob</code> raises an error.<br><span class="dim">Why this gets asked: classic trap where scripts erroneously process missing files.</span></li>
     </ol>
 
-    <h2 id="ci-containers">CI, containers, systemd, and secrets (41–50) <a class="yakor" href="#ci-containers">#</a></h2>
+    <h2 id="ci-containers">CI, containers, systemd, and secrets (41–50) <a class="anchor-link" href="#ci-containers">#</a></h2>
     <ol class="qa" start="41">
       <li><strong>With what flags does CI execute a <code>run:</code> step?</strong><br>In GitHub Actions without an explicit <code>shell:</code>, it executes <code>bash -e {0}</code>; with <code>shell: bash</code>, it runs <code>bash --noprofile --norc -eo pipefail {0}</code>. The <code>-u</code> flag is never enabled automatically.<br><span class="dim">Why this gets asked: checks whether you inspect runner documentation rather than assuming shell flags.</span></li>
       <li><strong>Why is an <code>export</code> in one CI step invisible in subsequent steps?</strong><br>Each step executes in an isolated process; persist environment variables across steps by writing to runner files like <code>$GITHUB_ENV</code>.<br><span class="dim">Why this gets asked: textbook mistake when transitioning from local development to CI automation.</span></li>
@@ -151,7 +151,7 @@
       <li><strong>What is <code># shellcheck disable=SCxxxx</code> and how should it be applied?</strong><br>It suppresses a specific rule for the immediate next line; applying global file-level suppressions almost always masks legitimate defects.<br><span class="dim">Why this gets asked: demonstrates your engineering posture toward automated quality gates.</span></li>
     </ol>
 
-    <h2 id="artifacts">Artifacts: what you take away from this page <a class="yakor" href="#artifacts">#</a></h2>
+    <h2 id="artifacts">Artifacts: what you take away from this page <a class="anchor-link" href="#artifacts">#</a></h2>
     <div class="box key">
       <p class="artifacts-slogan">Reading &gt;&gt; Your life quantum · Dignity partnership with AI · Rewiring your neural network</p>
       <p><strong>Fifty failure scenarios and the concrete answer to each.</strong> Your time was well spent if you stopped answering “that never happens” and started naming the exact preconditions under which it does. That is the essence of rewiring: replacing “what does this command do” with “what will happen when this goes wrong.”</p>

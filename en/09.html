@@ -45,7 +45,7 @@
 
 <div class="cols">
 
-  <nav class="sessions" aria-label="Site sections">
+  <nav class="contents" aria-label="Site sections">
     <ol>
       <li><a href="01.html"><span class="num">1</span>Key components</a></li>
       <li><a href="02.html"><span class="num">2</span>Writing scripts</a></li>
@@ -77,11 +77,11 @@
     <p class="lead">Incident triage in sixty seconds, hidden disk and memory failures, parsing logs without killing the node, protecting production from scripts themselves, and monitoring metrics.</p>
 
     <div class="box key" id="key-idea">
-      <h2>Key idea of this page <a class="yakor" href="#key-idea" aria-label="link to this section">#</a></h2>
+      <h2>Key idea of this page <a class="anchor-link" href="#key-idea" aria-label="link to this section">#</a></h2>
       <p>For an SRE, Bash is both the first-minute incident response tool and the primary source of self-inflicted outages when maintenance scripts lack safeguards. When a node degrades, monitoring dashboards lag and agents may already be dead; on a damaged host, only the shell and <code>/proc</code> are guaranteed to work. An engineer must follow a rigorous triage routine and understand kernel traps: why disk space runs out when <code>du</code> shows gigabytes free, why <code>kill -9</code> cannot touch a zombie, and where to find traces of the OOM killer. The other half of SRE work is ensuring that repair scripts, backups, or retry loops do not overwhelm a struggling system across disk, CPU, or network. And the rule separating mature operations from amateur craft: any scheduled script must expose its metrics - otherwise its silent failure will only be discovered during an outage.</p>
     </div>
 
-    <h2 id="triage">1 · The first minute of an incident: live server checklist <a class="yakor" href="#triage">#</a></h2>
+    <h2 id="triage">1 · The first minute of an incident: live server checklist <a class="anchor-link" href="#triage">#</a></h2>
     <p>On a malfunctioning host reached via <code>ssh</code>, Bash is indispensable: it is <strong>the only tool guaranteed to be functional.</strong> Inspection follows a strict path to avoid wasting time on guesswork.</p>
 <pre><code>df -h; df -i; free -m    # disk, inodes, RAM
 uptime; vmstat 1 3       # queue and CPU
@@ -93,7 +93,7 @@ ps -eo pid,stat,rss,cmd \
     <p>The sequence is intentional: <strong>disk space and inodes → RAM and swap → load queue and ports → service unit status and logs → heaviest processes.</strong> In most incidents, the root cause is uncovered in the first two lines, making diving into application code or restarting services before inspecting system resources a critical mistake.</p>
     <div class="prints"><strong>What gets asked:</strong> “Which commands and in what order do you execute when triaging an incident on an unfamiliar server?”</div>
 
-    <h2 id="hidden-failures">2 · Hidden failures: why <code>df</code> contradicts <code>du</code>, zombies, and OOM <a class="yakor" href="#hidden-failures">#</a></h2>
+    <h2 id="hidden-failures">2 · Hidden failures: why <code>df</code> contradicts <code>du</code>, zombies, and OOM <a class="anchor-link" href="#hidden-failures">#</a></h2>
     <p>Three classic SRE interview scenarios where standard commands show normal status or fail because the mechanism resides in the kernel.</p>
 <pre><code># 1. df = 100%, but du sees free space
 lsof +L1                 # deleted but open
@@ -109,7 +109,7 @@ ps -eo pid,ppid,stat,cmd \
     <p>If a log file is removed via <code>rm</code> while an active process holds its file descriptor open, the directory entry vanishes (<code>du</code> ignores it), but disk blocks remain allocated until the descriptor is closed. If restarting the process is not an option, truncate the file via its open descriptor: <code>: &gt; /proc/PID/fd/N</code>. <strong><code>truncate -s 0</code> on the old filename will not help:</strong> the name no longer exists, and the command creates a new empty file alongside without freeing a single byte. A zombie process (<code>Z</code>) is already dead and consumes no memory - it is merely a process table entry retaining an exit code until its parent (<code>PPID</code>) invokes <code>wait()</code>; sending signals to a zombie is entirely ineffective.</p>
     <div class="prints"><strong>What gets asked:</strong> “Why does <code>df -h</code> show 100% when <code>du -sh</code> shows free space, and why can't <code>kill -9</code> terminate a zombie?”</div>
 
-    <h2 id="logs">3 · Logs on a live node: root cause analysis without exhausting disk <a class="yakor" href="#logs">#</a></h2>
+    <h2 id="logs">3 · Logs on a live node: root cause analysis without exhausting disk <a class="anchor-link" href="#logs">#</a></h2>
     <p>Piping multi-gigabyte logs through a shell pipeline is faster than shipping them to external platforms, provided two traps are avoided: <strong>filling the disk with uncompressed archives and stalling on pipe buffering.</strong></p>
 <pre><code># top error codes without filenames
 grep -h ERROR /var/log/app/*.log \
@@ -126,7 +126,7 @@ tail -f app.log \
     <p>Three details decide the outcome: <code>grep -h</code> suppresses filename prefixes so <code>awk</code> column positions stay stable; <code>--line-buffered</code> forces <code>grep</code> to flush each matching line immediately rather than filling a 4 KB buffer; <code>zgrep</code> and <code>zcat</code> stream compressed archives directly through memory without staging temporary files on a full disk partition.</p>
     <div class="prints"><strong>What gets asked:</strong> “How do you search rotated compressed logs on a full disk, and why does <code>tail -f | grep</code> often produce no immediate output?”</div>
 
-    <h2 id="node-protection">4 · Scripts must not crash production: <code>flock</code>, <code>nice</code>, and <code>ionice</code> <a class="yakor" href="#node-protection">#</a></h2>
+    <h2 id="node-protection">4 · Scripts must not crash production: <code>flock</code>, <code>nice</code>, and <code>ionice</code> <a class="anchor-link" href="#node-protection">#</a></h2>
     <p>A heavy maintenance script - archiving, rotating, or checksumming - running on production with standard priority <strong>starves customer traffic of disk and CPU, triggering an outage on its own.</strong></p>
 <pre><code>#!/usr/bin/env bash
 set -euo pipefail
@@ -140,7 +140,7 @@ nice -n 19 ionice -c3 \
     <p><strong>The essential caveat:</strong> <code>ionice</code> priority classes are honored only by the BFQ I/O scheduler (and legacy CFQ). Under <code>none</code> or <code>mq-deadline</code> - typical for NVMe and cloud volumes - <code>ionice</code> is silently ignored. Verify via <code>cat /sys/block/&lt;disk&gt;/queue/scheduler</code>. When BFQ is absent, throttle bandwidth instead: <code>--bwlimit</code> in <code>rsync</code> or <code>IOWriteBandwidthMax=</code> via <code>systemd-run</code> - which works under any I/O scheduler.</p>
     <div class="prints"><strong>What gets asked:</strong> “How do you protect a production node from degradation during heavy cron jobs?”</div>
 
-    <h2 id="cascading-failures">5 · Cascading failures: <code>backoff + jitter</code> against retry storms <a class="yakor" href="#cascading-failures">#</a></h2>
+    <h2 id="cascading-failures">5 · Cascading failures: <code>backoff + jitter</code> against retry storms <a class="anchor-link" href="#cascading-failures">#</a></h2>
     <p>When an upstream service or database begins throwing errors, two hundred nodes retrying requests in a tight loop every two seconds <strong>exhaust the service completely, preventing any recovery.</strong></p>
 <pre><code># random start jitter in cron / script
 sleep $(( RANDOM % 30 ))
@@ -160,7 +160,7 @@ retry || exit 1</code></pre>
     <p>Two fleet rules: <strong>scheduled jobs must never trigger simultaneously at second <code>00</code></strong> (use <code>RandomizedDelaySec</code> in systemd timers or initial delay via <code>RANDOM</code>), and intervals between retries must increase exponentially with random jitter (<code>jitter</code>) to desynchronize request waves after an outage. <strong>The loop must terminate with an honest exit code:</strong> without an explicit <code>return 1</code> after the final failed attempt, it returns the exit status of the loop test, disguising complete upstream failure as success.</p>
     <div class="prints"><strong>What gets asked:</strong> “Why does a naive retry loop on a fleet turn a transient hiccup into a prolonged outage?”</div>
 
-    <h2 id="metrics">6 · Script observability and the self-healing anti-pattern <a class="yakor" href="#metrics">#</a></h2>
+    <h2 id="metrics">6 · Script observability and the self-healing anti-pattern <a class="anchor-link" href="#metrics">#</a></h2>
     <p>A background script fails in two ways: it exits with an error or <strong>stops running entirely</strong>. If it writes exclusively to local logs, backup failures will only be discovered on the day recovery is required.</p>
 <pre><code>t0=$SECONDS; rc=0
 run_backup || rc=$?
@@ -176,7 +176,7 @@ mv "$prom.$$" "$prom"   # atomic cutover</code></pre>
     <p>Writing three numbers atomically into the Prometheus <code>textfile collector</code> via a temporary file and <code>mv</code> enables two critical alerts: non-zero exit codes and stale timestamps (<code>time() - backup_last_run_timestamp &gt; 90000</code>). And the counter-rule of SRE: <strong>a script that silently restarts a failing service without recording metrics or raising alerts is harmful</strong> - it masks memory leaks and progressive degradation until restarts no longer recover the service.</p>
     <div class="prints"><strong>What gets asked:</strong> “How do you monitor background shell script execution, and why is silent service auto-restarting dangerous?”</div>
 
-    <h2 id="artifacts">Artifacts: what you take away from this page <a class="yakor" href="#artifacts">#</a></h2>
+    <h2 id="artifacts">Artifacts: what you take away from this page <a class="anchor-link" href="#artifacts">#</a></h2>
     <div class="box key">
       <p class="artifacts-slogan">Reading &gt;&gt; Your life quantum · Dignity partnership with AI · Rewiring your neural network</p>
       <p><strong>A triage route and safeguards for automation.</strong> Your time was well spent if during incident triage you inspect unlinked open file descriptors and inode saturation before restarting services, and automatically equip every background script with non-blocking <code>flock</code>, <code>ionice</code>, and timestamp metrics. That is the essence of rewiring: scripts cease being invisible to monitoring and dangerous to neighboring processes.</p>

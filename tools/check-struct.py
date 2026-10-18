@@ -33,7 +33,7 @@ ID = re.compile(r'\bid\s*=\s*"([^"]+)"')
 H2 = re.compile(r'<h2\b[^>]*\bid\s*=\s*"[^"]+"', re.I)
 CODE = re.compile(r'<pre\b[^>]*>\s*<code\b[^>]*>(.*?)</code>\s*</pre>', re.S | re.I)
 QA_ITEM = re.compile(r'<ol class="qa"[^>]*>(.*?)</ol>', re.S | re.I)
-NAV_ITEM = re.compile(r'<nav class="sessions".*?</nav>', re.S | re.I)
+NAV_ITEM = re.compile(r'<nav class="contents".*?</nav>', re.S | re.I)
 LANG_LINK = re.compile(r'<div class="lang-switcher".*?</div>', re.S | re.I)
 ENTITIES = (('&lt;', '<'), ('&gt;', '>'), ('&quot;', '"'), ('&#39;', "'"), ('&amp;', '&'))
 

@@ -45,7 +45,7 @@
 
 <div class="cols">
 
-  <nav class="sessions" aria-label="Site sections">
+  <nav class="contents" aria-label="Site sections">
     <ol>
       <li><a href="01.html"><span class="num">1</span>Key components</a></li>
       <li><a href="02.html"><span class="num">2</span>Writing scripts</a></li>
@@ -77,7 +77,7 @@
     <p class="lead">Twenty-two concepts that the site's pages will not stop to explain again. None of them is an exam definition - each is a mechanism whose absence costs an incident.</p>
 
     <div class="box key" id="key-idea">
-      <h2>The key idea of this glossary <a class="yakor" href="#key-idea" aria-label="link to this block">#</a></h2>
+      <h2>The key idea of this glossary <a class="anchor-link" href="#key-idea" aria-label="link to this block">#</a></h2>
       <p>This glossary exists to eliminate ambiguity rather than to be memorized: as long as “an error” and
       “a non-zero exit code” mean different things to you, debating script reliability is pointless.
       Concepts are arranged across three tiers, mirroring the structure of the site itself: mechanics - how
@@ -88,13 +88,13 @@
       is in <code>man bash</code>.</p>
     </div>
 
-    <h2 id="block-mechanics">Mechanics: how the shell executes a command line <a class="yakor" href="#block-mechanics">#</a></h2>
+    <h2 id="block-mechanics">Mechanics: how the shell executes a command line <a class="anchor-link" href="#block-mechanics">#</a></h2>
 
     <div class="glossary-term" id="shebang">
       <h2>
         <span class="glossary-title">Shebang</span>
         <code class="glossary-object">#!/usr/bin/env bash</code>
-        <a class="yakor" href="#shebang">#</a>
+        <a class="anchor-link" href="#shebang">#</a>
       </h2>
       <p class="glossary-lead">The first line of a script, instructing the kernel which interpreter to execute it with.</p>
       <p>Without it, the script runs in whichever shell invoked it - and on a machine where <code>sh</code> is <code>dash</code>, arrays and <code>[[ ]]</code> stop working. The <code>env</code> form searches for <code>bash</code> in <code>PATH</code> rather than only in <code>/bin</code>: on macOS and the BSDs it resides in a different location.</p>
@@ -107,7 +107,7 @@
       <h2>
         <span class="glossary-title">Shell modes</span>
         <code class="glossary-object">login · interactive</code>
-        <a class="yakor" href="#shell-modes">#</a>
+        <a class="anchor-link" href="#shell-modes">#</a>
       </h2>
       <p class="glossary-lead">A single Bash program in two roles: an interactive shell used by a human, and an interpreter executing a file.</p>
       <p>An interactive shell reads <code>~/.bashrc</code>, enables aliases, and maintains history; a login shell (SSH sessions, <code>su -</code>) reads <code>~/.bash_profile</code>; a non-interactive script reads neither. Hence "it works in my terminal, but fails in cron": <code>PATH</code> and aliases from your profile files never reach the script.</p>
@@ -120,7 +120,7 @@
       <h2>
         <span class="glossary-title">PATH</span>
         <code class="glossary-object">$PATH</code>
-        <a class="yakor" href="#path">#</a>
+        <a class="anchor-link" href="#path">#</a>
       </h2>
       <p class="glossary-lead">A colon-separated list of directories where the shell searches for executables by name.</p>
       <p>The current directory is not included, which is why a local script must be run as <code>./script.sh</code>. Order matters: the first matching executable is executed, and <code>type cmd</code> reveals which one it is. In cron and CI environments, <code>PATH</code> is typically shorter than in your interactive shell - a script relying on implicit locations will fail there first.</p>
@@ -133,7 +133,7 @@
       <h2>
         <span class="glossary-title">Environment variable</span>
         <code class="glossary-object">export VAR=value</code>
-        <a class="yakor" href="#environment-variable">#</a>
+        <a class="anchor-link" href="#environment-variable">#</a>
       </h2>
       <p class="glossary-lead">A variable exported by the shell to child processes.</p>
       <p>A standard assignment <code>VAR=value</code> remains visible only within the current shell process; <code>export</code> marks the variable for inheritance. Inheritance flows strictly downward: a child process cannot modify its parent process's environment. That is why values set in one CI step do not persist into the next - each step runs in a separate process.</p>
@@ -146,7 +146,7 @@
       <h2>
         <span class="glossary-title">Glob</span>
         <code class="glossary-object">*.log · ?.txt · [ab]*</code>
-        <a class="yakor" href="#glob">#</a>
+        <a class="anchor-link" href="#glob">#</a>
       </h2>
       <p class="glossary-lead">An expression expanded by the shell into matching filenames before executing the command.</p>
       <p>Filename expansion is performed by the shell itself rather than the utility, preserving filenames containing whitespace intact - unlike parsing <code>$(ls)</code>. If no file matches, by default the pattern remains a literal string, and a loop executes once with <code>*.log</code>; <code>shopt -s nullglob</code> changes this behavior to expand to an empty list instead.</p>
@@ -159,7 +159,7 @@
       <h2>
         <span class="glossary-title">Word splitting</span>
         <code class="glossary-object">"$var"</code>
-        <a class="yakor" href="#word-splitting">#</a>
+        <a class="anchor-link" href="#word-splitting">#</a>
       </h2>
       <p class="glossary-lead">Dividing unquoted expansion results into distinct words based on whitespace and newlines.</p>
       <p>Bash substitutes the variable value and then splits it on delimiter characters. Consequently, an unquoted path like <code>/home/My Files/a.txt</code> is split into two separate arguments, causing a delete command to remove unintended files. Enclosing expansions in double quotes is not a style preference but a defensive necessity - and it remains the most common error made by AI coding agents.</p>
@@ -172,7 +172,7 @@
       <h2>
         <span class="glossary-title">IFS</span>
         <code class="glossary-object">IFS=$'\n\t'</code>
-        <a class="yakor" href="#ifs">#</a>
+        <a class="anchor-link" href="#ifs">#</a>
       </h2>
       <p class="glossary-lead">The Internal Field Separator: the set of characters the shell uses to split text into words.</p>
       <p>By default, it contains space, tab, and newline. Restricting <code>IFS</code> to newline and tab at the start of a script prevents unwanted splitting on spaces where it is rarely intended. In the idiom <code>IFS= read -r line</code>, the assignment applies only to the single command, preserving leading and trailing whitespace.</p>
@@ -185,7 +185,7 @@
       <h2>
         <span class="glossary-title">Stream and file descriptor</span>
         <code class="glossary-object">0 · 1 · 2</code>
-        <a class="yakor" href="#stream-fd">#</a>
+        <a class="anchor-link" href="#stream-fd">#</a>
       </h2>
       <p class="glossary-lead">A numbered input or output channel for a process: 0 is standard input, 1 is standard output, 2 is standard error.</p>
       <p>A file descriptor is an integer; a stream is the data flowing through it. Separating stdout (1) and stderr (2) is a fundamental prerequisite for pipelines: downstream commands read only stream 1, so informational messages printed there pollute pipeline data. Hence the rule: data goes to stdout, operational logging to stderr, execution status to the exit code.</p>
@@ -198,7 +198,7 @@
       <h2>
         <span class="glossary-title">Redirection</span>
         <code class="glossary-object">&gt; · &gt;&gt; · 2&gt;&amp;1</code>
-        <a class="yakor" href="#redirection">#</a>
+        <a class="anchor-link" href="#redirection">#</a>
       </h2>
       <p class="glossary-lead">Instructing the shell to redirect a process stream away from the default terminal.</p>
       <p><code>&gt;</code> truncates and overwrites a file, <code>&gt;&gt;</code> appends to it, and <code>2&gt;&amp;1</code> redirects standard error to wherever standard output is currently directed. Redirections are evaluated strictly from left to right, which is why <code>cmd &gt;log 2&gt;&amp;1</code> and <code>cmd 2&gt;&amp;1 &gt;log</code> behave differently: in the latter case, errors continue printing to the terminal.</p>
@@ -211,7 +211,7 @@
       <h2>
         <span class="glossary-title">Pipeline</span>
         <code class="glossary-object">a | b</code>
-        <a class="yakor" href="#pipeline">#</a>
+        <a class="anchor-link" href="#pipeline">#</a>
       </h2>
       <p class="glossary-lead">A chain of commands where the output of each process feeds directly into the input of the next.</p>
       <p>Pipeline stages execute concurrently in separate subshell processes rather than sequentially. By default, the overall exit status of the pipeline is that of the final command alone - causing <code>failing_command | tee log</code> to return 0. The complete array of return codes for all pipeline stages is preserved in <code>${PIPESTATUS[@]}</code>.</p>
@@ -224,7 +224,7 @@
       <h2>
         <span class="glossary-title">Exit status</span>
         <code class="glossary-object">$?</code>
-        <a class="yakor" href="#exit-code">#</a>
+        <a class="anchor-link" href="#exit-code">#</a>
       </h2>
       <p class="glossary-lead">A status byte from 0 to 255 signaling command success (0) or failure (non-zero).</p>
       <p>It is the sole machine-readable indicator of success or failure: stderr messages are meant for human operators, while exit codes are meant for automation. An error message unaccompanied by a non-zero exit code means CI registers a passing step. Codes 126, 127, and 128+N are issued directly by the shell: "permission denied/not executable", "command not found", and "terminated by signal N".</p>
@@ -237,7 +237,7 @@
       <h2>
         <span class="glossary-title">Subshell</span>
         <code class="glossary-object">( ... )</code>
-        <a class="yakor" href="#subshell">#</a>
+        <a class="anchor-link" href="#subshell">#</a>
       </h2>
       <p class="glossary-lead">A child shell process that inherits the environment, but whose modifications never propagate back to the parent.</p>
       <p>Hence the classic pitfall: a loop consuming output from a pipe counts items, but once the loop terminates, the counter variable is empty again - the loop executed within an isolated subshell. Subshells are spawned by parentheses, pipeline stages, and <code>$( )</code> command substitutions; curly braces do not create subshells. Understanding this boundary explains lost <code>cd</code> directory changes and <code>exit</code> calls that fail to terminate the enclosing script.</p>
@@ -250,7 +250,7 @@
       <h2>
         <span class="glossary-title">Signal</span>
         <code class="glossary-object">SIGINT · SIGTERM · SIGKILL</code>
-        <a class="yakor" href="#signal">#</a>
+        <a class="anchor-link" href="#signal">#</a>
       </h2>
       <p class="glossary-lead">An asynchronous notification delivered to a process by the kernel, another process, or the controlling terminal.</p>
       <p><code>SIGINT</code> is dispatched by <code>Ctrl+C</code>, <code>SIGTERM</code> by <code>kill</code> and container orchestrator stops, and <code>SIGKILL</code> by <code>kill -9</code>. Processes can trap the first two to perform graceful shutdown; <code>SIGKILL</code> cannot be trapped or ignored because it is handled directly by the kernel. A process terminated by signal N returns exit status <code>128+N</code>: 130 for <code>Ctrl+C</code>, 143 for <code>SIGTERM</code>.</p>
@@ -263,7 +263,7 @@
       <h2>
         <span class="glossary-title">Trap</span>
         <code class="glossary-object">trap … EXIT</code>
-        <a class="yakor" href="#trap">#</a>
+        <a class="anchor-link" href="#trap">#</a>
       </h2>
       <p class="glossary-lead">An action registered with the shell to execute upon receiving an OS signal or internal runtime event.</p>
       <p>A trap on <code>EXIT</code> fires whenever the shell process terminates normally, on error, or via an interrupt, making it the only dependable mechanism for cleaning up temporary resources. The sole exception is <code>SIGKILL</code>: the kernel destroys the process immediately, bypassing user space traps entirely. Traps on <code>ERR</code> execute on command failure; ensuring they are inherited by shell functions and subshells requires <code>set -E</code>.</p>
@@ -276,7 +276,7 @@
       <h2>
         <span class="glossary-title">POSIX and bashisms</span>
         <code class="glossary-object">#!/bin/sh</code>
-        <a class="yakor" href="#posix">#</a>
+        <a class="anchor-link" href="#posix">#</a>
       </h2>
       <p class="glossary-lead">POSIX defines the baseline specification common across Unix shells; bashisms are features specific to Bash.</p>
       <p>Arrays, <code>[[ ]]</code> conditionals, process substitution, and <code>${v//a/b}</code> parameter expansions are bashisms: they fail under <code>dash</code>, which is symlinked to <code>/bin/sh</code> on Debian and Ubuntu. Choose deliberately from the start: either use <code>#!/usr/bin/env bash</code> with full feature access, or choose <code>#!/bin/sh</code>, validate with <code>shellcheck -s sh</code>, and avoid non-standard syntax.</p>
@@ -285,13 +285,13 @@
       </div>
     </div>
 
-    <h2 id="block-practice">Practice: scripts that survive production <a class="yakor" href="#block-practice">#</a></h2>
+    <h2 id="block-practice">Practice: scripts that survive production <a class="anchor-link" href="#block-practice">#</a></h2>
 
     <div class="glossary-term" id="strict-mode">
       <h2>
         <span class="glossary-title">Strict mode</span>
         <code class="glossary-object">set -euo pipefail</code>
-        <a class="yakor" href="#strict-mode">#</a>
+        <a class="anchor-link" href="#strict-mode">#</a>
       </h2>
       <p class="glossary-lead">Three safety fuses: abort on error, abort on unset variable, do not mask failures inside pipelines.</p>
       <p><code>-e</code> exits on non-zero return codes, but is ignored inside conditions, <code>&amp;&amp;</code>, <code>||</code> lists, function calls in conditionals, and <code>local x=$(cmd)</code>. <code>-u</code> treats uninitialized variables as fatal errors rather than silently substituting an empty string. <code>-o pipefail</code> propagates the exit status of the rightmost failing pipeline command. It establishes a necessary hygiene baseline, not an absolute guarantee of script safety.</p>
@@ -304,7 +304,7 @@
       <h2>
         <span class="glossary-title">Dry run</span>
         <code class="glossary-object">--dry-run</code>
-        <a class="yakor" href="#dry-run">#</a>
+        <a class="anchor-link" href="#dry-run">#</a>
       </h2>
       <p class="glossary-lead">An execution mode where the script prints planned mutations without executing them.</p>
       <p>It provides reliable guarantees only when engineered systematically: every state-mutating command routes through a single wrapper function that prints instead of executing when dry run is active. Retrofitted haphazardly, it inevitably misses dangerous branches. Furthermore, wrappers cannot prevent shell redirection side effects: <code>run cmd &gt; file</code> truncates the target file even in dry-run mode because <code>&gt;</code> is processed by the shell prior to function execution. For AI agents, dry run is the principal method for validating logic safely; for engineers, it enables review before changes take effect.</p>
@@ -317,7 +317,7 @@
       <h2>
         <span class="glossary-title">Idempotence</span>
         <code class="glossary-object">mkdir -p · ln -sfn</code>
-        <a class="yakor" href="#idempotence">#</a>
+        <a class="anchor-link" href="#idempotence">#</a>
       </h2>
       <p class="glossary-lead">A property of an operation: executing it repeatedly yields the same result without corrupting system state.</p>
       <p>In automated environments, retries are inevitable: network timeouts, node restarts, duplicate events, or an autonomous agent repeating steps. Commands like <code>mkdir -p</code>, <code>ln -sfn</code>, and <code>rsync</code> are idempotent; bare <code>mkdir</code> and unmanaged <code>&gt;&gt;</code> append operations are not. Non-idempotent operations require unique operation identifiers, running only when that identifier is absent from the execution ledger.</p>
@@ -330,7 +330,7 @@
       <h2>
         <span class="glossary-title">Atomicity</span>
         <code class="glossary-object">mv -T</code>
-        <a class="yakor" href="#atomicity">#</a>
+        <a class="anchor-link" href="#atomicity">#</a>
       </h2>
       <p class="glossary-lead">A property of an operation: it completes entirely or has no effect, exposing no intermediate state to observers.</p>
       <p>Renaming a file on the same filesystem is atomic; copying is not. For this reason, output files should be generated in a temporary staging path and swapped into place with an atomic <code>mv</code>. Similarly, switching a symlink to a new release is done via <code>ln -sfn</code> to a temporary path followed by <code>mv -T</code> over the active link. The sequence of <code>rm</code> followed by <code>ln -s</code> is not atomic: between the two steps, no link exists.</p>
@@ -343,7 +343,7 @@
       <h2>
         <span class="glossary-title">Locking</span>
         <code class="glossary-object">flock</code>
-        <a class="yakor" href="#locking">#</a>
+        <a class="anchor-link" href="#locking">#</a>
       </h2>
       <p class="glossary-lead">A concurrency guard ensuring that multiple instances of the same task never execute simultaneously.</p>
       <p><code>flock</code> maintains an exclusive lock tied to an open file descriptor, which the operating system automatically releases when the process terminates - including on unexpected crashes. Primitive PID file-based locks lack this kernel protection: after an unhandled crash, stale lock files remain on disk, blocking subsequent runs indefinitely. Its standard application is a scheduled cron job that might overrun its execution window.</p>
@@ -352,13 +352,13 @@
       </div>
     </div>
 
-    <h2 id="block-decisions">Decisions: bounding the worst case <a class="yakor" href="#block-decisions">#</a></h2>
+    <h2 id="block-decisions">Decisions: bounding the worst case <a class="anchor-link" href="#block-decisions">#</a></h2>
 
     <div class="glossary-term" id="tool-contract">
       <h2>
         <span class="glossary-title">Tool contract</span>
         <code class="glossary-object">stdout · stderr · codes · --json</code>
-        <a class="yakor" href="#tool-contract">#</a>
+        <a class="anchor-link" href="#tool-contract">#</a>
       </h2>
       <p class="glossary-lead">The public runtime contract of a script upon which calling automation and external systems rely.</p>
       <p>A script contract specifies stream conventions, valid exit codes, structured output formats, dry-run flags, and backward compatibility guarantees. Implementation logic may be refactored freely, but the public contract cannot: external systems depend on it, and unannounced changes break downstream consumers without warning. Custom exit codes should be selected from the 3-63 range or align with <code>sysexits.h</code>, leaving codes 126, 127, and 128+N reserved for shell and signal semantics.</p>
@@ -371,7 +371,7 @@
       <h2>
         <span class="glossary-title">Blast radius</span>
         <code class="glossary-object">blast radius</code>
-        <a class="yakor" href="#blast-radius">#</a>
+        <a class="anchor-link" href="#blast-radius">#</a>
       </h2>
       <p class="glossary-lead">The maximum potential damage a script can cause when it fails or encounters unexpected input.</p>
       <p>Robust scripts are engineered around the worst-case scenario rather than optimistic assumptions. Blast radius is constrained by two checks at the very start: an allowlist bounding the operational target (restricting execution to explicit directory paths or resource identifiers) and an upper limit on items modified per invocation. A script that resolves three thousand targets instead of five must abort immediately and alert a human: this transforms a catastrophic outage into an ordinary operational incident.</p>
@@ -380,7 +380,7 @@
       </div>
     </div>
 
-    <h2 id="artifacts">Artifacts: what you take away from this glossary <a class="yakor" href="#artifacts">#</a></h2>
+    <h2 id="artifacts">Artifacts: what you take away from this glossary <a class="anchor-link" href="#artifacts">#</a></h2>
     <div class="box key">
       <p class="artifacts-slogan">Reading &gt;&gt; Your quantum of life's time · A partnership of dignity with AI · Rewiring your neural network</p>
       <p><strong>A shared vocabulary instead of twenty-two memorized definitions.</strong> Time spent on this page is well invested if you and your team mean the exact same thing when saying "idempotent", "atomic", or "lost exit status". That is the neural rewire: a technical term ceases to be just jargon and becomes a tool for substantive engineering discussion.</p>

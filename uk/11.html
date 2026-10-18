@@ -45,7 +45,7 @@
 
 <div class="cols">
 
-  <nav class="sessions" aria-label="Розділи сайту">
+  <nav class="contents" aria-label="Розділи сайту">
     <ol>
       <li><a href="01.html"><span class="num">1</span>Ключові компоненти</a></li>
       <li><a href="02.html"><span class="num">2</span>Написання скриптів</a></li>
@@ -74,23 +74,118 @@
 
   <main>
     <h1>Приклади · Pro</h1>
+    <p class="lead">Сім прийомів для рівня «мої скрипти працюють на чужих машинах». Завдання рівня - прибрати мовчазні відмови: все, що може піти не так, має сказати про це вголос.</p>
 
-    <div class="stub-card">
-      <h2>Переклад українською готується</h2>
-      <p>Повна робоча версія цієї сторінки опублікована російською мовою (на русском языке).</p>
-      <p>Відкрити повну версію:</p>
-      <div class="stub-actions">
-        <a href="../ru/11.html" class="btn-primary">Приклади · Pro російською (на русском языке) →</a>
-      </div>
+    <div class="box key" id="key-idea">
+      <h2>Головна думка сторінки <a class="anchor-link" href="#key-idea" aria-label="посилання на цей блок">#</a></h2>
+      <p>Різниця між рівнями Noob і Pro не у знанні команд, а у ставленні до відмови. Новачок пише сценарій вдалого результату; професіонал виходить із того, що команда впаде, мережа кліпне, скрипт запустять двічі й перервуть посередині. Сім прийомів нижче закривають саме це: гучне падіння з номером рядка, гарантоване прибирання, режим перевірки без наслідків, повтор із межею, паралельність зі збором відмов, захист від повторного запуску та журнал, що не заважає результату. Жоден із них не складний. Складно інше - згадати про них до інциденту, а не після.</p>
     </div>
 
+    <h2 id="trap-err">1 · Падати гучно: <code>trap ERR</code> з номером рядка <a class="anchor-link" href="#trap-err">#</a></h2>
+    <p><strong>Завдання:</strong> зробити так, щоб відмова скрипту сама повідомляла, де саме вона сталася.</p>
+<pre data-run="setup"><code>#!/usr/bin/env bash
+set -Eeuo pipefail
+
+on_err() {
+  local rc=$?
+  echo "ОТКАЗ: строка $1, код $rc" &gt;&amp;2
+  exit "$rc"
+}
+trap 'on_err $LINENO' ERR</code></pre>    <div class="prints"><strong>Чому так:</strong> У Bash немає стека викликів під час падіння, і рядок відмови - єдине, що замінює трасування. <strong>Ключ <code>-E</code> обов’язковий:</strong> без нього пастка <code>ERR</code> не успадковується функціями та підоболонками, і відмова всередині функції пройде повз обробник. <code>local rc=$?</code> береться першим рядком - будь-яка наступна команда затре код повернення.</div>
+
+    <h2 id="mktemp">2 · Тимчасовий каталог, що гарантовано прибереться <a class="anchor-link" href="#mktemp">#</a></h2>
+    <p><strong>Завдання:</strong> працювати з проміжними файлами й не залишити сміття ані при помилці, ані при <code>Ctrl+C</code>.</p>
+<pre data-run="setup"><code>tmp=$(mktemp -d "${TMPDIR:-/tmp}/app.XXXXXX")
+cleanup() { rm -rf "$tmp"; }
+trap cleanup EXIT INT TERM
+
+work &gt; "$tmp/out"
+mv "$tmp/out" result.txt</code></pre>    <div class="prints"><strong>Чому так:</strong> Пастка на <code>EXIT</code> спрацьовує при будь-якому завершенні, включно з відмовою під <code>set -e</code>, - окрім <code>SIGKILL</code>: його ядро не дозволяє перехопити. <code>INT</code> і <code>TERM</code> додають реакцію на переривання та зупинку. <strong>Ім’я вигадує <code>mktemp</code>, а не ви:</strong> передбачуване ім’я у спільному <code>/tmp</code> - це і стан перегонів при паралельних запусках, і можливість підміни. Готовий результат переноситься в цільове місце однією командою - щоб не було напівготового файлу.</div>
+
+    <h2 id="getopts">3 · Опції та обов’язковий <code>--dry-run</code> <a class="anchor-link" href="#getopts">#</a></h2>
+    <p><strong>Завдання:</strong> надати скрипту ключі та режим «показати, але не робити».</p>
+<pre data-run="setup"><code>dry=0; verbose=0
+while getopts ":nvh" opt; do
+  case $opt in
+    n) dry=1 ;;
+    v) verbose=1 ;;
+    h) usage; exit 0 ;;
+    \?) echo "невідомий ключ" &gt;&amp;2; exit 2 ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+run() { (( dry )) &amp;&amp; { echo "DRY: $*"; return 0; }; "$@"; }
+run rm -rf "$target"</code></pre>    <div class="prints"><strong>Чому так:</strong> Двокрапка на початку рядка ключів переводить <code>getopts</code> у тихий режим - помилки обробляєте ви, а не він. <code>shift $((OPTIND - 1))</code> прибирає розібрані ключі, після чого <code>$1</code> - перший позиційний аргумент. <strong>Обгортка <code>run</code> робить режим перевірки структурним, а не доданим згодом:</strong> будь-яка небезпечна команда проходить крізь неї, і забути про <code>--dry-run</code> стає важче, ніж пам’ятати. <strong>Одне застереження, без якого обгортка небезпечна:</strong> перенаправлення оболонка виконує <em>до</em> входу у функцію. <code>run echo x &gt; file</code> затре <code>file</code> і в режимі перевірки, тому що <code>&gt;</code> вже спрацював. Усе, що пише у файл, ведуть усередину виклику: <code>run sh -c 'echo x &gt; file'</code> або окрема функція запису, яка сама перевіряє режим.</div>
+
+    <h2 id="retry">4 · Повтор із наростаючою затримкою <a class="anchor-link" href="#retry">#</a></h2>
+    <p><strong>Завдання:</strong> пережити тимчасову відмову мережі, не перетворивши скрипт на нескінченний цикл.</p>
+<pre data-run="syntax"><code>retry() {
+  local n=0 max=5 delay=1
+  until "$@"; do
+    n=$((n + 1))
+    (( n &gt;= max )) &amp;&amp; return 1
+    sleep "$delay"
+    delay=$((delay * 2))
+  done
+}
+
+retry curl -fsS --max-time 10 "$url"</code></pre>    <div class="prints"><strong>Чому так:</strong> Три умови відокремлюють повтор від зациклення: <strong>межа спроб, зростаюча затримка й таймаут у самої команди.</strong> Без <code>--max-time</code> повтор не допоможе - перша ж спроба зависне назавжди. Ключ <code>-f</code> у <code>curl</code> обов’язковий: без нього HTTP-відповідь 500 вважається успіхом, і повторювати не буде чого.</div>
+
+    <h2 id="parallel">5 · Паралельна обробка з обмеженням та збором відмов <a class="anchor-link" href="#parallel">#</a></h2>
+    <p><strong>Завдання:</strong> обробити сотню файлів у чотири потоки й дізнатися, чи впало хоча б одне завдання.</p>
+<pre data-run="setup"><code>export -f process          # видимість у xargs
+
+printf '%s\0' logs/*.log \
+  | xargs -0 -P4 -I{} bash -c 'process "$@"' _ {} \
+  || echo "частина завдань впала" &gt;&amp;2
+
+# власноруч - з урахуванням кодів:
+pids=(); for f in logs/*.log; do work "$f" &amp; pids+=($!); done
+rc=0; for p in "${pids[@]}"; do wait "$p" || rc=1; done</code></pre>    <div class="prints"><strong>Чому так:</strong> Розділювач <code>\0</code> і ключ <code>-0</code> роблять конвеєр стійким до пробілів та перенесень рядків в іменах. <strong><code>xargs</code> повертає ненульовий код, якщо впало хоча б одне завдання</strong> - це і є збір відмов, якого немає у простого <code>&amp;</code> плюс <code>wait</code>. Якщо коди потрібні поіменно, зберігайте <code>$!</code> і чекайте кожен процес окремо.</div>
+
+    <h2 id="flock">6 · Один екземпляр: захист від повторного запуску <a class="anchor-link" href="#flock">#</a></h2>
+    <p><strong>Завдання:</strong> не дати скрипту з cron запуститися вдруге, якщо попередній ще працює.</p>
+<pre data-run="syntax"><code>exec 9&gt;/var/lock/app.lock
+flock -n 9 || { echo "вже працює" &gt;&amp;2; exit 0; }
+
+# далі - звичайна робота</code></pre>    <div class="prints"><strong>Чому так:</strong> Блокування живе на відкритому дескрипторі, а не на файлі: <strong>воно знімається саме, коли процес завершується</strong> - у тому числі при аварійному завершенні. Саморобний «файл-прапорець» цієї властивості не має: після падіння він залишається на диску і блокує запуски назавжди. Ключ <code>-n</code> означає «не чекати»; вихід із кодом 0 тут усвідомлений - для cron це не помилка, а нормальна ситуація.</div>
+
+    <h2 id="log-levels">7 · Журналювання з рівнями <a class="anchor-link" href="#log-levels">#</a></h2>
+    <p><strong>Завдання:</strong> надати скрипту голос, що не заважає його результату.</p>
+<pre data-run="setup"><code>LOG_LEVEL="${LOG_LEVEL:-info}"
+_log() {
+  local lvl=$1; shift
+  printf '%s [%s] %s\n' \
+    "$(date -Is)" "$lvl" "$*" &gt;&amp;2
+}
+info() { [ "$LOG_LEVEL" = debug ] || [ "$LOG_LEVEL" = info ] &amp;&amp; _log INFO "$@"; }
+die()  { _log ERROR "$@"; exit 1; }</code></pre>    <div class="prints"><strong>Чому так:</strong> Увесь журнал іде в <strong>stderr</strong>, тому що stdout - це результат, який може читати наступна команда в конвеєрі. Час у форматі <code>-Is</code> (ISO 8601) сортується як текст і однозначно розбирається машиною. <strong>Рівень береться зі змінної оточення</strong>: так увімкнути докладність можна, не змінюючи скрипт, - це важливо, коли він уже в продакшені.</div>
+
+    <h2 id="artifacts">Артефакти: що у вас є після цієї сторінки <a class="anchor-link" href="#artifacts">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Читання &gt;&gt; Ваш квант часу життя · Партнерство гідності разом з AI · Перебудова вашої нейромережі</p>
+      <p><strong>Сім готових блоків і розуміння, від чого захищає кожен.</strong> Час витрачено не даремно, якщо під час написання наступного скрипту ви ловите себе на питанні «а що тут станеться при відмові посередині» - і знаєте, чим на нього відповісти. Це і є перебудова нейромережі: сценарій відмови перестає бути неприємною думкою і стає частиною проєктування.</p>
+    </div>
+    <ol>
+      <li><strong><code>set -Eeuo pipefail</code> та <code>trap ERR $LINENO</code></strong> - відмова називає своє місце.</li>
+      <li><strong><code>mktemp -d</code> плюс <code>trap EXIT INT TERM</code></strong> - прибирання при будь-якому підсумку, крім <code>kill -9</code>.</li>
+      <li><strong><code>getopts</code> та обгортка <code>run</code></strong> - режим перевірки як структура, і перенаправлення всередині виклику, а не зовні.</li>
+      <li><strong>Повтор із межею та таймаутом</strong>, і чому <code>curl -f</code> обов’язковий.</li>
+      <li><strong><code>xargs -0 -P</code></strong> - паралельність зі стійкими іменами та чесним кодом.</li>
+      <li><strong><code>flock</code> на дескрипторі</strong>, а не файл-прапорець.</li>
+      <li><strong>Журнал у stderr із рівнем з оточення.</strong></li>
+    </ol>
+
     <footer>
-      Сайт серії AI Factory. Зроблено тією самою оснасткою, що й решта: звичайний HTML і CSS, перевірка на bash, публікація через GitHub Pages.
+      Наступна сторінка - рівень IGL: рішення про те, чи потрібен скрипт взагалі. Що відкладено - у <a href="../lessons/potom.md">potom.md</a>.
     </footer>
   </main>
 
 </div>
 </div>
 <script src="../assets/swa.js"></script>
+<script src="../assets/terms.js"></script>
+<script src="../assets/cp.js"></script>
 </body>
 </html>

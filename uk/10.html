@@ -45,7 +45,7 @@
 
 <div class="cols">
 
-  <nav class="sessions" aria-label="Розділи сайту">
+  <nav class="contents" aria-label="Розділи сайту">
     <ol>
       <li><a href="01.html"><span class="num">1</span>Ключові компоненти</a></li>
       <li><a href="02.html"><span class="num">2</span>Написання скриптів</a></li>
@@ -74,23 +74,97 @@
 
   <main>
     <h1>Приклади · Noob</h1>
+    <p class="lead">Шість розборів для рівня «запускаю й іноді правитиму». Завдання рівня - прибрати магію: кожен рядок тут пояснений до першопричини, а не до рецепта.</p>
 
-    <div class="stub-card">
-      <h2>Переклад українською готується</h2>
-      <p>Повна робоча версія цієї сторінки опублікована російською мовою (на русском языке).</p>
-      <p>Відкрити повну версію:</p>
-      <div class="stub-actions">
-        <a href="../ru/10.html" class="btn-primary">Приклади · Noob російською (на русском языке) →</a>
-      </div>
+    <div class="box key" id="key-idea">
+      <h2>Головна думка сторінки <a class="anchor-link" href="#key-idea" aria-label="посилання на цей блок">#</a></h2>
+      <p>На цьому рівні важлива не кількість вивчених команд, а розуміння, чому скрипт поводиться саме так. Шість розборів нижче закривають ті місця, де новачок спотикається найчастіше: запуск файлу та права, лапки навколо змінних, перевірка перед дією, цикл по файлах, аргументи й код повернення, читання файлу рядок за рядком. У кожному розборі спочатку завдання, потім код, потім пояснення - і пояснення тут головне. Вивчити ці шість речей можна за вечір; зрозуміти їх - значить перестати боятися чужих скриптів.</p>
     </div>
 
+    <h2 id="first-script">1 · Перший скрипт: файл, права, запуск <a class="anchor-link" href="#first-script">#</a></h2>
+    <p><strong>Завдання:</strong> перетворити дві команди на програму, яку можна запускати.</p>
+<pre data-run="run"><code>#!/usr/bin/env bash
+echo "сьогодні: $(date +%F)"
+df -h / | tail -1</code></pre><pre data-run="setup"><code>chmod +x hello.sh   # один раз
+./hello.sh          # запуск
+bash hello.sh       # без прав</code></pre>    <div class="prints"><strong>Чому так:</strong> Файл зі скриптом - звичайний текст; виконуваним його робить біт прав, а не розширення. <code>./</code> перед ім’ям обов’язкове: без нього оболонка шукає програму в <code>PATH</code>, а поточного каталогу там немає - звідси «command not found» на файл, що лежить поруч. <code>bash hello.sh</code> працює і без прав, тому що виконується <code>bash</code>, а скрипт - його аргумент.</div>
+
+    <h2 id="quoting">2 · Змінні та лапки <a class="anchor-link" href="#quoting">#</a></h2>
+    <p><strong>Завдання:</strong> вивести ім’я файлу, у якому є пробіл.</p>
+<pre data-run="setup"><code>file="мій звіт.txt"
+
+echo $file     # мій звіт.txt - пощастило
+ls $file       # ПОМИЛКА: два файли
+ls "$file"     # правильно
+
+rm -f $file    # видалить "мій" та "звіт.txt"</code></pre>    <div class="prints"><strong>Чому так:</strong> Bash підставляє значення змінної, а потім <strong>розбиває його за пробілами</strong>. <code>echo</code> цього не показує, оскільки друкує всі аргументи через пробіл - і створює хибне враження, що все добре. Лапки скасовують розбиття. Правило просте: <strong>підстановка без лапок - усвідомлене рішення, а не замовчування.</strong></div>
+
+    <h2 id="conditionals">3 · Умови: перевірити, перш ніж робити <a class="anchor-link" href="#conditionals">#</a></h2>
+    <p><strong>Завдання:</strong> скопіювати файл, якщо він існує, інакше зрозуміло повідомити про це.</p>
+<pre data-run="setup"><code>src="data.csv"
+
+if [ -f "$src" ]; then
+  cp "$src" backup/
+else
+  echo "немає файлу: $src" &gt;&amp;2
+  exit 1
+fi</code></pre>    <div class="prints"><strong>Чому так:</strong> <code>[ -f ]</code> перевіряє, що це наявний звичайний файл; <code>-d</code> - каталог, <code>-r</code> - доступний для читання, <code>-z</code> - рядок порожній. Повідомлення про помилку йде в <code>&gt;&amp;2</code> - у потік помилок, а не в результат. <strong>І вихід ненульовим кодом обов’язковий:</strong> без нього той, хто викликав ваш скрипт, вважатиме, що все пройшло успішно.</div>
+
+    <h2 id="file-loop">4 · Цикл по файлах (і чому не через <code>ls</code>) <a class="anchor-link" href="#file-loop">#</a></h2>
+    <p><strong>Завдання:</strong> обробити всі <code>.log</code> у каталозі.</p>
+<pre data-run="setup"><code># правильно
+for f in *.log; do
+  [ -e "$f" ] || continue   # жодного
+  echo "обробляю: $f"
+done
+
+# неправильно, хоча трапляється часто
+for f in $(ls *.log); do
+  echo "обробляю: $f"
+done</code></pre>    <div class="prints"><strong>Чому так:</strong> Шаблон <code>*.log</code> розкриває сама оболонка, зберігаючи імена цілком - навіть із пробілами. <code>$(ls)</code> віддає один текст, який знову ріжеться за пробілами, й ім’я «old file.log» перетворюється на два неіснуючих файли. Перевірка <code>[ -e "$f" ]</code> потрібна, тому що <strong>якщо жоден файл не підійшов, шаблон залишається самим собою</strong> і цикл виконається один раз із рядком <code>*.log</code>.</div>
+
+    <h2 id="arguments">5 · Аргументи та код повернення <a class="anchor-link" href="#arguments">#</a></h2>
+    <p><strong>Завдання:</strong> прийняти ім’я від користувача та повідомити, чи вдалося.</p>
+<pre data-run="setup"><code>#!/usr/bin/env bash
+name="$1"
+
+if [ -z "$name" ]; then
+  echo "usage: $0 &lt;ім’я&gt;" &gt;&amp;2
+  exit 2
+fi
+
+grep -q "$name" users.txt
+echo "код повернення: $?"</code></pre>    <div class="prints"><strong>Чому так:</strong> <code>$1</code> - перший аргумент, <code>$#</code> - їхня кількість, <code>$0</code> - ім’я самого скрипта. <code>$?</code> зберігає код повернення <strong>останньої виконаної команди</strong>, і це єдиний спосіб дізнатися в команди, чи все вдалося: <code>grep</code> повертає 0, коли знайшов, і 1, коли ні. Нуль - успіх, будь-яке інше число - ні; код 2 зазвичай означає «неправильний виклик».</div>
+
+    <h2 id="reading-files">6 · Читання файлу рядок за рядком <a class="anchor-link" href="#reading-files">#</a></h2>
+    <p><strong>Завдання:</strong> пройти рядками файлу й щось із ними зробити.</p>
+<pre data-run="setup"><code>while IFS= read -r line; do
+  echo "рядок: $line"
+done &lt; names.txt</code></pre>    <div class="prints"><strong>Чому так:</strong> Три деталі, кожна з яких потрібна. <code>IFS=</code> перед <code>read</code> зберігає пробіли на початку та в кінці рядка. <strong><code>-r</code> забороняє трактувати зворотну скісну риску як екранування</strong> - без нього <code>C:\new</code> перетвориться на рядок із перенесенням рядка. І перенаправлення <code>&lt; файл</code> стоїть після <code>done</code>, а не перед <code>while</code>.</div>
+
+    <h2 id="artifacts">Артефакти: що у вас є після цієї сторінки <a class="anchor-link" href="#artifacts">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Читання &gt;&gt; Ваш квант часу життя · Партнерство гідності разом з AI · Перебудова вашої нейромережі</p>
+      <p><strong>Шість пояснених місць замість шести завчених команд.</strong> Час витрачено не даремно, якщо ви тепер знаєте, чому <code>./</code> обов’язкове, чому лапки не прикраса і чому <code>$(ls)</code> у циклі - помилка. Це і є перебудова нейромережі: чужий скрипт перестає бути закляттям і стає текстом, який можна прочитати.</p>
+    </div>
+    <ol>
+      <li><strong>Права та <code>./</code></strong> - чому файл поруч «не знайдено».</li>
+      <li><strong>Лапки</strong> як захист від розбиття за пробілами.</li>
+      <li><strong>Перевірка перед дією</strong> та вихід ненульовим кодом.</li>
+      <li><strong>Цикл за шаблоном</strong>, а не за виводом <code>ls</code>.</li>
+      <li><strong><code>$1</code>, <code>$#</code>, <code>$?</code></strong> - аргументи та код повернення.</li>
+      <li><strong><code>while IFS= read -r</code></strong> і навіщо потрібна кожна частина.</li>
+    </ol>
+
     <footer>
-      Сайт серії AI Factory. Зроблено тією самою оснасткою, що й решта: звичайний HTML і CSS, перевірка на bash, публікація через GitHub Pages.
+      Наступна сторінка - ті самі завдання на рівні Pro: суворий режим, прибирання, повтори та паралельність. Що відкладено - у <a href="../lessons/potom.md">potom.md</a>.
     </footer>
   </main>
 
 </div>
 </div>
 <script src="../assets/swa.js"></script>
+<script src="../assets/terms.js"></script>
+<script src="../assets/cp.js"></script>
 </body>
 </html>

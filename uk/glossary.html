@@ -45,7 +45,7 @@
 
 <div class="cols">
 
-  <nav class="sessions" aria-label="Розділи сайту">
+  <nav class="contents" aria-label="Розділи сайту">
     <ol>
       <li><a href="01.html"><span class="num">1</span>Ключові компоненти</a></li>
       <li><a href="02.html"><span class="num">2</span>Написання скриптів</a></li>
@@ -64,7 +64,7 @@
       <li><a href="15.html"><span class="num">15</span>Питання · IGL</a></li>
     </ol>
     <div class="nav-extra">
-      <a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словник понять</a>
+      <a href="glossary.html" aria-current="page"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словник понять</a>
     </div>
     <div class="page-toc" id="pageToc" aria-label="Розділи цієї сторінки" hidden>
       <div class="toc-title">На цій сторінці</div>
@@ -74,23 +74,331 @@
 
   <main>
     <h1>Словник понять</h1>
+    <p class="lead">Двадцять два поняття, які на сторінках сайту вже не пояснюються. Кожне - не визначення для іспиту, а механіка, незнання якої коштує інциденту.</p>
 
-    <div class="stub-card">
-      <h2>Переклад українською готується</h2>
-      <p>Повна робоча версія цієї сторінки опублікована російською мовою (на русском языке): шість розділів анатомії Bash, приклади коду та типові питання асесменту.</p>
-      <p>Відкрити повну версію:</p>
-      <div class="stub-actions">
-        <a href="../ru/glossary.html" class="btn-primary">Словник понять російською (на русском языке) →</a>
+    <div class="box key" id="key-idea">
+      <h2>Головна думка словника <a class="anchor-link" href="#key-idea" aria-label="посилання на цей блок">#</a></h2>
+      <p>Словник тут потрібен не для заучування, а для усунення двозначності: поки «помилка» та
+      «ненульовий код повернення» для вас різні речі, сперечатися про надійність скрипту марно.
+      Поняття розкладені за трьома рівнями, як влаштований сам сайт: механіка - як оболонка виконує
+      рядок, практика - як писати скрипт, що переживе експлуатацію, рішення - чим обмежений
+      найгірший випадок. У кожній картці три шари: одна фраза для впізнавання, абзац механіки та
+      посилання на розділ, де поняття розібрано докладно. Картки навмисно короткі: щільність
+      важливіша за повноту, а повний опис є в <code>man bash</code>.</p>
+    </div>
+
+    <h2 id="block-mechanics">Механіка: як оболонка виконує рядок <a class="anchor-link" href="#block-mechanics">#</a></h2>
+
+    <div class="glossary-term" id="shebang">
+      <h2>
+        <span class="glossary-title">Shebang</span>
+        <code class="glossary-object">#!/usr/bin/env bash</code>
+        <a class="anchor-link" href="#shebang">#</a>
+      </h2>
+      <p class="glossary-lead">Перший рядок скрипту, який вказує ядру, яким інтерпретатором його запускати.</p>
+      <p>Без нього скрипт виконає та оболонка, з якої його викликали, - і на машині, де <code>sh</code> це <code>dash</code>, масиви та <code>[[ ]]</code> перестануть працювати. Форма через <code>env</code> шукає <code>bash</code> у <code>PATH</code>, а не лише в <code>/bin</code>: на macOS та у BSD він лежить в іншому місці.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="02.html#skeleton">Написання скриптів · Скелет</a>
       </div>
     </div>
 
+    <div class="glossary-term" id="shell-modes">
+      <h2>
+        <span class="glossary-title">Режими оболонки</span>
+        <code class="glossary-object">login · interactive</code>
+        <a class="anchor-link" href="#shell-modes">#</a>
+      </h2>
+      <p class="glossary-lead">Одна програма Bash у двох ролях: оболонка, з якою працює людина, та інтерпретатор, який виконує файл.</p>
+      <p>Інтерактивна оболонка читає <code>~/.bashrc</code>, знає псевдоніми та історію; login-оболонка (вхід через ssh, <code>su -</code>) читає <code>~/.bash_profile</code>; скрипт не читає ні того, ні іншого. Звідси «у терміналі працює, у cron - ні»: <code>PATH</code> та псевдоніми з ваших файлів налаштувань до скрипту не доходять.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="02.html#shell-modes">Написання скриптів · Два режими</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="path">
+      <h2>
+        <span class="glossary-title">PATH</span>
+        <code class="glossary-object">$PATH</code>
+        <a class="anchor-link" href="#path">#</a>
+      </h2>
+      <p class="glossary-lead">Список каталогів через двокрапку, у яких оболонка шукає програму за ім'ям.</p>
+      <p>Поточного каталогу в ньому немає, тому файл поруч запускають як <code>./script.sh</code>. Порядок важливий: знайдено буде першу відповідну програму, і <code>type cmd</code> покаже, яку саме. У cron та в CI <code>PATH</code> коротший за ваш - скрипт, який на це розраховує, зламається там першим.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="10.html#first-script">Приклади · Noob · Перший скрипт</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="environment-variable">
+      <h2>
+        <span class="glossary-title">Змінна середовища</span>
+        <code class="glossary-object">export VAR=value</code>
+        <a class="anchor-link" href="#environment-variable">#</a>
+      </h2>
+      <p class="glossary-lead">Змінна, яку оболонка передає дочірнім процесам.</p>
+      <p>Звичайне присвоєння <code>VAR=value</code> видно лише поточній оболонці; <code>export</code> позначає змінну для успадкування. Успадкування йде лише вниз: дочірній процес не може змінити оточення батька. Тому значення з одного кроку CI не видно в наступному - кожен крок це новий процес.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#variables">Ключові компоненти · Змінні</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="glob">
+      <h2>
+        <span class="glossary-title">Шаблон імен</span>
+        <code class="glossary-object">*.log · ?.txt · [ab]*</code>
+        <a class="anchor-link" href="#glob">#</a>
+      </h2>
+      <p class="glossary-lead">Вираз, який оболонка розкриває у список відповідних імен файлів до запуску команди.</p>
+      <p>Розкриття робить сама оболонка, а не програма, тому імена з пробілами зберігаються цілком - на відміну від <code>$(ls)</code>. Якщо жоден файл не підійшов, шаблон за замовчуванням залишається самим собою, і цикл виконається один раз із рядком <code>*.log</code>; <code>shopt -s nullglob</code> змінює цю поведінку на порожній список.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#parsing">Ключові компоненти · Розбір командного рядка</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="word-splitting">
+      <h2>
+        <span class="glossary-title">Словоподіл</span>
+        <code class="glossary-object">"$var"</code>
+        <a class="anchor-link" href="#word-splitting">#</a>
+      </h2>
+      <p class="glossary-lead">Розбиття результату підстановки на окремі слова за пробілами та переводами рядків.</p>
+      <p>Bash підставляє значення змінної, а потім ріже його. Тому шлях <code>/home/My Files/a.txt</code> без лапок перетворюється на два аргументи, і команда видалення видалить не те, що ви мали на увазі. Лапки навколо підстановки - не стиль, а захист; і це перша помилка, якої регулярно припускаються ШІ-агенти.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#expansions">Ключові компоненти · Розкриття та словоподіл</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="ifs">
+      <h2>
+        <span class="glossary-title">IFS</span>
+        <code class="glossary-object">IFS=$'\n\t'</code>
+        <a class="anchor-link" href="#ifs">#</a>
+      </h2>
+      <p class="glossary-lead">Набір символів, за якими оболонка ріже текст на слова.</p>
+      <p>За замовчуванням це пробіл, табуляція та перевід рядка. Звуження <code>IFS</code> до переводу рядка та табуляції на початку скрипту прибирає розрізання за пробілами там, де воно майже ніколи не потрібне. У конструкції <code>IFS= read -r line</code> порожнє значення діє лише на одну команду і зберігає пробіли по краях рядка.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#expansions">Ключові компоненти · Розкриття та словоподіл</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="stream-fd">
+      <h2>
+        <span class="glossary-title">Потік і дескриптор</span>
+        <code class="glossary-object">0 · 1 · 2</code>
+        <a class="anchor-link" href="#stream-fd">#</a>
+      </h2>
+      <p class="glossary-lead">Пронумерований канал введення або виведення процесу: 0 - введення, 1 - результат, 2 - помилки та все інше.</p>
+      <p>Дескриптор - це номер, потік - те, що ним тече. Розділення 1 та 2 - умова роботи в конвеєрі: наступна команда читає лише потік 1, і повідомлення «починаю роботу», відправлене туди, опиниться в її даних. Звідси правило: результат у stdout, решта в stderr, статус - кодом повернення.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#processes">Ключові компоненти · Процеси та перенаправлення</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="redirection">
+      <h2>
+        <span class="glossary-title">Перенаправлення</span>
+        <code class="glossary-object">&gt; · &gt;&gt; · 2&gt;&amp;1</code>
+        <a class="anchor-link" href="#redirection">#</a>
+      </h2>
+      <p class="glossary-lead">Вказівка оболонці, куди спрямувати потік процесу замість термінала.</p>
+      <p><code>&gt;</code> перезаписує файл, <code>&gt;&gt;</code> дописує, <code>2&gt;&amp;1</code> спрямовує помилки туди ж, куди зараз іде результат. Перенаправлення застосовуються зліва направо, тому <code>cmd &gt;log 2&gt;&amp;1</code> та <code>cmd 2&gt;&amp;1 &gt;log</code> дають різний результат: у другому випадку помилки залишаються в терміналі.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#processes">Ключові компоненти · Процеси та перенаправлення</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="pipeline">
+      <h2>
+        <span class="glossary-title">Конвеєр</span>
+        <code class="glossary-object">a | b</code>
+        <a class="anchor-link" href="#pipeline">#</a>
+      </h2>
+      <p class="glossary-lead">Ланцюжок команд, де виведення однієї стає введенням наступної.</p>
+      <p>Ланки запускаються одночасно, а не по черзі, і кожна живе у своєму процесі. Код повернення конвеєра за замовчуванням береться лише в останньої ланки - тому <code>хибна_команда | tee log</code> поверне 0. Увесь набір кодів лежить у <code>${PIPESTATUS[@]}</code>.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#pipelines">Ключові компоненти · Конвеєри та коди повернення</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="exit-code">
+      <h2>
+        <span class="glossary-title">Код повернення</span>
+        <code class="glossary-object">$?</code>
+        <a class="anchor-link" href="#exit-code">#</a>
+      </h2>
+      <p class="glossary-lead">Число від 0 до 255, яким команда повідомляє про успіх (0) або про помилку (не 0).</p>
+      <p>Це єдина машинна ознака провалу: текст у stderr - для людини, код повернення - для автоматики. Повідомлення про помилку без ненульового коду означає, що CI побачить зелене. Коди 126, 127 та 128+N видає сама оболонка: «не виконувано», «не знайдено», «вбито сигналом N».</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#pipelines">Ключові компоненти · Конвеєри та коди повернення</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="subshell">
+      <h2>
+        <span class="glossary-title">Сабшел</span>
+        <code class="glossary-object">( ... )</code>
+        <a class="anchor-link" href="#subshell">#</a>
+      </h2>
+      <p class="glossary-lead">Дочірній процес оболонки: він успадковує оточення, але його зміни назовні не повертаються.</p>
+      <p>Звідси класична загадка: цикл після конвеєра рахує рядки, а після його завершення змінна знову порожня - цикл виконувався у сабшелі. Підоболонку створюють круглі дужки, ланки конвеєра та підстановка <code>$( )</code>; фігурні дужки - ні. Розуміння цієї межі пояснює і втрачений <code>cd</code>, і <code>exit</code>, який не завершив скрипт.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#variables">Ключові компоненти · Змінні та області видимості</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="signal">
+      <h2>
+        <span class="glossary-title">Сигнал</span>
+        <code class="glossary-object">SIGINT · SIGTERM · SIGKILL</code>
+        <a class="anchor-link" href="#signal">#</a>
+      </h2>
+      <p class="glossary-lead">Асинхронне повідомлення процесу від ядра, іншого процесу або термінала.</p>
+      <p><code>SIGINT</code> надсилає <code>Ctrl+C</code>, <code>SIGTERM</code> - <code>kill</code> та зупинка контейнера, <code>SIGKILL</code> - <code>kill -9</code>. Перші два процес може перехопити і коректно завершитися; <code>SIGKILL</code> - ні, це властивість ядра. Процес, убитий сигналом N, повертає код <code>128+N</code>: 130 для <code>Ctrl+C</code>, 143 для <code>SIGTERM</code>.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#signals">Ключові компоненти · Сигнали та пастки</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="trap">
+      <h2>
+        <span class="glossary-title">Пастка</span>
+        <code class="glossary-object">trap … EXIT</code>
+        <a class="anchor-link" href="#trap">#</a>
+      </h2>
+      <p class="glossary-lead">Обробник, який оболонка виконує під час сигналу або при настанні події.</p>
+      <p>Пастка на <code>EXIT</code> спрацьовує при будь-якому завершенні, яке оболонка встигає помітити, - успішному, через помилку, через переривання - і тому залишається єдиним надійним способом прибрати за собою. Виняток - <code>SIGKILL</code>: процес знищує ядро, і пастка не виконується зовсім. Пастка на <code>ERR</code> спрацьовує на помилці; щоб її успадковували функції та підоболонки, потрібен <code>set -E</code>.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#signals">Ключові компоненти · Сигнали та пастки</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="posix">
+      <h2>
+        <span class="glossary-title">POSIX і башизм</span>
+        <code class="glossary-object">#!/bin/sh</code>
+        <a class="anchor-link" href="#posix">#</a>
+      </h2>
+      <p class="glossary-lead">POSIX - стандарт, спільний для всіх оболонок; башизм - можливість, яка є лише в Bash.</p>
+      <p>Масиви, <code>[[ ]]</code>, підстановка процесів та <code>${v//a/b}</code> - башизми: у <code>dash</code>, що стоїть як <code>/bin/sh</code> у Debian та Ubuntu, їх немає. Вибір роблять один раз і явно: або <code>#!/usr/bin/env bash</code> і всі зручності, або <code>#!/bin/sh</code>, перевірка через <code>shellcheck -s sh</code> та відмова від зручностей.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="04.html#portability">Слабкості та межі · Переносність</a>
+      </div>
+    </div>
+
+    <h2 id="block-practice">Практика: скрипт, який переживе експлуатацію <a class="anchor-link" href="#block-practice">#</a></h2>
+
+    <div class="glossary-term" id="strict-mode">
+      <h2>
+        <span class="glossary-title">Суворий режим</span>
+        <code class="glossary-object">set -euo pipefail</code>
+        <a class="anchor-link" href="#strict-mode">#</a>
+      </h2>
+      <p class="glossary-lead">Три запобіжники: падати на помилці, падати на неоголошеній змінній, не губити помилку в конвеєрі.</p>
+      <p><code>-e</code> - вихід при ненульовому коді, але не всередині умов, <code>&amp;&amp;</code>, <code>||</code> і функцій, викликаних в умові, і не в <code>local x=$(cmd)</code>. <code>-u</code> перетворює одрук в імені змінної на зупинку, а не на порожній рядок. <code>-o pipefail</code> віддає код останньої (найправішої) ланки конвеєра, що впала. Це мінімум гігієни, а не гарантія надійності.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="02.html#skeleton">Написання скриптів · Скелет</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="dry-run">
+      <h2>
+        <span class="glossary-title">Режим перевірки</span>
+        <code class="glossary-object">--dry-run</code>
+        <a class="anchor-link" href="#dry-run">#</a>
+      </h2>
+      <p class="glossary-lead">Запуск, при якому скрипт друкує, що зробив би, і нічого не робить.</p>
+      <p>Цінний, лише якщо влаштований структурно: кожна команда, що змінює стан, проходить через одну обгортку, яка в цьому режимі друкує замість виконання. Доданий згодом, він покриває не всі небезпечні гілки. І обгортка не бачить перенаправлень: <code>run cmd &gt; file</code> затре файл і в режимі перевірки, тому що <code>&gt;</code> виконує оболонка до входу у функцію. Для агента це головний спосіб перевірити логіку без наслідків, для людини - спосіб прийняти роботу до того, як вона щось зламала.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="11.html#getopts">Приклади · Pro · Опції та --dry-run</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="idempotence">
+      <h2>
+        <span class="glossary-title">Ідемпотентність</span>
+        <code class="glossary-object">mkdir -p · ln -sfn</code>
+        <a class="anchor-link" href="#idempotence">#</a>
+      </h2>
+      <p class="glossary-lead">Властивість операції: повторний запуск не змінює результат і не ламає стан.</p>
+      <p>В автоматиці повтор неминучий: таймаут, перезапуск вузла, подвійна подія, агент, який повторив без питання. <code>mkdir -p</code>, <code>ln -sfn</code>, <code>rsync</code> ідемпотентні; <code>mkdir</code> без ключа та <code>&gt;&gt;</code> у журнал - ні. Для неідемпотентної роботи вводять ідентифікатор операції та виконують її лише за його відсутності в журналі виконаного.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="02.html#idempotence">Написання скриптів · Ідемпотентність і прибирання</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="atomicity">
+      <h2>
+        <span class="glossary-title">Атомарність</span>
+        <code class="glossary-object">mv -T</code>
+        <a class="anchor-link" href="#atomicity">#</a>
+      </h2>
+      <p class="glossary-lead">Властивість операції: вона або виконана цілком, або не виконана зовсім, без видимого проміжного стану.</p>
+      <p>Перейменування в межах однієї файлової системи атомарне, копіювання - ні. Тому результат спочатку готують у тимчасовому місці, а потім одним <code>mv</code> ставлять на місце; а симлінк на новий реліз перемикають через <code>ln -sfn</code> у тимчасове ім'я та <code>mv -T</code> поверх поточного. Пара <code>rm</code> та <code>ln -s</code> атомарною не є: між ними посилання немає зовсім.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="08.html#deploy-rollback">Практики DevOps · Деплой і відкат</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="locking">
+      <h2>
+        <span class="glossary-title">Блокування</span>
+        <code class="glossary-object">flock</code>
+        <a class="anchor-link" href="#locking">#</a>
+      </h2>
+      <p class="glossary-lead">Механізм, що не дає двом екземплярам одного завдання працювати одночасно.</p>
+      <p><code>flock</code> тримає блокування на відкритому дескрипторі, і воно знімається саме, коли процес завершується, - у тому числі аварійно. Саморобний файл-прапорець цієї властивості не має: після падіння він залишається на диску і блокує запуски назавжди. Типове місце застосування - завдання з cron, яке може не встигнути до наступного запуску.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="11.html#flock">Приклади · Pro · Один екземпляр</a>
+      </div>
+    </div>
+
+    <h2 id="block-decisions">Рішення: чим обмежений найгірший випадок <a class="anchor-link" href="#block-decisions">#</a></h2>
+
+    <div class="glossary-term" id="tool-contract">
+      <h2>
+        <span class="glossary-title">Контракт інструменту</span>
+        <code class="glossary-object">stdout · stderr · коди · --json</code>
+        <a class="anchor-link" href="#tool-contract">#</a>
+      </h2>
+      <p class="glossary-lead">Оголошена поведінка скрипту, на яку спираються програми, що його викликають.</p>
+      <p>До контракту входять призначення потоків, набір кодів повернення, формат машинного виведення, наявність режиму перевірки та правила сумісності. Реалізацію можна переписати, контракт - ні: на нього вже хтось спирається, і будь-яка його зміна ламає викликача, якого ви не знаєте. Власні коди беруть з діапазону 3-63 або за <code>sysexits.h</code>, не займаючи 126, 127 та 128+N.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="12.html#tool-contract">Приклади · IGL · Контракт скрипту</a>
+      </div>
+    </div>
+
+    <div class="glossary-term" id="blast-radius">
+      <h2>
+        <span class="glossary-title">Радіус ураження</span>
+        <code class="glossary-object">blast radius</code>
+        <a class="anchor-link" href="#blast-radius">#</a>
+      </h2>
+      <p class="glossary-lead">Максимальна шкода, якої скрипт завдасть, якщо помилиться.</p>
+      <p>Проєктується від найгіршого випадку, а не від очікуваного. Його обмежують дві умови на початку скрипту: білий список області дії - працювати лише в заданому шляху або наборі ресурсів - та межа на обсяг за один запуск. Скрипт, який «знайшов» три тисячі об'єктів замість п'яти, має зупинитися і покликати людину: так катастрофа перетворюється на інцидент.</p>
+      <div class="glossary-meta">
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="12.html#blast-radius">Приклади · IGL · Радіус ураження</a>
+      </div>
+    </div>
+
+    <h2 id="artifacts">Артефакти: що у вас є після словника <a class="anchor-link" href="#artifacts">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Читання &gt;&gt; Ваш квант часу життя · Партнерство гідності разом з AI · Перебудова вашої нейромережі</p>
+      <p><strong>Спільна мова замість двадцяти двох визначень.</strong> Час на цю сторінку витрачено недаремно, якщо в розмові про скрипт ви та співрозмовник маєте на увазі одне й те саме, коли кажете «ідемпотентно», «атомарно» або «втратили код повернення». Це і є перебудова нейромережі: термін перестає бути словом і стає інструментом, яким можна сперечатися по суті.</p>
+    </div>
+    <ol>
+      <li><strong>П'ятнадцять понять механіки</strong> - від shebang до POSIX, у порядку, в якому оболонка проходить шлях від першого рядка файлу до завершення процесу.</li>
+      <li><strong>П'ять понять практики</strong> - суворий режим, режим перевірки, ідемпотентність, атомарність, блокування.</li>
+      <li><strong>Два поняття рішень</strong> - контракт інструменту та радіус ураження, яких немає в <code>man bash</code>.</li>
+    </ol>
+
     <footer>
-      Сайт серії AI Factory. Зроблено тією самою оснасткою, що й решта: звичайний HTML і CSS, перевірка на bash, публікація через GitHub Pages.
+      Словник поповнюється разом із розділами сайту. Повний опис механік - у <code>man bash</code>.
     </footer>
   </main>
 
 </div>
 </div>
 <script src="../assets/swa.js"></script>
+<script src="../assets/terms.js"></script>
+<script src="../assets/cp.js"></script>
 </body>
 </html>

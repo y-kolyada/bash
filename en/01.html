@@ -45,7 +45,7 @@
 
 <div class="cols">
 
-  <nav class="sessions" aria-label="Site sections">
+  <nav class="contents" aria-label="Site sections">
     <ol>
       <li><a href="01.html" aria-current="page"><span class="num">1</span>Key components</a></li>
       <li><a href="02.html"><span class="num">2</span>Writing scripts</a></li>
@@ -78,7 +78,7 @@
     is what separates an engineer who fixes a script in a minute from one who edits it by guess.</p>
 
     <div class="box key" id="key-idea">
-      <h2>The key idea of this page <a class="yakor" href="#key-idea" aria-label="link to this block">#</a></h2>
+      <h2>The key idea of this page <a class="anchor-link" href="#key-idea" aria-label="link to this block">#</a></h2>
       <p>Bash is not a language of commands but a pipeline that processes one line of text, and
       nearly all of its “oddities” follow from the order of that processing. The shell first splits
       the line into tokens, then performs expansions in a strictly defined sequence, cuts the result
@@ -89,7 +89,7 @@
       mechanism or merely remember a recipe.</p>
     </div>
 
-    <h2 id="parsing">1 · Parsing the command line <a class="yakor" href="#parsing">#</a></h2>
+    <h2 id="parsing">1 · Parsing the command line <a class="anchor-link" href="#parsing">#</a></h2>
     <p>The shell reads the line, splits it into tokens on operators (<code>|</code>, <code>;</code>,
     <code>&amp;&amp;</code>, <code>&gt;</code>), and only then starts expanding. The order is fixed,
     and it is the single most asked question. There are five stages, not the eight it is
@@ -116,7 +116,7 @@
     <div class="prints"><strong>Typical question:</strong> “in what order does Bash perform
     expansions, and why does the result of <code>echo $f</code> depend on quoting?”</div>
 
-    <h2 id="expansions">2 · Expansion and word splitting <a class="yakor" href="#expansions">#</a></h2>
+    <h2 id="expansions">2 · Expansion and word splitting <a class="anchor-link" href="#expansions">#</a></h2>
     <p>After substitution Bash cuts the result into words on the characters in <code>IFS</code> -
     by default space, tab and newline. Quotes suppress that split, and that is their only real
     job.</p>
@@ -129,7 +129,7 @@ rm "$f"   # one target, correct</code></pre>
     <div class="prints"><strong>Typical question:</strong> “how do <code>"$@"</code>,
     <code>$@</code> and <code>"$*"</code> differ, and what breaks on paths with spaces?”</div>
 
-    <h2 id="processes">3 · Processes and redirection <a class="yakor" href="#processes">#</a></h2>
+    <h2 id="processes">3 · Processes and redirection <a class="anchor-link" href="#processes">#</a></h2>
     <p>Every external command costs two kernel system calls: <code>fork</code> clones the shell and
     <code>execve</code> replaces the copy with the program (for the final command in
     <code>bash -c</code> or a subshell, the extra <code>fork</code> is skipped). Builtins
@@ -151,7 +151,7 @@ echo &lt;(true)    # /dev/fd/63 (pipe)</code></pre>
     and <code>&gt;log 2&gt;&amp;1</code> produce different results, and what does
     <code>&lt;(cmd)</code> actually expand to?”</div>
 
-    <h2 id="pipelines">4 · Pipelines and exit codes <a class="yakor" href="#pipelines">#</a></h2>
+    <h2 id="pipelines">4 · Pipelines and exit codes <a class="anchor-link" href="#pipelines">#</a></h2>
     <p>Pipeline stages start simultaneously, each in its own child process, connected by a kernel
     buffer (64 KB by default on Linux). By default the pipeline's exit code is the last stage's;
     with <code>set -o pipefail</code> it is the <strong>last (rightmost) failing</strong>
@@ -171,7 +171,7 @@ echo $?                  # 141 (SIGPIPE)</code></pre>
     specific pipeline stage, and why does <code>yes | head -n 1</code> return 141 under
     <code>pipefail</code>?”</div>
 
-    <h2 id="variables">5 · Variables and scope <a class="yakor" href="#variables">#</a></h2>
+    <h2 id="variables">5 · Variables and scope <a class="anchor-link" href="#variables">#</a></h2>
     <p>A shell variable is visible only to the shell itself; <code>export</code> marks it for
     handing down to child processes. A subshell inherits values but never returns its changes -
     braces, unlike parentheses, do not create a subshell:</p>
@@ -184,7 +184,7 @@ x=1; { x=2; }; echo $x  # 2</code></pre>
     <div class="prints"><strong>Typical question:</strong> “how does <code>export</code> differ from
     a plain assignment, and why is a function without <code>local</code> dangerous?”</div>
 
-    <h2 id="signals">6 · Signals and traps <a class="yakor" href="#signals">#</a></h2>
+    <h2 id="signals">6 · Signals and traps <a class="anchor-link" href="#signals">#</a></h2>
     <p>A signal is an asynchronous message to a process. <code>trap</code> installs a handler, and
     the only reliable way to clean up after yourself is a trap on <code>EXIT</code>: it fires on
     every termination the shell gets to notice - normal exit, error, interrupt. There is one
@@ -199,7 +199,7 @@ trap 'echo interrupted; exit 130' INT</code></pre>
     <div class="prints"><strong>Typical question:</strong> “how do you guarantee a temporary file is
     removed on any termination, and why can <code>SIGKILL</code> not be trapped?”</div>
 
-    <h2 id="artifacts">Artifacts: what you have after this page <a class="yakor" href="#artifacts">#</a></h2>
+    <h2 id="artifacts">Artifacts: what you have after this page <a class="anchor-link" href="#artifacts">#</a></h2>
     <div class="box key">
       <p class="artifacts-slogan">Reading &gt;&gt; Your quantum of life's time · A partnership of dignity with AI · Rewiring your neural network</p>
       <p><strong>Six mechanisms instead of six recipes.</strong> The time was well spent if you now

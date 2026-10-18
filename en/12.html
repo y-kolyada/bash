@@ -45,7 +45,7 @@
 
 <div class="cols">
 
-  <nav class="sessions" aria-label="Site sections">
+  <nav class="contents" aria-label="Site sections">
     <ol>
       <li><a href="01.html"><span class="num">1</span>Key components</a></li>
       <li><a href="02.html"><span class="num">2</span>Writing scripts</a></li>
@@ -77,11 +77,11 @@
     <p class="lead">Six decisions for the “I decide whether a script should exist at all” level. Here code illustrates the decision rather than the reverse: the task of this level is forecasting the total cost of ownership one year out.</p>
 
     <div class="box key" id="key-idea">
-      <h2>Key idea of this page <a class="yakor" href="#key-idea" aria-label="link to this section">#</a></h2>
+      <h2>Key idea of this page <a class="anchor-link" href="#key-idea" aria-label="link to this section">#</a></h2>
       <p>At this level, the primary question is not “how to write it,” but “should we write it, and what will it cost us down the road.” The most expensive script in any team's history is the one that successfully solved the wrong problem: taking on state management, acquiring a custom state file, and accumulating custom state reconciliation bugs. The six analyses below focus on architectural choices rather than syntax: when to refuse to write a script; what interface contract to establish when a script becomes a machine-callable tool; how to survive retries in distributed environments; what telemetry a script must emit; how to bound worst-case blast radius; and how to safely decommission a script when its lifecycle ends. That final decommissioning step is skipped most often - yet it is what separates engineering discipline from ad-hoc scripting. Each case study includes a “Decision cost” analysis: the cost of implementing versus the cost of avoiding.</p>
     </div>
 
-    <h2 id="no-script">1 · The decision not to write a script <a class="yakor" href="#no-script">#</a></h2>
+    <h2 id="no-script">1 · The decision not to write a script <a class="anchor-link" href="#no-script">#</a></h2>
     <p><strong>Situation:</strong> The team requests a “quick script” to monitor state and reconcile drift.</p>
 <pre><code># what is requested:
 # - inspect what is deployed
@@ -93,7 +93,7 @@
 # not a shell script</code></pre>    <div class="prints"><strong>Why this matters:</strong> The four requirements above define a state management tool. Any shell script implementing them will inevitably accumulate custom state storage, bespoke diff algorithms, and distinct failure modes. <strong>The IGL decision here is not writing a cleaner script, but calling the task by its true name</strong> and delegating it to an established tool where reconciliation logic is already hardened. The costliest script is the one that successfully solves the wrong problem.</div>
     <div class="prints"><strong>Decision cost:</strong> Declining costs a single conversation and perhaps a week evaluating a dedicated tool. Agreeing commits to indefinite maintenance of an in-house state management engine - with costs scaling directly with managed resource count.</div>
 
-    <h2 id="tool-contract">2 · Tool contract: scripts for machines <a class="yakor" href="#tool-contract">#</a></h2>
+    <h2 id="tool-contract">2 · Tool contract: scripts for machines <a class="anchor-link" href="#tool-contract">#</a></h2>
     <p><strong>Situation:</strong> Your script will be invoked by downstream scripts, CI pipelines, and automated agents - machines rather than humans.</p>
 <pre><code># contract to declare explicitly:
 # stdout   - results only
@@ -107,7 +107,7 @@
 # --dry-run - non-destructive execution</code></pre>    <div class="prints"><strong>Why this matters:</strong> For a machine-facing tool, interface contracts supersede internal implementation: implementations can be refactored freely, but breaking an established contract breaks dependent automation. <strong>Exit codes must distinguish “not found” from “crashed”</strong>: callers can handle the former cleanly, while the latter must halt pipelines. Providing a dedicated <code>--json</code> flag allows iterating on human-readable text without disrupting parsers; without it, any formatting polish is a breaking API change. For standardized exit code conventions, reference <code>sysexits.h</code>: 64 for command line syntax errors, 70 for internal software bugs, 75 for transient failures suitable for retries. <strong>Never assign custom meanings to 126, 127, or 128+N:</strong> these are emitted by the shell itself, and callers will be unable to distinguish your error code from “permission denied”, “command not found”, or “terminated by signal”.</div>
     <div class="prints"><strong>Decision cost:</strong> Formalizing the contract costs thirty minutes and a dozen lines in <code>--help</code>. Omitting it turns every future output edit into an outage for callers you may not even know exist.</div>
 
-    <h2 id="retry-safety">3 · Idempotence and retry resilience in distributed environments <a class="yakor" href="#retry-safety">#</a></h2>
+    <h2 id="retry-safety">3 · Idempotence and retry resilience in distributed environments <a class="anchor-link" href="#retry-safety">#</a></h2>
     <p><strong>Situation:</strong> A job is triggered by a scheduler that upon hitting a timeout fires a retry without waiting for the prior run to complete.</p>
 <pre><code># not idempotent:
 echo "$line" &gt;&gt; report.txt
@@ -121,7 +121,7 @@ grep -q "^$key" done.log || {
 }</code></pre>    <div class="prints"><strong>Why this matters:</strong> In distributed environments, <strong>retries are expected operational reality, not edge cases</strong>: network timeouts, node rescheduling, and duplicate webhook events occur constantly. Resilience means ensuring duplicate invocations do not corrupt state. The architectural decision is <strong>introducing an idempotency key</strong> and conditioning mutations upon it. Note the architectural boundary: <code>grep</code> followed by <code>echo</code> is not atomic; true concurrency requires filesystem locking or external transactional storage - signaling that the task has outgrown plain shell scripts.</div>
     <div class="prints"><strong>Decision cost:</strong> An idempotency key and completion log require ten lines. Without them, scheduler retries produce duplicate billings, duplicate notification blasts, or destructive repeated deletions.</div>
 
-    <h2 id="observability">4 · Observability: what scripts must emit <a class="yakor" href="#observability">#</a></h2>
+    <h2 id="observability">4 · Observability: what scripts must emit <a class="anchor-link" href="#observability">#</a></h2>
     <p><strong>Situation:</strong> A script runs unattended overnight, and its outcome is only reviewed twenty-four hours later.</p>
 <pre><code>start=$(date +%s)
 trap 'report "$?" "$start"' EXIT
@@ -134,7 +134,7 @@ report() {
 }</code></pre>    <div class="prints"><strong>Why this matters:</strong> An uninstrumented script is only noticeable when it crashes outright - and only if someone is watching. <strong>A minimum telemetry payload of four metrics - outcome, exit code, elapsed duration, and processed volume - turns it into an observable component:</strong> metrics can be trended, revealing performance degradation long before catastrophic outage. Structured key=value lines parse natively across log aggregators without complex regular expressions. Emitting telemetry from an <code>EXIT</code> trap guarantees reports even during unhandled script crashes.</div>
     <div class="prints"><strong>Decision cost:</strong> One structured line emitted per execution. Without it, performance degradation remains hidden until complete failure occurs - usually discovered by customers first.</div>
 
-    <h2 id="blast-radius">5 · Blast radius: bounding worst-case failure modes <a class="yakor" href="#blast-radius">#</a></h2>
+    <h2 id="blast-radius">5 · Blast radius: bounding worst-case failure modes <a class="anchor-link" href="#blast-radius">#</a></h2>
     <p><strong>Situation:</strong> A script purges aged resources. The question is not “does it work,” but “what happens when its logic fails.”</p>
 <pre><code># restrict execution outside allowed scope
 case "$target" in
@@ -143,10 +143,13 @@ case "$target" in
 esac
 
 # cap work per single invocation
-(( ${#list[@]} &gt; 20 )) &amp;&amp; { echo "too many items" &gt;&amp;2; exit 2; }</code></pre>    <div class="prints"><strong>Why this matters:</strong> Two safety guards outweigh any amount of careful coding. <strong>Scope whitelisting</strong> prevents mutations outside designated filesystem trees - even under empty variables or regex evaluation bugs. <strong>Per-run batch limits</strong> downgrade potential catastrophes into routine operational tickets: a script that resolves three thousand purge candidates instead of five aborts immediately and demands human review. This is designing for the worst-case scenario rather than the happy path.</div>
+if (( ${#list[@]} &gt; 20 )); then
+  echo "too many items" &gt;&amp;2
+  exit 2
+fi</code></pre>    <div class="prints"><strong>Why this matters:</strong> Two safety guards outweigh any amount of careful coding. <strong>Scope whitelisting</strong> prevents mutations outside designated filesystem trees - even under empty variables or regex evaluation bugs. <strong>Per-run batch limits</strong> downgrade potential catastrophes into routine operational tickets: a script that resolves three thousand purge candidates instead of five aborts immediately and demands human review. This is designing for the worst-case scenario rather than the happy path.</div>
     <div class="prints"><strong>Decision cost:</strong> Two validation checks at script initialization. Without them, a single filtering typo risks destroying everything within the script's ambient IAM permissions.</div>
 
-    <h2 id="decommission">6 · Decommissioning scripts gracefully <a class="yakor" href="#decommission">#</a></h2>
+    <h2 id="decommission">6 · Decommissioning scripts gracefully <a class="anchor-link" href="#decommission">#</a></h2>
     <p><strong>Situation:</strong> Legacy script functionality has migrated into a platform tool, but dependent callers continue invoking the original entry point.</p>
 <pre><code>#!/usr/bin/env bash
 echo "DEPRECATED: use 'app deploy'" &gt;&amp;2
@@ -155,7 +158,7 @@ echo "this script will be decommissioned 2026-12-01" &gt;&amp;2
 exec app deploy "$@"   # proxying for now</code></pre>    <div class="prints"><strong>Why this matters:</strong> You cannot delete a shared script overnight: dependent CI jobs, external cron schedules, and muscle memory remain active across teams. <strong>A proxying deprecation phase with a definitive sunset date</strong> affords calling teams time to migrate while surfacing remaining consumers in audit logs. Specific sunset dates are essential: open-ended “deprecated” warnings are ignored indefinitely. This operational discipline is what elevates software engineering above raw scripting.</div>
     <div class="prints"><strong>Decision cost:</strong> A month of proxying and reviewing invocation logs. Skipping this step guarantees breaking uncataloged dependencies on the day of removal.</div>
 
-    <h2 id="artifacts">Artifacts: what you take away from this page <a class="yakor" href="#artifacts">#</a></h2>
+    <h2 id="artifacts">Artifacts: what you take away from this page <a class="anchor-link" href="#artifacts">#</a></h2>
     <div class="box key">
       <p class="artifacts-slogan">Reading &gt;&gt; Your life quantum · Dignity partnership with AI · Rewiring your neural network</p>
       <p><strong>Six architectural decisions evaluated before code is written.</strong> Your time was well spent if before approving your next script you ask “what happens when its filter fails” and “who will decommission this when it is superseded.” That is the essence of rewiring: accountability shifts from immediate functionality to long-term blast radius, defining the boundary between an implementer and a technical lead.</p>

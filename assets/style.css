@@ -36,9 +36,14 @@ html[data-font="l"] { --base-font-size: 18px; }
 
 * { box-sizing: border-box; }
 
+/* The scale sits on the root, not on the body: every rem in this file resolves
+   against it, so headings, the footer and the search panel follow the reader's
+   choice. Breakpoints are safe - rem in a media query always means 16px. */
+html { font-size: var(--base-font-size); }
+
 body {
   margin: 0; padding: 0; background: var(--bg); color: var(--fg);
-  font: var(--base-font-size)/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 1rem/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 .wrap { max-width: 68rem; margin: 0 auto; padding: 0 16px 64px; }
@@ -221,28 +226,28 @@ header.top .three .topic {
 
 /* --- two columns on a wide screen, one on a phone --- */
 .cols { display: block; }
-nav.sessions { margin: 0 0 28px; padding: 0; }
-nav.sessions ol { list-style: none; margin: 0; padding: 0; }
-nav.sessions li { margin: 0 0 2px; }
+nav.contents { margin: 0 0 28px; padding: 0; }
+nav.contents ol { list-style: none; margin: 0; padding: 0; }
+nav.contents li { margin: 0 0 2px; }
 /* Direct children only: a looser selector also matched .num inside the link
    and turned the number into a block, so words overlapped on a phone. */
-nav.sessions li > a, nav.sessions li > .later {
+nav.contents li > a, nav.contents li > .later {
   display: block; padding: 7px 10px; border-radius: 7px; text-decoration: none;
   font-size: .95rem; border: 1px solid transparent;
 }
-nav.sessions li > a { color: var(--fg); }
-nav.sessions li > a:hover { background: var(--code); }
-nav.sessions li > a[aria-current="page"] { border-color: var(--line); background: var(--code); font-weight: 600; }
-nav.sessions li > .later { color: var(--dim); text-wrap: pretty; }
-nav.sessions li > .later::after { content: " · будет"; font-size: .85em; }
-html[lang="uk"] nav.sessions li > .later::after { content: " · буде"; }
-html[lang="en"] nav.sessions li > .later::after { content: " · coming soon"; }
-html[lang="de"] nav.sessions li > .later::after { content: " · folgt"; }
-nav.sessions .num { display: inline-block; width: 1.4em; color: var(--dim); flex: none; }
+nav.contents li > a { color: var(--fg); }
+nav.contents li > a:hover { background: var(--code); }
+nav.contents li > a[aria-current="page"] { border-color: var(--line); background: var(--code); font-weight: 600; }
+nav.contents li > .later { color: var(--dim); text-wrap: pretty; }
+nav.contents li > .later::after { content: " · будет"; font-size: .85em; }
+html[lang="uk"] nav.contents li > .later::after { content: " · буде"; }
+html[lang="en"] nav.contents li > .later::after { content: " · coming soon"; }
+html[lang="de"] nav.contents li > .later::after { content: " · folgt"; }
+nav.contents .num { display: inline-block; width: 1.4em; color: var(--dim); flex: none; }
 
 @media (min-width: 56rem) {
   .cols { display: grid; grid-template-columns: 15rem 1fr; gap: 36px; align-items: start; }
-  nav.sessions {
+  nav.contents {
     position: sticky;
     top: 18px;
     max-height: calc(100vh - 36px);
@@ -253,7 +258,7 @@ nav.sessions .num { display: inline-block; width: 1.4em; color: var(--dim); flex
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
-  nav.sessions::-webkit-scrollbar {
+  nav.contents::-webkit-scrollbar {
     display: none;
   }
 }
@@ -269,7 +274,7 @@ nav.sessions .num { display: inline-block; width: 1.4em; color: var(--dim); flex
 
 /* In the sidebar the icon is centred on the line box, not the baseline, so it
    reads as a superscript unless it is larger and nudged down by a pixel. */
-nav.sessions .nav-extra .icon {
+nav.contents .nav-extra .icon {
   width: 1.45em;
   height: 1.45em;
   margin-top: 1px;
@@ -366,11 +371,11 @@ footer { margin-top: 48px; border-top: 1px solid var(--line); padding-top: 14px;
 
 /* --- anchors: a link to one section, not to the whole page --- */
 /* Always visible: a phone has no hover, and that is where links are copied. */
-.yakor {
+.anchor-link {
   color: var(--dim); text-decoration: none; font-weight: 400;
   padding: 0 .35em; opacity: .45;
 }
-.yakor:hover, .yakor:focus { opacity: 1; color: var(--acc); }
+.anchor-link:hover, .anchor-link:focus { opacity: 1; color: var(--acc); }
 /* Highlight the place a link led to, otherwise a long page hides it. */
 :target { scroll-margin-top: 14px; }
 /* The anchor sits on the body so the browser opens a collapsed step without
@@ -381,16 +386,6 @@ details.step .body:target { background: var(--step-target-bg); border-radius: 0 
 details.step:has(.body:target) { border-color: var(--step-target-border); }
 details.step:has(.body:target) > summary { border-bottom-color: var(--step-target-border); }
 h2:target, h3:target { background: var(--step-target-bg); border-radius: 6px; }
-
-/* --- collapse-all button: visible at any scroll position --- */
-/* Bottom right: under the thumb on a phone, clear of the text on a wide screen. */
-.svernut {
-  position: fixed; right: 14px; bottom: 14px; z-index: 10;
-  background: var(--bg); color: var(--fg); border: 1px solid var(--line);
-  border-radius: 999px; padding: 10px 16px; font-size: .9rem; text-decoration: none;
-  box-shadow: 0 2px 10px rgba(0,0,0,.12);
-}
-.svernut:hover, .svernut:focus { border-color: var(--acc); color: var(--acc); }
 
 /* --- search --- */
 
@@ -556,7 +551,7 @@ mark.search-mark {
 /* --- floating button stack --- */
 
 /* One corner, one stack. Buttons accumulate; if each picks its own corner they
-   collide. The container owns the corner, swa.js moves .svernut in here. */
+   collide. The container owns the corner. */
 .floats {
   position: fixed;
   right: 14px;
@@ -565,11 +560,6 @@ mark.search-mark {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-.floats .svernut {
-  position: static;
-  right: auto;
-  bottom: auto;
 }
 .float-btn {
   width: 44px;
@@ -727,13 +717,13 @@ body { padding-bottom: 72px; }
 }
 
 /* Glossary link in the sidebar */
-nav.sessions .nav-extra {
+nav.contents .nav-extra {
   margin-top: 14px;
   padding-top: 12px;
   padding-bottom: 12px;
   border-top: 1px solid var(--line);
 }
-nav.sessions .nav-extra a {
+nav.contents .nav-extra a {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -744,10 +734,10 @@ nav.sessions .nav-extra a {
   color: var(--fg);
   border: 1px solid transparent;
 }
-nav.sessions .nav-extra a:hover {
+nav.contents .nav-extra a:hover {
   background: var(--code);
 }
-nav.sessions .nav-extra a[aria-current="page"] {
+nav.contents .nav-extra a[aria-current="page"] {
   border-color: var(--line);
   background: var(--code);
   font-weight: 600;
@@ -791,8 +781,8 @@ nav.sessions .nav-extra a[aria-current="page"] {
   border-radius: 5px;
   letter-spacing: 0.02em;
 }
-.glossary-term h2 .yakor,
-.glossary-term h3 .yakor {
+.glossary-term h2 .anchor-link,
+.glossary-term h3 .anchor-link {
   margin-left: auto;
   font-size: 1rem;
 }
@@ -902,7 +892,7 @@ nav.sessions .nav-extra a[aria-current="page"] {
 @media print {
   /* Nothing to press on paper. */
   .cp-btn { display: none; }
-  nav.sessions, .utility-tray, .page-toc, .yakor, .svernut, .term-card, .floats {
+  nav.contents, .utility-tray, .page-toc, .anchor-link, .term-card, .floats {
     display: none !important;
   }
   .cols {
@@ -1013,7 +1003,7 @@ nav.sessions .nav-extra a[aria-current="page"] {
     background: linear-gradient(to bottom, var(--bg) 55%, rgba(0, 0, 0, 0));
     pointer-events: none;
   }
-  nav.sessions {
+  nav.contents {
     top: calc(var(--header-h, 68px) + 12px);
     max-height: calc(100vh - var(--header-h, 68px) - 24px);
   }
