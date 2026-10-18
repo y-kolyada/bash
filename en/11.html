@@ -141,7 +141,7 @@ printf '%s\0' logs/*.log \
   || echo "some tasks failed" &gt;&amp;2
 
 # manual tracking with exit codes:
-pids=(); for f in …; do work "$f" &amp; pids+=($!); done
+pids=(); for f in logs/*.log; do work "$f" &amp; pids+=($!); done
 rc=0; for p in "${pids[@]}"; do wait "$p" || rc=1; done</code></pre>    <div class="prints"><strong>Why this works:</strong> The null delimiter <code>\0</code> paired with <code>-0</code> immunizes the pipeline against filenames with spaces and newlines. <strong><code>xargs</code> returns a non-zero exit status if any sub-process fails</strong> - providing the aggregated error detection absent in naive <code>&amp;</code> plus <code>wait</code> workflows. If you need individual process exit codes, store <code>$!</code> in an array and wait on each PID individually.</div>
 
     <h2 id="flock">6 · Single instance: protecting against concurrent runs <a class="yakor" href="#flock">#</a></h2>

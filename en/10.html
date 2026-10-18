@@ -119,7 +119,9 @@ for f in *.log; do
 done
 
 # incorrect, yet common
-for f in $(ls *.log); do …</code></pre>    <div class="prints"><strong>Why this works:</strong> The glob pattern <code>*.log</code> is expanded directly by the shell, preserving full filenames intact - even with embedded spaces. <code>$(ls)</code> outputs a single string that is subjected to word splitting, turning “old file.log” into two non-existent paths. The check <code>[ -e "$f" ]</code> is essential: <strong>if no files match, the glob remains as a literal string</strong>, causing the loop to run once with the literal string <code>*.log</code>.</div>
+for f in $(ls *.log); do
+  echo "processing: $f"
+done</code></pre>    <div class="prints"><strong>Why this works:</strong> The glob pattern <code>*.log</code> is expanded directly by the shell, preserving full filenames intact - even with embedded spaces. <code>$(ls)</code> outputs a single string that is subjected to word splitting, turning “old file.log” into two non-existent paths. The check <code>[ -e "$f" ]</code> is essential: <strong>if no files match, the glob remains as a literal string</strong>, causing the loop to run once with the literal string <code>*.log</code>.</div>
 
     <h2 id="arguments">5 · Arguments and exit status <a class="yakor" href="#arguments">#</a></h2>
     <p><strong>Task:</strong> Accept a name from the user and report whether the operation succeeded.</p>

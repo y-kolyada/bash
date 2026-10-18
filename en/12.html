@@ -143,7 +143,10 @@ case "$target" in
 esac
 
 # cap work per single invocation
-(( ${#list[@]} &gt; 20 )) &amp;&amp; { echo "too many items" &gt;&amp;2; exit 2; }</code></pre>    <div class="prints"><strong>Why this matters:</strong> Two safety guards outweigh any amount of careful coding. <strong>Scope whitelisting</strong> prevents mutations outside designated filesystem trees - even under empty variables or regex evaluation bugs. <strong>Per-run batch limits</strong> downgrade potential catastrophes into routine operational tickets: a script that resolves three thousand purge candidates instead of five aborts immediately and demands human review. This is designing for the worst-case scenario rather than the happy path.</div>
+if (( ${#list[@]} &gt; 20 )); then
+  echo "too many items" &gt;&amp;2
+  exit 2
+fi</code></pre>    <div class="prints"><strong>Why this matters:</strong> Two safety guards outweigh any amount of careful coding. <strong>Scope whitelisting</strong> prevents mutations outside designated filesystem trees - even under empty variables or regex evaluation bugs. <strong>Per-run batch limits</strong> downgrade potential catastrophes into routine operational tickets: a script that resolves three thousand purge candidates instead of five aborts immediately and demands human review. This is designing for the worst-case scenario rather than the happy path.</div>
     <div class="prints"><strong>Decision cost:</strong> Two validation checks at script initialization. Without them, a single filtering typo risks destroying everything within the script's ambient IAM permissions.</div>
 
     <h2 id="decommission">6 · Decommissioning scripts gracefully <a class="yakor" href="#decommission">#</a></h2>

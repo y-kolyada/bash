@@ -83,7 +83,7 @@
 
     <h2 id="trap-err">1 · Падать громко: <code>trap ERR</code> с номером строки <a class="yakor" href="#trap-err">#</a></h2>
     <p><strong>Задача:</strong> сделать так, чтобы отказ скрипта сам сообщал, где он произошёл.</p>
-<pre><code>#!/usr/bin/env bash
+<pre data-run="setup"><code>#!/usr/bin/env bash
 set -Eeuo pipefail
 
 on_err() {
@@ -96,7 +96,7 @@ trap 'on_err $LINENO' ERR</code></pre>    <div class="prints"><strong>Почем
     <h2 id="mktemp">2 · Временный каталог, который гарантированно уберётся <a class="yakor" href="#mktemp">#</a></h2>
     <p><strong>Задача:</strong> работать с промежуточными файлами и не оставить мусора ни при
     ошибке, ни при <code>Ctrl+C</code>.</p>
-<pre><code>tmp=$(mktemp -d "${TMPDIR:-/tmp}/app.XXXXXX")
+<pre data-run="setup"><code>tmp=$(mktemp -d "${TMPDIR:-/tmp}/app.XXXXXX")
 cleanup() { rm -rf "$tmp"; }
 trap cleanup EXIT INT TERM
 
@@ -105,7 +105,7 @@ mv "$tmp/out" result.txt</code></pre>    <div class="prints"><strong>Почем�
 
     <h2 id="getopts">3 · Опции и обязательный <code>--dry-run</code> <a class="yakor" href="#getopts">#</a></h2>
     <p><strong>Задача:</strong> дать скрипту ключи и режим «показать, но не делать».</p>
-<pre><code>dry=0; verbose=0
+<pre data-run="setup"><code>dry=0; verbose=0
 while getopts ":nvh" opt; do
   case $opt in
     n) dry=1 ;;
@@ -121,7 +121,7 @@ run rm -rf "$target"</code></pre>    <div class="prints"><strong>Почему т
 
     <h2 id="retry">4 · Повтор с нарастающей задержкой <a class="yakor" href="#retry">#</a></h2>
     <p><strong>Задача:</strong> пережить временный отказ сети, не превратив скрипт в вечный цикл.</p>
-<pre><code>retry() {
+<pre data-run="syntax"><code>retry() {
   local n=0 max=5 delay=1
   until "$@"; do
     n=$((n + 1))
@@ -136,27 +136,27 @@ retry curl -fsS --max-time 10 "$url"</code></pre>    <div class="prints"><strong
     <h2 id="parallel">5 · Параллельная обработка с ограничением и сбором отказов <a class="yakor" href="#parallel">#</a></h2>
     <p><strong>Задача:</strong> обработать сотню файлов в четыре потока и узнать, упал ли
     хоть один.</p>
-<pre><code>export -f process          # видимость в xargs
+<pre data-run="setup"><code>export -f process          # видимость в xargs
 
 printf '%s\0' logs/*.log \
   | xargs -0 -P4 -I{} bash -c 'process "$@"' _ {} \
   || echo "часть задач упала" &gt;&amp;2
 
 # своими руками - с учётом кодов:
-pids=(); for f in …; do work "$f" &amp; pids+=($!); done
+pids=(); for f in logs/*.log; do work "$f" &amp; pids+=($!); done
 rc=0; for p in "${pids[@]}"; do wait "$p" || rc=1; done</code></pre>    <div class="prints"><strong>Почему так:</strong> Разделитель <code>\0</code> и ключ <code>-0</code> делают конвейер устойчивым к пробелам и переводам строк в именах. <strong><code>xargs</code> возвращает ненулевой код, если упала хотя бы одна задача</strong> - это и есть сбор отказов, которого нет у простого <code>&amp;</code> плюс <code>wait</code>. Если коды нужны поимённо, сохраняйте <code>$!</code> и ждите каждый процесс отдельно.</div>
 
     <h2 id="flock">6 · Один экземпляр: защита от повторного запуска <a class="yakor" href="#flock">#</a></h2>
     <p><strong>Задача:</strong> не дать скрипту из cron запуститься второй раз, если предыдущий
     ещё работает.</p>
-<pre><code>exec 9&gt;/var/lock/app.lock
+<pre data-run="syntax"><code>exec 9&gt;/var/lock/app.lock
 flock -n 9 || { echo "уже работает" &gt;&amp;2; exit 0; }
 
 # дальше - обычная работа</code></pre>    <div class="prints"><strong>Почему так:</strong> Блокировка живёт на открытом дескрипторе, а не на файле: <strong>она снимается сама, когда процесс завершается</strong> - в том числе при аварийном завершении. Самодельный «файл-флаг» этим свойством не обладает: после падения он остаётся на диске и блокирует запуски навсегда. Ключ <code>-n</code> означает «не ждать»; выход с кодом 0 здесь осознанный - для cron это не ошибка, а нормальная ситуация.</div>
 
     <h2 id="log-levels">7 · Логирование с уровнями <a class="yakor" href="#log-levels">#</a></h2>
     <p><strong>Задача:</strong> дать скрипту голос, который не мешает его результату.</p>
-<pre><code>LOG_LEVEL="${LOG_LEVEL:-info}"
+<pre data-run="setup"><code>LOG_LEVEL="${LOG_LEVEL:-info}"
 _log() {
   local lvl=$1; shift
   printf '%s [%s] %s\n' \
