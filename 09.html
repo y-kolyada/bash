@@ -103,6 +103,7 @@ ps -eo pid,stat,rss,cmd \
     показывает «норму» или не срабатывает, потому что причина лежит в ядре.</p>
 <pre><code># 1. df = 100%, а du видит свободное место
 lsof +L1                 # удалён, но открыт
+: &gt; /proc/PID/fd/N      # освободить, не убивая
 df -i                    # кончились иноды
 
 # 2. процесс исчез без следа в логе приложения
@@ -113,7 +114,10 @@ ps -eo pid,ppid,stat,cmd \
   | awk '$3 ~ /^Z/'</code></pre>
     <p>Если лог-файл удалили через <code>rm</code>, пока процесс держит его дескриптор открытым,
     имя из каталога исчезает (<code>du</code> его не считает), но блоки на диске освободятся только
-    после закрытия дескриптора или <code>truncate -s 0</code>. Зомби-процесс (<code>Z</code>) уже
+    после закрытия дескриптора. Если процесс перезапускать нельзя, файл усекают через его
+    дескриптор: <code>: &gt; /proc/PID/fd/N</code>. <strong><code>truncate -s 0</code> по старому
+    имени не поможет:</strong> имени больше нет, и команда создаст рядом новый пустой файл, не
+    освободив ни байта. Зомби-процесс (<code>Z</code>) уже
     мёртв и не занимает памяти - в таблице процессов осталась только запись с кодом возврата, пока
     родитель (<code>PPID</code>) не вызовет <code>wait()</code>; сигналить самому зомби
     бессмысленно.</p>
@@ -158,6 +162,13 @@ nice -n 19 ionice -c3 \
     <code>cron</code> не наложится поверх него лавиной из двадцати копий. Второй -
     <code>nice -n 19 ionice -c3</code>: класс <code>Idle</code> (<code>-c3</code>) отдаёт диску
     команды скрипта только тогда, когда ни один боевой процесс к диску не обращается.</p>
+    <p><strong>Оговорка, без которой это самообман:</strong> классы <code>ionice</code> соблюдает
+    только планировщик BFQ (и CFQ в старых ядрах). При <code>none</code> и
+    <code>mq-deadline</code> - частый выбор для NVMe и облачных дисков - <code>ionice</code>
+    молча ничего не делает. Проверка - <code>cat /sys/block/&lt;диск&gt;/queue/scheduler</code>.
+    Если там не BFQ, ограничивают не приоритет, а полосу: <code>--bwlimit</code> у
+    <code>rsync</code> или <code>IOWriteBandwidthMax=</code> через <code>systemd-run</code> -
+    это работает при любом планировщике.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Как защитить боевой сервер от деградации во время работы тяжёлого cron-скрипта?»</div>
 
     <h2 id="shtorm">5 · Каскадные отказы: <code>backoff + jitter</code> против шторма повторов <a class="yakor" href="#shtorm">#</a></h2>
@@ -168,15 +179,23 @@ nice -n 19 ionice -c3 \
 sleep $(( RANDOM % 30 ))
 
 # экспоненциальная пауза + разброс (jitter)
-for attempt in 1 2 3 4 5; do
-  curl -sf --max-time 5 "$url" &amp;&amp; break
-  delay=$(( (1 &lt;&lt; attempt) + RANDOM % 5 ))
-  sleep "$delay"
-done</code></pre>
+retry() {
+  local n
+  for n in 1 2 3 4 5; do
+    curl -sf --max-time 5 "$url" &amp;&amp; return 0
+    (( n == 5 )) &amp;&amp; break
+    sleep $(( (1 &lt;&lt; n) + RANDOM % 5 ))
+  done
+  echo "сервис недоступен" &gt;&amp;2
+  return 1
+}
+retry || exit 1</code></pre>
     <p>Два правила для парков машин: <strong>расписание никогда не бьёт в секунду <code>00</code>
     одновременно</strong> (используют <code>RandomizedDelaySec</code> в systemd-таймерах или
     начальный сдвиг по <code>RANDOM</code>), а пауза между повторами растёт экспоненциально со
-    случайной добавкой (<code>jitter</code>), чтобы рассинхронизировать волну запросов после сбоя.</p>
+    случайной добавкой (<code>jitter</code>), чтобы рассинхронизировать волну запросов после сбоя. <strong>И цикл обязан закончиться
+    честным отказом:</strong> без явного <code>return 1</code> после последней попытки он вернёт
+    код последней команды цикла, и полная недоступность сервиса будет выглядеть как успех.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Почему наивный цикл повторов в скрипте на парке серверов превращает кратковременный сбой в долгую аварию?»</div>
 
     <h2 id="metriki">6 · Наблюдаемость скрипта и ловушка «самоисцеления» <a class="yakor" href="#metriki">#</a></h2>
@@ -210,7 +229,7 @@ mv "$prom.$$" "$prom"   # атомарно</code></pre>
       <li><strong>Маршрут первой минуты:</strong> диск и иноды, память, порты, юнит, журнал, тяжёлые процессы.</li>
       <li><strong>Три ядерные ловушки:</strong> <code>lsof +L1</code> и <code>df -i</code> при расхождении с <code>du</code>, OOM в <code>dmesg</code>, зомби в статусе <code>Z</code>.</li>
       <li><strong>Разбор логов без вреда:</strong> <code>grep -h</code>, <code>--line-buffered</code>, <code>zgrep</code> без распаковки на диск.</li>
-      <li><strong>Изоляция нагрузки:</strong> <code>flock -n</code> от наложения запусков и <code>nice</code> / <code>ionice -c3</code> для сохранения диска.</li>
+      <li><strong>Изоляция нагрузки:</strong> <code>flock -n</code> от наложения запусков и <code>nice</code> / <code>ionice -c3</code> для сохранения диска - и проверка, что планировщик это соблюдает.</li>
       <li><strong>Защита от шторма:</strong> случайный сдвиг старта и <code>exponential backoff + jitter</code>.</li>
       <li><strong>Метрики из скрипта:</strong> атомарная запись кода, длительности и времени в мониторинг через <code>mv</code>.</li>
     </ol>
