@@ -102,6 +102,21 @@
         li.appendChild(a);
         tocList.appendChild(li);
       });
+      // РАЗДЕЛЫ СТОЯТ ВНУТРИ ПУНКТА СВОЕЙ СТРАНИЦЫ. Отдельным блоком под всеми
+      // пятнадцатью разделами они оказывались за кромкой панели: на окне 900px
+      // первая ссылка лежала на 28px ниже видимой части, и навигатор, которым
+      // пользуются постоянно, приходилось искать прокруткой. Словарь помечен
+      // текущим вне списка, поэтому берётся ближайший li, а если его нет - сам
+      // родитель ссылки.
+      // У лендинга своего пункта в меню нет: он не входит в пятнадцать разделов.
+      // Тогда разделы встают над списком - это страница, которую читают сейчас,
+      // и её содержание важнее карты сайта, до которой ещё дойдут.
+      const here = document.querySelector('nav.contents [aria-current="page"]');
+      const host = here && (here.closest('li') || here.parentElement);
+      const panel = document.querySelector('nav.contents');
+      if (host) host.appendChild(tocContainer);
+      else if (panel) panel.insertBefore(tocContainer, panel.firstElementChild);
+
       tocContainer.hidden = false;
 
       // Computed from position, not from IntersectionObserver: the last section

@@ -301,6 +301,26 @@ for (const file of files) {
       if (!nav) return null;
       const links = [...document.querySelectorAll('#tocList a')];
 
+      // Разделы страницы живут внутри её пункта меню, а не отдельным блоком под
+      // всем списком: иначе навигатор оказывается за кромкой панели.
+      const toc = document.getElementById('pageToc');
+      const here = nav.querySelector('[aria-current="page"]');
+      const host = here && (here.closest('li') || here.parentElement);
+      // Два случая, и они требуют разного. У страницы со своим пунктом меню
+      // разделы лежат внутри этого пункта. У лендинга своего пункта нет - его
+      // разделы стоят первыми в панели, над картой сайта. Заглушке вкладывать
+      // нечего: разделов на ней нет, и движок блок не трогает.
+      const placed = host
+        ? !!(toc && host.contains(toc))
+        : !!(toc && nav.firstElementChild === toc);
+      const nested = links.length === 0 || placed;
+      const ownItem = !!host;
+      const firstTop = links.length
+        ? links[0].getBoundingClientRect().top - nav.getBoundingClientRect().top
+        : 0;
+      const firstVisible = links.length ? firstTop < nav.clientHeight : true;
+      const navScrollBefore = nav.scrollTop;
+
       // 1. Top of the sidebar at the bottom of the page: neither above the
       //    window nor under the pinned header.
       const bottom = () => Math.round(document.scrollingElement.scrollTop + window.innerHeight)
@@ -335,7 +355,12 @@ for (const file of files) {
       const below = Math.round(nav.getBoundingClientRect().bottom - window.innerHeight);
       const clean = langs.every((a) => !a.getAttribute('href').includes('#'));
 
-      return { hidden, spyOk, below: Math.max(0, below), carried, clean };
+      // Панель не ездит сама: активный пункт читатель подводит рукой.
+      const navScrollKept = nav.scrollTop === navScrollBefore;
+
+      return { hidden, spyOk, below: Math.max(0, below), carried, clean,
+               nested, ownItem, firstVisible, firstTop: Math.round(firstTop),
+               navVisible: nav.clientHeight, navScrollKept };
     }, STICKY_TOP);
 
     if (!seen) continue;
@@ -345,6 +370,15 @@ for (const file of files) {
     if (!seen.carried) bad.push([file, 'переключатель языков не уносит текущий раздел' + where]);
     if (!seen.clean) bad.push([file, 'в начале страницы в ссылках языков остался якорь' + where]);
     if (seen.below > 1) bad.push([file, 'панель не помещается в окно: её низ ниже края на ' + seen.below + 'px' + where]);
+    if (!seen.nested) {
+      bad.push([file, seen.ownItem
+        ? 'разделы страницы стоят не внутри её пункта меню' + where
+        : 'у страницы нет своего пункта меню, и её разделы не подняты над картой сайта' + where]);
+    }
+    if (!seen.firstVisible) {
+      bad.push([file, 'первый раздел не виден без прокрутки панели: он на ' + seen.firstTop + 'px при видимой части панели ' + seen.navVisible + 'px' + where]);
+    }
+    if (!seen.navScrollKept) bad.push([file, 'панель прокрутилась сама при прокрутке страницы' + where]);
   }
 }
 

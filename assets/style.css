@@ -784,23 +784,26 @@ nav.contents .nav-extra a[aria-current="page"] {
 }
 
 /* --- in-page table of contents --- */
+/* Разделы текущей страницы стоят внутри её пункта меню. Вложенность показана
+   отступом и линией, а не заголовком: заголовок занимал строку в самой дорогой
+   части панели - в той, что видна без прокрутки. */
 .page-toc {
-  margin-top: 0;
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
+  margin: 3px 0 10px 14px;
+  padding-left: 10px;
+  border-left: 1px solid var(--line);
+}
+/* Лендинг не входит в пятнадцать разделов, вкладывать его разделы не во что:
+   они встают над картой сайта и отделяются от неё чертой, а не отступом. */
+nav.contents > .page-toc {
+  margin: 0 0 14px;
+  padding: 0 0 12px;
+  border-left: none;
+  border-bottom: 1px solid var(--line);
 }
 @media (max-width: 56rem) {
   .page-toc {
     display: none;
   }
-}
-.toc-title {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--dim);
-  font-weight: 700;
-  margin-bottom: 8px;
 }
 .toc-list {
   list-style: none;
