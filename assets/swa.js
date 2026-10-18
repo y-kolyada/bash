@@ -312,6 +312,47 @@
     document.head.appendChild(tag);
   }
 
+  // Phone: the menu used to hold the whole first screen - the page title began
+  // at 901px on an 844px tall screen. It folds into one line that names the
+  // current page and opens on a tap. On a wide screen the line does not exist:
+  // the panel is sticky there and has room. The label comes from the nav's own
+  // aria-label, so every language already has it.
+  const panel = document.querySelector('nav.contents');
+  if (panel && panel.querySelector('a')) {
+    const fold = document.createElement('button');
+    fold.type = 'button';
+    fold.className = 'nav-fold';
+    fold.setAttribute('aria-expanded', 'false');
+
+    const here = panel.querySelector('[aria-current="page"]');
+    const num = here && here.querySelector('.num');
+    const title = here
+      ? here.textContent.replace(num ? num.textContent : '', '').trim()
+      : '';
+    const say = document.createElement('span');
+    say.className = 'nav-fold-say';
+    say.textContent = (panel.getAttribute('aria-label') || '') + (title ? ' · ' + title : '');
+
+    fold.appendChild(say);
+    fold.insertAdjacentHTML('beforeend',
+      arrow('fold', '<path d="M5 7.5l5 5 5-5"/>'));
+    panel.insertBefore(fold, panel.firstChild);
+    panel.classList.add('nav-folded');
+
+    function setFolded(folded) {
+      panel.classList.toggle('nav-folded', folded);
+      fold.setAttribute('aria-expanded', String(!folded));
+    }
+
+    fold.addEventListener('click', () => setFolded(!panel.classList.contains('nav-folded')));
+
+    // Касание ссылки оставляет читателя с текстом, а не с меню: и переход на
+    // другую страницу, и прыжок по якорю внутри этой.
+    panel.addEventListener('click', (event) => {
+      if (event.target.closest('a')) setFolded(true);
+    });
+  }
+
   // 6. Floating scroll buttons: to the top and to the bottom. Paging by screen
   //    is left to the finger and the wheel. Built here, not in the markup, so
   //    no page has to be edited to gain them.

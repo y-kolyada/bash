@@ -800,10 +800,36 @@ nav.contents > .page-toc {
   border-left: none;
   border-bottom: 1px solid var(--line);
 }
+/* --- телефон: меню свёрнуто в строку --- */
+/* На широком экране строки нет вовсе: панель липкая, места хватает. */
+.nav-fold { display: none; }
+
 @media (max-width: 56rem) {
-  .page-toc {
-    display: none;
+  .nav-fold {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--code);
+    color: var(--fg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
   }
+  .nav-fold-say { overflow-wrap: anywhere; }
+  .nav-fold .icon { flex: none; transition: transform .15s ease; }
+  nav.contents:not(.nav-folded) .nav-fold .icon { transform: rotate(180deg); }
+  nav.contents.nav-folded > *:not(.nav-fold) { display: none; }
+  nav.contents.nav-folded { margin-bottom: 18px; }
+  /* Разделы страницы на телефоне живут внутри развёрнутого меню: отдельного
+     блока и заголовка там нет - это одно и то же место. */
+  nav.contents:not(.nav-folded) .page-toc { display: block; }
+  .nav-fold + ol { margin-top: 12px; }
 }
 .toc-list {
   list-style: none;
