@@ -143,15 +143,19 @@ for (const file of files) {
       const panel = document.querySelector('.search-panel');
       const input = document.querySelector('.search-input');
       if (!panel || !input) return ['панель поиска не открылась'];
-      const empty = (window.SEARCH && window.SEARCH.i.length === 0);
+      // While a language is being translated its index holds the finished pages
+      // only. The full path is checked where this page is in the index; where it
+      // is not, the panel is still expected to open, answer and close.
+      const indexed = !!(window.SEARCH && window.SEARCH.i
+        .some((entry) => String(entry[0]).startsWith('02.html#')));
       input.value = 'pipefail';
       input.dispatchEvent(new Event('input'));
       await sleep(120);
       const links = [...document.querySelectorAll('.search-results a')];
       const note = document.querySelector('.search-empty');
-      if (empty && !note) return ['пустой индекс языка не объяснён читателю'];
-      if (!empty && !links.length) return ['поиск по слову pipefail не нашёл ничего'];
-      if (!empty) {
+      if (!indexed && !links.length && !note) return ['пустой ответ поиска не объяснён читателю'];
+      if (indexed && !links.length) return ['поиск по слову pipefail не нашёл ничего'];
+      if (indexed) {
         if (!links[0].getAttribute('href').includes('#')) return ['результат ведёт на страницу без якоря'];
         const samePage = links.find((a) => (a.getAttribute('href') || '').startsWith('02.html#'));
         if (!samePage) return ['среди результатов нет раздела текущей страницы 02.html'];
