@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Примеры Bash · уровень Pro · devops-bash · ai|</title>
+<title>Примеры Bash · уровень Noob · devops-bash · ai|</title>
 <link rel="stylesheet" href="style.css?v=1">
 <script>
   (function() {
@@ -55,12 +55,13 @@
       <li><a href="06.html"><span class="num">6</span>Практики в контексте AI</a></li>
       <li><a href="07.html"><span class="num">7</span>Практики в Clouds</a></li>
       <li><a href="08.html"><span class="num">8</span>Практики DevOps</a></li>
-      <li><a href="09.html"><span class="num">9</span>Примеры · Noob</a></li>
-      <li><a href="10.html" aria-current="page"><span class="num">10</span>Примеры · Pro</a></li>
-      <li><a href="11.html"><span class="num">11</span>Примеры · IGL</a></li>
-      <li><a href="12.html"><span class="num">12</span>Вопросы · Noob</a></li>
-      <li><a href="13.html"><span class="num">13</span>Вопросы · Pro</a></li>
-      <li><a href="14.html"><span class="num">14</span>Вопросы · IGL</a></li>
+      <li><a href="09.html"><span class="num">9</span>Практики SRE</a></li>
+      <li><a href="10.html" aria-current="page"><span class="num">10</span>Примеры · Noob</a></li>
+      <li><a href="11.html"><span class="num">11</span>Примеры · Pro</a></li>
+      <li><a href="12.html"><span class="num">12</span>Примеры · IGL</a></li>
+      <li><a href="13.html"><span class="num">13</span>Вопросы · Noob</a></li>
+      <li><a href="14.html"><span class="num">14</span>Вопросы · Pro</a></li>
+      <li><a href="15.html"><span class="num">15</span>Вопросы · IGL</a></li>
     </ol>
     <div class="nav-extra">
       <a href="glossary.html">📖 Словарь понятий</a>
@@ -72,115 +73,89 @@
   </nav>
 
   <main>
-    <h1>Примеры · Pro</h1>
-    <p class="lead">Семь приёмов для уровня «мои скрипты работают на чужих машинах». Задача уровня - убрать молчаливые отказы: всё, что может пойти не так, должно сказать об этом вслух.</p>
+    <h1>Примеры · Noob</h1>
+    <p class="lead">Шесть разборов для уровня «запускаю и иногда правлю». Задача уровня - убрать магию: каждая строка здесь объяснена до причины, а не до рецепта.</p>
 
     <div class="box key" id="glavnaya-mysl">
       <h2>Главная мысль страницы <a class="yakor" href="#glavnaya-mysl" aria-label="ссылка на этот блок">#</a></h2>
-      <p>Разница между уровнями Noob и Pro не в знании команд, а в отношении к отказу. Новичок пишет сценарий удачного исхода; профессионал исходит из того, что команда упадёт, сеть моргнёт, скрипт запустят дважды и прервут на середине. Семь приёмов ниже закрывают именно это: громкое падение с номером строки, гарантированная уборка, режим проверки без последствий, повтор с пределом, параллельность со сбором отказов, защита от повторного запуска и журнал, не мешающий результату. Ни один из них не сложен. Сложно другое - вспомнить про них до инцидента, а не после.</p>
+      <p>На этом уровне важно не количество выученных команд, а понимание, почему скрипт ведёт себя именно так. Шесть разборов ниже закрывают те места, где новичок спотыкается чаще всего: запуск файла и права, кавычки вокруг переменных, проверка перед действием, цикл по файлам, аргументы и код возврата, чтение файла построчно. В каждом разборе сначала задача, потом код, потом объяснение - и объяснение здесь главное. Выучить эти шесть вещей можно за вечер; понять их - значит перестать бояться чужих скриптов.</p>
     </div>
 
-    <h2 id="trap-err">1 · Падать громко: <code>trap ERR</code> с номером строки <a class="yakor" href="#trap-err">#</a></h2>
-    <p><strong>Задача:</strong> сделать так, чтобы отказ скрипта сам сообщал, где он произошёл.</p>
+    <h2 id="pervyy">1 · Первый скрипт: файл, права, запуск <a class="yakor" href="#pervyy">#</a></h2>
+    <p><strong>Задача:</strong> превратить две команды в программу, которую можно запускать.</p>
 <pre><code>#!/usr/bin/env bash
-set -Eeuo pipefail
+echo "сегодня: $(date +%F)"
+df -h / | tail -1</code></pre><pre><code>chmod +x hello.sh   # один раз
+./hello.sh          # запуск
+bash hello.sh       # без прав</code></pre>    <div class="prints"><strong>Почему так:</strong> Файл со скриптом - обычный текст; исполняемым его делает бит прав, а не расширение. <code>./</code> перед именем обязательно: без него оболочка ищет программу в <code>PATH</code>, а текущего каталога там нет - отсюда «command not found» на файл, который лежит рядом. <code>bash hello.sh</code> работает и без прав, потому что исполняется <code>bash</code>, а скрипт - его аргумент.</div>
 
-on_err() {
-  local rc=$?
-  echo "ОТКАЗ: строка $1, код $rc" &gt;&amp;2
-  exit "$rc"
-}
-trap 'on_err $LINENO' ERR</code></pre>    <div class="prints"><strong>Почему так:</strong> У Bash нет стека вызовов при падении, и строка отказа - единственное, что заменяет трассировку. <strong>Ключ <code>-E</code> обязателен:</strong> без него ловушка <code>ERR</code> не наследуется функциями и подоболочками, и отказ внутри функции пройдёт мимо обработчика. <code>local rc=$?</code> берётся первой строкой - любая следующая команда затрёт код возврата.</div>
+    <h2 id="kavychki">2 · Переменные и кавычки <a class="yakor" href="#kavychki">#</a></h2>
+    <p><strong>Задача:</strong> вывести имя файла, в котором есть пробел.</p>
+<pre><code>file="мой отчёт.txt"
 
-    <h2 id="mktemp">2 · Временный каталог, который гарантированно уберётся <a class="yakor" href="#mktemp">#</a></h2>
-    <p><strong>Задача:</strong> работать с промежуточными файлами и не оставить мусора ни при
-    ошибке, ни при <code>Ctrl+C</code>.</p>
-<pre><code>tmp=$(mktemp -d "${TMPDIR:-/tmp}/app.XXXXXX")
-cleanup() { rm -rf "$tmp"; }
-trap cleanup EXIT INT TERM
+echo $file     # мой отчёт.txt - повезло
+ls $file       # ОШИБКА: два файла
+ls "$file"     # правильно
 
-work &gt; "$tmp/out"
-mv "$tmp/out" result.txt</code></pre>    <div class="prints"><strong>Почему так:</strong> Ловушка на <code>EXIT</code> срабатывает при любом завершении, включая отказ под <code>set -e</code>, - кроме <code>SIGKILL</code>: его ядро не даёт перехватить. <code>INT</code> и <code>TERM</code> добавляют реакцию на прерывание и остановку. <strong>Имя придумывает <code>mktemp</code>, а не вы:</strong> предсказуемое имя в общем <code>/tmp</code> - это и гонка при параллельных запусках, и возможность подмены. Готовый результат переносится в целевое место одной командой - чтобы не было полуготового файла.</div>
+rm -f $file    # удалит "мой" и "отчёт.txt"</code></pre>    <div class="prints"><strong>Почему так:</strong> Bash подставляет значение переменной, а потом <strong>режет его по пробелам</strong>. <code>echo</code> этого не показывает, потому что печатает все аргументы через пробел - и создаёт ложное ощущение, что всё хорошо. Кавычки отменяют разрезание. Правило простое: <strong>подстановка без кавычек - осознанное решение, а не умолчание.</strong></div>
 
-    <h2 id="getopts">3 · Опции и обязательный <code>--dry-run</code> <a class="yakor" href="#getopts">#</a></h2>
-    <p><strong>Задача:</strong> дать скрипту ключи и режим «показать, но не делать».</p>
-<pre><code>dry=0; verbose=0
-while getopts ":nvh" opt; do
-  case $opt in
-    n) dry=1 ;;
-    v) verbose=1 ;;
-    h) usage; exit 0 ;;
-    \?) echo "неизвестный ключ" &gt;&amp;2; exit 2 ;;
-  esac
+    <h2 id="usloviya">3 · Условия: проверить, прежде чем делать <a class="yakor" href="#usloviya">#</a></h2>
+    <p><strong>Задача:</strong> скопировать файл, если он существует, иначе понятно сказать об этом.</p>
+<pre><code>src="data.csv"
+
+if [ -f "$src" ]; then
+  cp "$src" backup/
+else
+  echo "нет файла: $src" &gt;&amp;2
+  exit 1
+fi</code></pre>    <div class="prints"><strong>Почему так:</strong> <code>[ -f ]</code> проверяет, что это существующий обычный файл; <code>-d</code> - каталог, <code>-r</code> - доступен на чтение, <code>-z</code> - строка пуста. Сообщение об ошибке уходит в <code>&gt;&amp;2</code> - в поток ошибок, а не в результат. <strong>И выход ненулевым кодом обязателен:</strong> без него тот, кто вызвал ваш скрипт, будет считать, что всё прошло успешно.</div>
+
+    <h2 id="cikl">4 · Цикл по файлам (и почему не через <code>ls</code>) <a class="yakor" href="#cikl">#</a></h2>
+    <p><strong>Задача:</strong> обработать все <code>.log</code> в каталоге.</p>
+<pre><code># правильно
+for f in *.log; do
+  [ -e "$f" ] || continue   # ни одного
+  echo "обрабатываю: $f"
 done
-shift $((OPTIND - 1))
 
-run() { (( dry )) &amp;&amp; { echo "DRY: $*"; return 0; }; "$@"; }
-run rm -rf "$target"</code></pre>    <div class="prints"><strong>Почему так:</strong> Двоеточие в начале строки ключей переводит <code>getopts</code> в тихий режим - ошибки обрабатываете вы, а не он. <code>shift $((OPTIND - 1))</code> убирает разобранные ключи, после чего <code>$1</code> - первый позиционный аргумент. <strong>Обёртка <code>run</code> делает режим проверки структурным, а не добавленным потом:</strong> любая опасная команда проходит через неё, и забыть про <code>--dry-run</code> становится труднее, чем помнить. <strong>Одна оговорка, без которой обёртка опасна:</strong> перенаправления оболочка выполняет <em>до</em> входа в функцию. <code>run echo x &gt; file</code> затрёт <code>file</code> и в режиме проверки, потому что <code>&gt;</code> уже сработал. Всё, что пишет в файл, уводят внутрь вызова: <code>run sh -c 'echo x &gt; file'</code> или отдельная функция записи, которая сама проверяет режим.</div>
+# неправильно, хотя встречается часто
+for f in $(ls *.log); do …</code></pre>    <div class="prints"><strong>Почему так:</strong> Шаблон <code>*.log</code> раскрывает сама оболочка, сохраняя имена целиком - даже с пробелами. <code>$(ls)</code> отдаёт один текст, который снова режется по пробелам, и имя «old file.log» превращается в два несуществующих файла. Проверка <code>[ -e "$f" ]</code> нужна, потому что <strong>если ни один файл не подошёл, шаблон остаётся сам собой</strong> и цикл выполнится один раз со строкой <code>*.log</code>.</div>
 
-    <h2 id="retry">4 · Повтор с нарастающей задержкой <a class="yakor" href="#retry">#</a></h2>
-    <p><strong>Задача:</strong> пережить временный отказ сети, не превратив скрипт в вечный цикл.</p>
-<pre><code>retry() {
-  local n=0 max=5 delay=1
-  until "$@"; do
-    n=$((n + 1))
-    (( n &gt;= max )) &amp;&amp; return 1
-    sleep "$delay"
-    delay=$((delay * 2))
-  done
-}
+    <h2 id="argumenty">5 · Аргументы и код возврата <a class="yakor" href="#argumenty">#</a></h2>
+    <p><strong>Задача:</strong> принять имя от пользователя и сообщить, удалось ли.</p>
+<pre><code>#!/usr/bin/env bash
+name="$1"
 
-retry curl -fsS --max-time 10 "$url"</code></pre>    <div class="prints"><strong>Почему так:</strong> Три условия отделяют повтор от зацикливания: <strong>предел попыток, растущая задержка и таймаут у самой команды.</strong> Без <code>--max-time</code> повтор не поможет - первая же попытка повиснет навсегда. Ключ <code>-f</code> у <code>curl</code> обязателен: без него HTTP-ответ 500 считается успехом, и повторять будет нечего.</div>
+if [ -z "$name" ]; then
+  echo "usage: $0 &lt;имя&gt;" &gt;&amp;2
+  exit 2
+fi
 
-    <h2 id="parallel">5 · Параллельная обработка с ограничением и сбором отказов <a class="yakor" href="#parallel">#</a></h2>
-    <p><strong>Задача:</strong> обработать сотню файлов в четыре потока и узнать, упал ли
-    хоть один.</p>
-<pre><code>export -f process          # видимость в xargs
+grep -q "$name" users.txt
+echo "код возврата: $?"</code></pre>    <div class="prints"><strong>Почему так:</strong> <code>$1</code> - первый аргумент, <code>$#</code> - их количество, <code>$0</code> - имя самого скрипта. <code>$?</code> хранит код возврата <strong>последней выполненной команды</strong>, и это единственный способ узнать у команды, получилось ли: <code>grep</code> возвращает 0, когда нашёл, и 1, когда нет. Ноль - успех, любое другое число - нет; код 2 обычно означает «неправильный вызов».</div>
 
-printf '%s\0' logs/*.log \
-  | xargs -0 -P4 -I{} bash -c 'process "$@"' _ {} \
-  || echo "часть задач упала" &gt;&amp;2
-
-# своими руками - с учётом кодов:
-pids=(); for f in …; do work "$f" &amp; pids+=($!); done
-rc=0; for p in "${pids[@]}"; do wait "$p" || rc=1; done</code></pre>    <div class="prints"><strong>Почему так:</strong> Разделитель <code>\0</code> и ключ <code>-0</code> делают конвейер устойчивым к пробелам и переводам строк в именах. <strong><code>xargs</code> возвращает ненулевой код, если упала хотя бы одна задача</strong> - это и есть сбор отказов, которого нет у простого <code>&amp;</code> плюс <code>wait</code>. Если коды нужны поимённо, сохраняйте <code>$!</code> и ждите каждый процесс отдельно.</div>
-
-    <h2 id="flock">6 · Один экземпляр: защита от повторного запуска <a class="yakor" href="#flock">#</a></h2>
-    <p><strong>Задача:</strong> не дать скрипту из cron запуститься второй раз, если предыдущий
-    ещё работает.</p>
-<pre><code>exec 9&gt;/var/lock/app.lock
-flock -n 9 || { echo "уже работает" &gt;&amp;2; exit 0; }
-
-# дальше - обычная работа</code></pre>    <div class="prints"><strong>Почему так:</strong> Блокировка живёт на открытом дескрипторе, а не на файле: <strong>она снимается сама, когда процесс завершается</strong> - в том числе при аварийном завершении. Самодельный «файл-флаг» этим свойством не обладает: после падения он остаётся на диске и блокирует запуски навсегда. Ключ <code>-n</code> означает «не ждать»; выход с кодом 0 здесь осознанный - для cron это не ошибка, а нормальная ситуация.</div>
-
-    <h2 id="log-urovni">7 · Логирование с уровнями <a class="yakor" href="#log-urovni">#</a></h2>
-    <p><strong>Задача:</strong> дать скрипту голос, который не мешает его результату.</p>
-<pre><code>LOG_LEVEL="${LOG_LEVEL:-info}"
-_log() {
-  local lvl=$1; shift
-  printf '%s [%s] %s\n' \
-    "$(date -Is)" "$lvl" "$*" &gt;&amp;2
-}
-info() { [ "$LOG_LEVEL" = debug ] || [ "$LOG_LEVEL" = info ] &amp;&amp; _log INFO "$@"; }
-die()  { _log ERROR "$@"; exit 1; }</code></pre>    <div class="prints"><strong>Почему так:</strong> Весь журнал идёт в <strong>stderr</strong>, потому что stdout - это результат, который может читать следующая команда в конвейере. Время в формате <code>-Is</code> (ISO 8601) сортируется как текст и однозначно разбирается машиной. <strong>Уровень берётся из переменной окружения</strong>: так включить подробность можно, не меняя скрипт, - это важно, когда он уже в продакшне.</div>
+    <h2 id="chtenie">6 · Чтение файла построчно <a class="yakor" href="#chtenie">#</a></h2>
+    <p><strong>Задача:</strong> пройти по строкам файла и что-то с ними сделать.</p>
+<pre><code>while IFS= read -r line; do
+  echo "строка: $line"
+done &lt; names.txt</code></pre>    <div class="prints"><strong>Почему так:</strong> Три детали, каждая из которых нужна. <code>IFS=</code> перед <code>read</code> сохраняет пробелы в начале и конце строки. <strong><code>-r</code> запрещает трактовать обратную косую черту как экранирование</strong> - без него <code>C:\new</code> превратится в строку с переводом строки. И перенаправление <code>&lt; файл</code> стоит после <code>done</code>, а не перед <code>while</code>.</div>
 
     <h2 id="artefakty">Артефакты: что у вас есть после этой страницы <a class="yakor" href="#artefakty">#</a></h2>
     <div class="box key">
       <p class="artifacts-slogan">Чтение &gt;&gt; Ваш квант времени жизни · Партнёрство достоинства вместе с AI · Перестройка вашей нейросети</p>
-      <p><strong>Семь готовых блоков и понимание, от чего защищает каждый.</strong> Время потрачено не зря, если при написании следующего скрипта вы ловите себя на вопросе «а что здесь произойдёт при отказе на середине» - и знаете, чем на него ответить. Это и есть перестройка нейросети: сценарий отказа перестаёт быть неприятной мыслью и становится частью проектирования.</p>
+      <p><strong>Шесть объяснённых мест вместо шести заученных команд.</strong> Время потрачено не зря, если вы теперь знаете, почему <code>./</code> обязательно, почему кавычки не украшение и почему <code>$(ls)</code> в цикле - ошибка. Это и есть перестройка нейросети: чужой скрипт перестаёт быть заклинанием и становится текстом, который можно прочитать.</p>
     </div>
     <ol>
-      <li><strong><code>set -Eeuo pipefail</code> и <code>trap ERR $LINENO</code></strong> - отказ называет своё место.</li>
-      <li><strong><code>mktemp -d</code> плюс <code>trap EXIT INT TERM</code></strong> - уборка при любом исходе, кроме <code>kill -9</code>.</li>
-      <li><strong><code>getopts</code> и обёртка <code>run</code></strong> - режим проверки как структура, и перенаправления внутри вызова, а не снаружи.</li>
-      <li><strong>Повтор с пределом и таймаутом</strong>, и почему <code>curl -f</code> обязателен.</li>
-      <li><strong><code>xargs -0 -P</code></strong> - параллельность с устойчивыми именами и честным кодом.</li>
-      <li><strong><code>flock</code> на дескрипторе</strong>, а не файл-флаг.</li>
-      <li><strong>Журнал в stderr с уровнем из окружения.</strong></li>
+      <li><strong>Права и <code>./</code></strong> - почему файл рядом «не найден».</li>
+      <li><strong>Кавычки</strong> как защита от разрезания по пробелам.</li>
+      <li><strong>Проверка перед действием</strong> и выход ненулевым кодом.</li>
+      <li><strong>Цикл по шаблону</strong>, а не по выводу <code>ls</code>.</li>
+      <li><strong><code>$1</code>, <code>$#</code>, <code>$?</code></strong> - аргументы и код возврата.</li>
+      <li><strong><code>while IFS= read -r</code></strong> и зачем нужна каждая часть.</li>
     </ol>
 
     <footer>
-      Следующая страница - уровень IGL: решения о том, нужен ли скрипт вообще. Что отложено - в <a href="potom.md">potom.md</a>.
+      Следующая страница - те же задачи на уровне Pro: строгий режим, уборка, повторы и параллельность. Что отложено - в <a href="potom.md">potom.md</a>.
     </footer>
   </main>
 

@@ -55,12 +55,13 @@
       <li><a href="06.html"><span class="num">6</span>Практики в контексте AI</a></li>
       <li><a href="07.html"><span class="num">7</span>Практики в Clouds</a></li>
       <li><a href="08.html"><span class="num">8</span>Практики DevOps</a></li>
-      <li><a href="09.html"><span class="num">9</span>Примеры · Noob</a></li>
-      <li><a href="10.html"><span class="num">10</span>Примеры · Pro</a></li>
-      <li><a href="11.html"><span class="num">11</span>Примеры · IGL</a></li>
-      <li><a href="12.html"><span class="num">12</span>Вопросы · Noob</a></li>
-      <li><a href="13.html"><span class="num">13</span>Вопросы · Pro</a></li>
-      <li><a href="14.html"><span class="num">14</span>Вопросы · IGL</a></li>
+      <li><a href="09.html"><span class="num">9</span>Практики SRE</a></li>
+      <li><a href="10.html"><span class="num">10</span>Примеры · Noob</a></li>
+      <li><a href="11.html"><span class="num">11</span>Примеры · Pro</a></li>
+      <li><a href="12.html"><span class="num">12</span>Примеры · IGL</a></li>
+      <li><a href="13.html"><span class="num">13</span>Вопросы · Noob</a></li>
+      <li><a href="14.html"><span class="num">14</span>Вопросы · Pro</a></li>
+      <li><a href="15.html"><span class="num">15</span>Вопросы · IGL</a></li>
     </ol>
     <div class="nav-extra">
       <a href="glossary.html">📖 Словарь понятий</a>
@@ -92,7 +93,7 @@
     <h2 id="seven-goals">Что на этом сайте есть <a class="yakor" href="#seven-goals">#</a></h2>
     <p>Семь целей - общая рамка всей серии AI Factory: ключевые компоненты, практики в контексте AI,
     взаимосвязи, слабости, примеры по уровням зрелости, банк из 150 вопросов и предельная
-    лаконичность изложения. На треке Bash они разложены в четырнадцать разделов. Все четырнадцать написаны на русском; перевод на остальные языки готовится.</p>
+    лаконичность изложения. На треке Bash они разложены в пятнадцать разделов. Все пятнадцать написаны на русском; перевод на остальные языки готовится.</p>
 
     <h3>Чем Bash устроен</h3>
     <ol>
@@ -122,29 +123,32 @@
       cron, Make и Python: где Bash - клей, а где его зона заканчивается.</li>
     </ol>
 
-    <h3>Практики: три разные территории</h3>
+    <h3>Практики: четыре разные территории</h3>
     <ol start="6">
       <li><strong><a href="06.html">Практики в контексте AI</a></strong><br>
       Работа с ИИ-агентами: как ставить задание на скрипт, как проверять результат, почему
       <code>shellcheck</code> в петле агента стоит дороже любого промпта, где модель регулярно
       ошибается - кавычки, словоделение, коды возврата.</li>
       <li><strong><a href="07.html">Практики в Clouds</a></strong><br>
-      Провижининг и эксплуатация облачных ресурсов: создание и утилизация инстансов, работа с
-      CLI облака, разбор логов, контроль состояния процессов и поиск неисправностей на живой
-      машине.</li>
+      Провижининг и работа с API облака: CLI как программа, явное ожидание готовности, доступы без
+      ключей, пакетные вызовы и троттлинг, защита от чужого аккаунта и уборка по тегам.</li>
       <li><strong><a href="08.html">Практики DevOps</a></strong><br>
       Конвейеры поставки: Bash на машине разработчика, в сборке и деплое, в CI/CD и в продвижении
-      по средам Dev → QA → Prod. Границы с соседними разделами: AI - про агентов, Clouds - про
-      ресурсы, DevOps - про поставку.</li>
+      по средам Dev → QA → Prod.</li>
+      <li><strong><a href="09.html">Практики SRE</a></strong><br>
+      Инцидент и выживаемость на живой машине: маршрут первой минуты, почему <code>df</code> спорит с
+      <code>du</code>, зомби и OOM, разбор логов, защита узла через <code>flock</code> и
+      <code>ionice</code>, <code>backoff + jitter</code> и метрики скрипта. Границы четыре: AI - про
+      агентов, Clouds - про ресурсы, DevOps - про поставку, SRE - про инцидент и нагрузку.</li>
     </ol>
 
     <h3>Уровни зрелости</h3>
-    <ol start="9">
-      <li><strong>Примеры:</strong> <a href="09.html">Noob</a> · <a href="10.html">Pro</a> · <a href="11.html">IGL</a><br>
+    <ol start="10">
+      <li><strong>Примеры:</strong> <a href="10.html">Noob</a> · <a href="11.html">Pro</a> · <a href="12.html">IGL</a><br>
       <strong>Noob</strong> - фундамент без магии. <strong>Pro</strong> - боевое:
       <code>set -euo pipefail</code>, <code>trap</code>, идемпотентность, логирование.
       <strong>IGL</strong> - архитектурное: где скрипт обязан уступить место инструменту.</li>
-      <li><strong>Вопросы:</strong> <a href="12.html">Noob</a> · <a href="13.html">Pro</a> · <a href="14.html">IGL</a><br>
+      <li><strong>Вопросы:</strong> <a href="13.html">Noob</a> · <a href="14.html">Pro</a> · <a href="15.html">IGL</a><br>
       Банк из 150 вопросов, по 50 на уровень. Формат короткий: вопрос - ответ одной-двумя
       фразами - почему это спрашивают.</li>
     </ol>
