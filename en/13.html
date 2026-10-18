@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>50 Bash questions · Noob level · devops-bash · ai|</title>
+<title>Bash questions · Noob level · devops-bash · ai|</title>
 <link rel="stylesheet" href="../assets/style.css?v=1">
 <script>
   (function() {
@@ -74,23 +74,105 @@
 
   <main>
     <h1>Questions · Noob</h1>
+    <p class="lead">Fifty foundational questions with concise answers. Each includes a note on why it gets asked: often more valuable than the answer itself.</p>
 
-    <div class="stub-card">
-      <h2>The English version is in preparation</h2>
-      <p>The full working version of this page is published in Russian (на русском языке).</p>
-      <p>Open the full version:</p>
-      <div class="stub-actions">
-        <a href="../ru/13.html" class="btn-primary">Questions · Noob in Russian (на русском языке) →</a>
-      </div>
+    <div class="box key" id="key-idea">
+      <h2>Key idea of this page <a class="yakor" href="#key-idea" aria-label="link to this section">#</a></h2>
+      <p>Questions at this level test operational mechanics rather than memory: why a local file fails to execute, why quotes are mandatory, and why <code>cd</code> inside a script does not change your terminal's directory. Answer concisely and directly - over-explaining simple mechanics signals uncertainty. The “why this gets asked” note reveals the underlying principle being tested and anticipates the likely follow-up question. If an answer seems unfamiliar, the corresponding walkthrough is available on the Noob examples page.</p>
     </div>
 
+    <h2 id="running-files">Execution, files, and paths (1–10) <a class="yakor" href="#running-files">#</a></h2>
+    <ol class="qa" start="1">
+      <li><strong>What does the first line <code>#!/usr/bin/env bash</code> do?</strong><br>It informs the kernel which interpreter to use when executing the file. The <code>env</code> form searches for Bash across <code>PATH</code>, rather than hardcoding <code>/bin/bash</code>.<br><span class="dim">Why this gets asked: tests whether you understand that a script is an ordinary file rather than a distinct file type.</span></li>
+      <li><strong>Why does <code>script.sh</code> fail to run, while <code>./script.sh</code> executes?</strong><br>Without <code>./</code>, the shell searches directories listed in <code>PATH</code>, which does not include the current directory.<br><span class="dim">Why this gets asked: the most common initial beginner error; verifies understanding of <code>PATH</code>.</span></li>
+      <li><strong>What is the purpose of <code>chmod +x</code>?</strong><br>It sets the execute permission bit. Without it, the file can only be run via <code>bash script.sh</code>.<br><span class="dim">Why this gets asked: distinguishes file existence from execution privileges.</span></li>
+      <li><strong>How does <code>./script.sh</code> differ from <code>bash script.sh</code>?</strong><br>In the first case, the interpreter is determined by the shebang and execute permissions are required; in the second, <code>bash</code> itself executes with the script as an argument.<br><span class="dim">Why this gets asked: verifies understanding of process spawning and interpretation.</span></li>
+      <li><strong>How does <code>.</code> (dot) differ from <code>./script.sh</code>?</strong><br><code>. script.sh</code> or <code>source</code> executes the file within the current shell environment, preserving its variables; <code>./script.sh</code> spawns a separate child process.<br><span class="dim">Why this gets asked: explains why <code>cd</code> inside a script does not change the caller's terminal directory.</span></li>
+      <li><strong>What is <code>PATH</code>?</strong><br>A colon-delimited list of directories where the shell searches for executable programs.<br><span class="dim">Why this gets asked: fundamental concept; required to troubleshoot “command not found”.</span></li>
+      <li><strong>How do you determine which program will execute for a given command name?</strong><br><code>type cmd</code> or <code>command -v cmd</code>: displays the path, alias, function, or shell builtin.<br><span class="dim">Why this gets asked: verifies whether you diagnose root causes rather than guess.</span></li>
+      <li><strong>How does a script locate its own containing directory?</strong><br><code>dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &amp;&amp; pwd)</code>. The current working directory is where the script was invoked from, not where it resides, and relative paths inside evaluate against the former.<br><span class="dim">Why this gets asked: the most frequent practical question when writing production-ready scripts.</span></li>
+      <li><strong>How does an absolute path differ from a relative path?</strong><br>An absolute path starts with <code>/</code> and is independent of working directory; a relative path resolves relative to the current working directory.<br><span class="dim">Why this gets asked: scripts almost always require absolute paths or explicit anchors.</span></li>
+      <li><strong>How do you view command documentation?</strong><br><code>man cmd</code> for system binaries, <code>help cmd</code> for Bash builtins, <code>cmd --help</code> for most standard utilities.<br><span class="dim">Why this gets asked: checks whether you know that shell builtins do not appear in <code>man</code>.</span></li>
+    </ol>
+
+    <h2 id="variables-quoting">Variables and quoting (11–20) <a class="yakor" href="#variables-quoting">#</a></h2>
+    <ol class="qa" start="11">
+      <li><strong>How do you declare a variable and what characters must not surround the assignment?</strong><br><code>name=value</code>, with no spaces around <code>=</code>. Adding a space causes the shell to interpret the variable name as a command name.<br><span class="dim">Why this gets asked: classic beginner syntax mistake, immediately apparent.</span></li>
+      <li><strong>Why must variables be enclosed in quotes like <code>"$var"</code>?</strong><br>Without quotes, the value undergoes word splitting on whitespace/newlines and pathname expansion. A path with spaces fragments into multiple arguments, and <code>*.log</code> expands into directory listings.<br><span class="dim">Why this gets asked: the leading cause of bugs and security vulnerabilities on production data.</span></li>
+      <li><strong>How do double quotes differ from single quotes?</strong><br>Double quotes allow parameter and command expansions; single quotes preserve text literally.<br><span class="dim">Why this gets asked: tests understanding of when expansions occur.</span></li>
+      <li><strong>What does <code>${var:-default}</code> evaluate to?</strong><br>Default value expansion: if the variable is unset or null, it evaluates to <code>default</code>.<br><span class="dim">Why this gets asked: the most common idiomatic pattern to prevent crashes on empty variables.</span></li>
+      <li><strong>How does <code>$var</code> differ from <code>${var}</code>?</strong><br>Braces disambiguate variable names from adjacent characters (<code>${var}_x</code>), and are mandatory for positional parameters beyond nine: <code>$10</code> evaluates as <code>$1</code> followed by literal <code>0</code>, whereas the tenth parameter is <code>${10}</code>.<br><span class="dim">Why this gets asked: checks whether you understand where token identifiers terminate.</span></li>
+      <li><strong>What is command substitution?</strong><br><code>$(cmd)</code> captures the standard output of a command and substitutes it into the string. Backticks are deprecated: nesting them requires cumbersome escaping.<br><span class="dim">Why this gets asked: the foundation of computing dynamic inputs in shell scripting.</span></li>
+      <li><strong>What does <code>$?</code> store?</strong><br>The exit status of the most recently executed command: 0 represents success, non-zero represents error.<br><span class="dim">Why this gets asked: prerequisite for control flow and decision-making on results.</span></li>
+      <li><strong>What do <code>$1</code>, <code>$@</code>, and <code>$#</code> represent?</strong><br>The first positional argument, all positional arguments, and the total argument count.<br><span class="dim">Why this gets asked: foundational toolkit for parametrized scripts.</span></li>
+      <li><strong>How do you make an environment variable available to child processes?</strong><br><code>export VAR=value</code>. Without <code>export</code>, the variable remains private to the current shell process.<br><span class="dim">Why this gets asked: explains why child binaries fail to see shell-assigned variables.</span></li>
+      <li><strong>What is an <code>alias</code> and why does it not work inside scripts?</strong><br>A command shortcut for interactive shells. By default, aliases are not expanded in non-interactive scripts, and scripts do not source <code>.bashrc</code> where aliases are typically declared.<br><span class="dim">Why this gets asked: verifies understanding of the boundary between interactive and scripted shells.</span></li>
+    </ol>
+
+    <h2 id="conditions-loops">Conditions and loops (21–30) <a class="yakor" href="#conditions-loops">#</a></h2>
+    <ol class="qa" start="21">
+      <li><strong>How do you test if a file exists?</strong><br><code>if [ -f "$f" ]; then …</code>. Use <code>-d</code> for directories, and <code>-e</code> for any filesystem object.<br><span class="dim">Why this gets asked: foundational pre-action validation pattern.</span></li>
+      <li><strong>What do the <code>-z</code> and <code>-n</code> operators check?</strong><br><code>-z</code> checks if a string is empty; <code>-n</code> checks if a string is non-empty.<br><span class="dim">Why this gets asked: argument validation almost always begins here.</span></li>
+      <li><strong>How does <code>[ ]</code> differ from <code>[[ ]]</code>?</strong><br><code>[</code> is a standard builtin command whose arguments undergo word splitting and globbing. <code>[[</code> is a shell keyword with custom parsing: safe with empty strings, supports pattern matching, <code>&amp;&amp;</code>, and <code>=~</code>. Only <code>[</code> is portable across all POSIX shells.<br><span class="dim">Why this gets asked: classic interview question testing portability and parser mechanics.</span></li>
+      <li><strong>How do you compare numbers rather than strings?</strong><br>Use <code>[ "$a" -gt "$b" ]</code> or arithmetic evaluation <code>(( a &gt; b ))</code>. The <code>&gt;</code> character inside <code>[ ]</code> acts as a redirection operator.<br><span class="dim">Why this gets asked: an insidious trap that silently corrupts files.</span></li>
+      <li><strong>How do you iterate over files in a directory?</strong><br><code>for f in *.log; do … done</code> - glob expansion is performed natively by the shell.<br><span class="dim">Why this gets asked: checks whether you avoid the anti-pattern of parsing <code>$(ls)</code>.</span></li>
+      <li><strong>Why should you never write <code>for f in $(ls)</code>?</strong><br>The output of <code>ls</code> is a raw string subjected to word splitting, breaking filenames containing spaces.<br><span class="dim">Why this gets asked: textbook mistake, fails on the first encounter with production data.</span></li>
+      <li><strong>How do you read a file line by line?</strong><br><code>while IFS= read -r line; do … done &lt; file</code>.<br><span class="dim">Why this gets asked: tests understanding of raw reading (<code>-r</code>) and whitespace preservation (<code>IFS=</code>).</span></li>
+      <li><strong>How do you trace what a script is actually executing?</strong><br>Run <code>bash -x script.sh</code> or set <code>set -x</code> inside: every command is printed after expansions, prefixed with <code>+</code>. This is vastly faster than scattering manual <code>echo</code> statements.<br><span class="dim">Why this gets asked: essential debugging skill; without it engineers debug blindly.</span></li>
+      <li><strong>How do you implement branching across multiple pattern choices?</strong><br><code>case "$x" in a) … ;; b) … ;; *) … ;; esac</code> - performs glob pattern matching.<br><span class="dim">Why this gets asked: clean alternative to verbose <code>if-elif</code> chains.</span></li>
+      <li><strong>What do <code>||</code> and <code>&amp;&amp;</code> signify between commands?</strong><br><code>&amp;&amp;</code> executes the right-hand command if the left succeeded (returned 0); <code>||</code> executes if it failed (returned non-zero).<br><span class="dim">Why this gets asked: foundation of idiomatic one-liner checks and fallbacks.</span></li>
+    </ol>
+
+    <h2 id="text-pipelines">Files, text, and pipelines (31–40) <a class="yakor" href="#text-pipelines">#</a></h2>
+    <ol class="qa" start="31">
+      <li><strong>How do you find files by name across nested directories?</strong><br><code>find . -name '*.log' -type f</code>.<br><span class="dim">Why this gets asked: universal administrative command asked in every interview.</span></li>
+      <li><strong>How does <code>grep</code> differ from <code>find</code>?</strong><br><code>grep</code> searches text contents inside files, while <code>find</code> locates filesystem entries by attributes.<br><span class="dim">Why this gets asked: checks whether you conflate filesystem inspection with text parsing.</span></li>
+      <li><strong>What do the <code>-i</code>, <code>-r</code>, and <code>-v</code> flags do in <code>grep</code>?</strong><br>Case-insensitive matching, recursive directory search, and inverted match (select non-matching lines).<br><span class="dim">Why this gets asked: the three most frequently utilized <code>grep</code> flags.</span></li>
+      <li><strong>How do you inspect the head and tail of a file?</strong><br><code>head -20 f</code> and <code>tail -20 f</code>; <code>tail -f</code> streams real-time appended data.<br><span class="dim">Why this gets asked: daily routine in log inspection and troubleshooting.</span></li>
+      <li><strong>What does <code>2&gt;/dev/null</code> do?</strong><br>Redirects standard error to the null device. Convenient, but dangerous: it suppresses diagnostic error messages needed to debug failures.<br><span class="dim">Why this gets asked: appears frequently; tests whether you understand the hidden cost.</span></li>
+      <li><strong>How do you replace text in a file in place?</strong><br><code>sed -i 's/old/new/g' file</code>. On macOS BSD sed, <code>-i</code> requires an explicit backup extension argument: <code>-i ''</code>.<br><span class="dim">Why this gets asked: tests awareness of cross-platform differences between GNU and BSD tooling.</span></li>
+      <li><strong>How do you sort text and remove duplicate lines?</strong><br><code>sort file | uniq</code>; <code>uniq -c</code> prefixes occurrence counts. Because <code>uniq</code> only collapses adjacent duplicate lines, pre-sorting is mandatory.<br><span class="dim">Why this gets asked: classic mistake - running <code>uniq</code> without sorting first.</span></li>
+      <li><strong>What is a pipeline <code>|</code>?</strong><br>An inter-process communication stream: standard output of the left command is connected to standard input of the right; both execute concurrently.<br><span class="dim">Why this gets asked: core pillar of Unix philosophy.</span></li>
+      <li><strong>How does <code>&gt;</code> differ from <code>&gt;&gt;</code>?</strong><br><code>&gt;</code> truncates and overwrites the target file, while <code>&gt;&gt;</code> appends data to the end.<br><span class="dim">Why this gets asked: one of the costliest single-character typos in systems administration.</span></li>
+      <li><strong>How do you direct both stdout and stderr into the same file?</strong><br><code>cmd &gt; file 2&gt;&amp;1</code> - evaluation order from left to right is critical.<br><span class="dim">Why this gets asked: verifies understanding of file descriptor duplication.</span></li>
+    </ol>
+
+    <h2 id="processes-permissions">Processes, permissions, and triage (41–50) <a class="yakor" href="#processes-permissions">#</a></h2>
+    <ol class="qa" start="41">
+      <li><strong>What are standard file descriptors 0, 1, and 2?</strong><br>Standard input (stdin), standard output (stdout), and standard error (stderr). Primary data streams through 1, diagnostics through 2.<br><span class="dim">Why this gets asked: required to explain shell redirection and piping.</span></li>
+      <li><strong>How do you inspect running processes?</strong><br><code>ps aux</code> or <code>ps -ef</code>; interactively via <code>top</code> or <code>htop</code>.<br><span class="dim">Why this gets asked: standard daily troubleshooting routine.</span></li>
+      <li><strong>How do you terminate a process?</strong><br><code>kill PID</code> transmits <code>SIGTERM</code> - requesting clean shutdown. <code>kill -9</code> transmits <code>SIGKILL</code>, which cannot be caught or handled by the process.<br><span class="dim">Why this gets asked: tests whether you distinguish polite termination requests from kernel termination.</span></li>
+      <li><strong>How does <code>Ctrl+Z</code> differ from <code>Ctrl+C</code>, and what do <code>&amp;</code>, <code>bg</code>, and <code>fg</code> do?</strong><br><code>Ctrl+C</code> sends <code>SIGINT</code> to terminate a command, while <code>Ctrl+Z</code> sends <code>SIGTSTP</code> to suspend it. <code>bg</code> resumes a suspended job in the background, <code>fg</code> brings it to the foreground, <code>&amp;</code> launches it directly in the background, and <code>jobs</code> lists background tasks.<br><span class="dim">Why this gets asked: beginners frequently press <code>Ctrl+Z</code> instead of <code>Ctrl+C</code>, leaving dangling suspended tasks.</span></li>
+      <li><strong>How do you check available disk space?</strong><br><code>df -h</code> for filesystem capacity; <code>du -sh *</code> for directory usage.<br><span class="dim">Why this gets asked: step one in triaging almost every production incident.</span></li>
+      <li><strong>What do <code>rwx</code> permissions signify?</strong><br>Read, write, and execute permissions for user owner, group, and others. <code>chmod 755</code> grants full access to owner, and read/execute to group and others.<br><span class="dim">Why this gets asked: baseline Linux systems knowledge.</span></li>
+      <li><strong>How does <code>sudo</code> differ from logging in directly as root?</strong><br><code>sudo</code> executes a single command with elevated privileges while recording an audit log entry.<br><span class="dim">Why this gets asked: security and auditability best practices.</span></li>
+      <li><strong>How do you inspect environment variables?</strong><br><code>env</code> or <code>printenv</code>; individually via <code>echo "$VAR"</code>.<br><span class="dim">Why this gets asked: essential when diagnosing “works locally, fails in CI” disparities.</span></li>
+      <li><strong>What is <code>cron</code>?</strong><br>A daemon scheduler for periodic commands. Critically, it runs in a clean environment without sourcing <code>.bashrc</code>, resulting in a minimal <code>PATH</code>.<br><span class="dim">Why this gets asked: perennial interview pitfall.</span></li>
+      <li><strong>How does a symbolic link differ from a hard link?</strong><br>A symbolic link (<code>ln -s</code>) stores the target path as a pointer and breaks if the target is deleted; a hard link is an alternate directory entry referencing the same underlying inode and functions only within a single filesystem.<br><span class="dim">Why this gets asked: one of the most frequent Linux filesystem questions.</span></li>
+    </ol>
+
+    <h2 id="artifacts">Artifacts: what you take away from this page <a class="yakor" href="#artifacts">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Reading &gt;&gt; Your life quantum · Dignity partnership with AI · Rewiring your neural network</p>
+      <p><strong>Fifty verified answers and an understanding of what lies behind each.</strong> Your time was well spent if you answer half of these questions not with a memorized recipe, but with an explanation of shell mechanics. That is the essence of rewiring: answers cease being learned phrases and become deducible from how the shell operates.</p>
+    </div>
+    <ol>
+      <li><strong>Ten answers on execution and paths</strong> - <code>PATH</code>, shebang, permissions.</li>
+      <li><strong>Ten on variables and quoting</strong> - including <code>${var:-default}</code> and <code>$?</code>.</li>
+      <li><strong>Ten on conditions and loops</strong> - <code>[[ ]]</code> versus <code>[ ]</code>, glob iteration.</li>
+      <li><strong>Ten on text and pipelines</strong> - <code>grep</code>, <code>sed</code>, <code>sort | uniq</code>.</li>
+      <li><strong>Ten on system fundamentals</strong> - streams, processes, signals, permissions, cron.</li>
+    </ol>
+
     <footer>
-      Part of the AI Factory series. Built with the same toolchain as the rest: plain HTML and CSS, a bash check, published through GitHub Pages.
+      Next page - fifty questions at the Pro level. Deferred items and rationale - in <a href="../lessons/potom.md">potom.md</a>.
     </footer>
   </main>
 
 </div>
 </div>
 <script src="../assets/swa.js"></script>
+<script src="../assets/terms.js"></script>
+<script src="../assets/cp.js"></script>
 </body>
 </html>
