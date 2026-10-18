@@ -99,7 +99,7 @@
       <p class="glossary-lead">The first line of a script, instructing the kernel which interpreter to execute it with.</p>
       <p>Without it, the script runs in whichever shell invoked it - and on a machine where <code>sh</code> is <code>dash</code>, arrays and <code>[[ ]]</code> stop working. The <code>env</code> form searches for <code>bash</code> in <code>PATH</code> rather than only in <code>/bin</code>: on macOS and the BSDs it resides in a different location.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>First seen in:</strong> <a href="../ru/02.html#skeleton">Writing scripts · Skeleton</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>First seen in:</strong> <a href="02.html#skeleton">Writing scripts · Skeleton</a>
       </div>
     </div>
 
@@ -112,7 +112,7 @@
       <p class="glossary-lead">A single Bash program in two roles: an interactive shell used by a human, and an interpreter executing a file.</p>
       <p>An interactive shell reads <code>~/.bashrc</code>, enables aliases, and maintains history; a login shell (SSH sessions, <code>su -</code>) reads <code>~/.bash_profile</code>; a non-interactive script reads neither. Hence "it works in my terminal, but fails in cron": <code>PATH</code> and aliases from your profile files never reach the script.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>First seen in:</strong> <a href="../ru/02.html#shell-modes">Writing scripts · Two modes</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>First seen in:</strong> <a href="02.html#shell-modes">Writing scripts · Two modes</a>
       </div>
     </div>
 
@@ -296,7 +296,7 @@
       <p class="glossary-lead">Three safety fuses: abort on error, abort on unset variable, do not mask failures inside pipelines.</p>
       <p><code>-e</code> exits on non-zero return codes, but is ignored inside conditions, <code>&amp;&amp;</code>, <code>||</code> lists, function calls in conditionals, and <code>local x=$(cmd)</code>. <code>-u</code> treats uninitialized variables as fatal errors rather than silently substituting an empty string. <code>-o pipefail</code> propagates the exit status of the rightmost failing pipeline command. It establishes a necessary hygiene baseline, not an absolute guarantee of script safety.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>First seen in:</strong> <a href="../ru/02.html#skeleton">Writing scripts · Skeleton</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>First seen in:</strong> <a href="02.html#skeleton">Writing scripts · Skeleton</a>
       </div>
     </div>
 
@@ -322,7 +322,7 @@
       <p class="glossary-lead">A property of an operation: executing it repeatedly yields the same result without corrupting system state.</p>
       <p>In automated environments, retries are inevitable: network timeouts, node restarts, duplicate events, or an autonomous agent repeating steps. Commands like <code>mkdir -p</code>, <code>ln -sfn</code>, and <code>rsync</code> are idempotent; bare <code>mkdir</code> and unmanaged <code>&gt;&gt;</code> append operations are not. Non-idempotent operations require unique operation identifiers, running only when that identifier is absent from the execution ledger.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>First seen in:</strong> <a href="../ru/02.html#idempotence">Writing scripts · Idempotence and cleanup</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>First seen in:</strong> <a href="02.html#idempotence">Writing scripts · Idempotence and cleanup</a>
       </div>
     </div>
 

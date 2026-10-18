@@ -39,7 +39,7 @@ ENTITIES = (('&lt;', '<'), ('&gt;', '>'), ('&quot;', '"'), ('&#39;', "'"), ('&am
 
 # Characters that mark a word as code rather than prose. A dot is not one of
 # them: "subst." and its translation are words, not a command.
-CODEISH = set('${}()[]<>*~|&/=+\\`!%^"\'')
+CODEISH = set('${}()[]<>*~|&/=+\\`!%^')
 
 CYRILLIC = re.compile(r'[\u0400-\u04FF]')
 UK_OWN = re.compile(r'[іїєґІЇЄҐ]')
@@ -47,8 +47,6 @@ RU_ONLY = re.compile(r'[ыэъЫЭЪ]')
 
 # A comment starts a word: inside ${v#x} the hash is not a comment.
 COMMENT = re.compile(r'(?m)(?:(?<=\s)|^)#.*$')
-# A quoted human string gets translated; one holding an expansion does not.
-QUOTED = re.compile(r'"([^"\\$`]*)"|\'([^\'\\$`]*)\'')
 
 
 def read(path):
@@ -63,16 +61,43 @@ def unescape(text):
 
 
 def skeleton(code):
-    code = COMMENT.sub('', unescape(code))
-    code = QUOTED.sub('""', code)
-    return ' '.join(code.split())
+    text = COMMENT.sub('', unescape(code))
+    text = re.sub(r"'[^']*'", "''", text)
+    text = re.sub(r'(\$\{[^}:]+\:\?)[^}]*\}', r'\1""}', text)
+    out = []
+    i = 0
+    n = len(text)
+    while i < n:
+        if text[i] == '"':
+            j = i + 1
+            has_dollar = False
+            while j < n:
+                if text[j] == '\\':
+                    j += 2
+                    continue
+                if text[j] in ('$', '`'):
+                    has_dollar = True
+                if text[j] == '"':
+                    break
+                j += 1
+            if j < n and not has_dollar:
+                out.append('""')
+                i = j + 1
+            else:
+                out.append(text[i:j+1] if j < n else text[i:])
+                i = j + 1 if j < n else n
+        else:
+            out.append(text[i])
+            i += 1
+    return ' '.join(''.join(out).split())
 
 
 def shape(code):
     """Shape of a block: line count and its code-like words. Prose differs
     between languages, but {a,b}, $var and *.txt must match."""
     text = unescape(code)
-    tokens = [t for t in text.split() if any(ch in CODEISH for ch in t)]
+    tokens = [t.strip("\"'") for t in text.split()]
+    tokens = [t for t in tokens if any(ch in CODEISH for ch in t)]
     return (len(text.strip().splitlines()), tokens)
 
 

@@ -74,23 +74,108 @@
 
   <main>
     <h1>Writing scripts</h1>
+    <p class="lead">Rules and techniques separating a script that runs on your machine from one that runs on someone else's. And the boundary between the two modes of Bash, where half of all bugs originate.</p>
 
-    <div class="stub-card">
-      <h2>The English version is in preparation</h2>
-      <p>The full working version of this page is published in Russian (на русском языке).</p>
-      <p>Open the full version:</p>
-      <div class="stub-actions">
-        <a href="../ru/02.html" class="btn-primary">Writing scripts in Russian (на русском языке) →</a>
-      </div>
+    <div class="box key" id="key-idea">
+      <h2>Key idea <a class="yakor" href="#key-idea" aria-label="link to this block">#</a></h2>
+      <p>A script differs from a sequence of commands not by length, but because it runs unattended. A human at a terminal sees an error and pauses; a script swallows it and plows ahead. Everything you kept in your head must be declared explicitly: strict mode, argument checks, clean up, and honest exit statuses. The second half of this page explores the line between an interactive shell and the script interpreter: they are different modes of the same program and read different startup files. Hence the classic “works in my terminal, fails in cron”, and the guiding rule: a script must never depend on your shell configuration. Everything else on this page follows from these two ideas.</p>
     </div>
 
+    <h2 id="shell-modes">1 · Two modes: shell and interpreter <a class="yakor" href="#shell-modes">#</a></h2>
+    <p>Bash is a single binary with two distinct roles, and half of the “unexplained” differences between a terminal and a script stem from this boundary. An <strong>interactive shell</strong> takes commands from a human: it maintains history, line editing, a prompt, and aliases. A <strong>script interpreter</strong> reads a file: it needs none of these conveniences and loads none of them.</p>
+<pre><code>bash -c 'shopt -q login_shell; echo $?'
+# 1 - not a login shell
+
+echo $-            # no i in scripts
+# hB  (interactive gives himBH)</code></pre>
+    <p>This leads to three consequences that most frequently cause bugs. <strong>Aliases do not work in scripts</strong> - <code>expand_aliases</code> is off by default for non-interactive shells. <strong>Scripts do not read <code>~/.bashrc</code></strong>: it is only read by an interactive non-login shell, which is why your <code>PATH</code> from <code>.bashrc</code> never reaches cron or CI. <strong><code>~/.bash_profile</code> is read only by login shells</strong> - SSH sessions, <code>su -</code>, or the first console.</p>
+    <p>Practical takeaway: <strong>a script must not depend on your shell configuration.</strong> It must declare everything it needs itself - search paths, variables, and output locale.</p>
+    <div class="prints"><strong>What gets asked:</strong> “Why does my <code>alias</code> or <code>PATH</code> work in the terminal but fail in a script or in cron?”</div>
+
+    <h2 id="skeleton">2 · Skeleton: identical startup for every script <a class="yakor" href="#skeleton">#</a></h2>
+    <p>A good script always begins with the same five lines. They should be typed reflexively without thinking - save your thinking for what comes next.</p>
+<pre><code>#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+
+usage() { echo "usage: $0 &lt;file&gt;" &gt;&amp;2; exit 2; }
+[ $# -eq 1 ] || usage</code></pre>
+    <p><code>env bash</code> resolves whichever Bash executable is available on the machine, rather than assuming <code>/bin/bash</code>. <code>set -euo pipefail</code> provides three safety fuses: fail on error, fail on unset variable, do not lose a failure inside a pipeline. Narrowing <code>IFS</code> to newline and tab prevents splitting on spaces where it is almost never wanted.</p>
+    <p><strong>Argument validation is part of the skeleton, not decoration.</strong> A script run without arguments should state what it expects and exit with a non-zero code immediately, rather than failing on an empty variable midway through execution.</p>
+    <div class="prints"><strong>What gets asked:</strong> “What does <code>set -euo pipefail</code> do and what does it not protect against?”</div>
+
+    <h2 id="functions">3 · Functions and arguments <a class="yakor" href="#functions">#</a></h2>
+    <p>A variable inside a function is <strong>global</strong> by default. Without <code>local</code>, a function silently overwrites caller variables, which is notoriously hard to debug.</p>
+<pre><code>greet() {
+  local name="${1:?name required}"
+  printf 'hello, %s\n' "$name"
+}
+
+# result - via stdout,
+# status - via exit code
+if out=$(greet "world"); then
+  echo "$out"
+fi</code></pre>
+    <p>Do not confuse the two channels: <strong>stdout is the result, exit status is the status.</strong> A function that prints “error” and returns 0 breaks every caller.</p>
+    <p><code>"${1:?message}"</code> marks a required argument: if absent, Bash halts the script with a clear message. For option parsing, use <code>getopts</code>; a custom loop with <code>case</code> is justified only for long options, which <code>getopts</code> cannot handle.</p>
+    <div class="prints"><strong>What gets asked:</strong> “How does returning a value from a Bash function differ from <code>return</code> in other languages?”</div>
+
+    <h2 id="idempotence">4 · Idempotence and cleanup <a class="yakor" href="#idempotence">#</a></h2>
+    <p>A script that cannot be run twice is only half a script. In production, re-execution is inevitable: by mistake, after a timeout, or on a CI retry.</p>
+<pre><code>tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+mkdir -p /opt/app/releases
+ln -sfn "$new" /opt/app/current</code></pre>
+    <p><code>mkdir -p</code>, <code>ln -sfn</code>, <code>rsync</code>, <code>install -D</code> - these commands do not care whether the target state was already reached. Plain <code>mkdir</code> without <code>-p</code> and <code>ln -s</code> without <code>-f</code> do.</p>
+    <p><strong>A trap on <code>EXIT</code> is the only reliable cleanup:</strong> it fires on failure and on <code>Ctrl+C</code> alike. The temporary name must come from <code>mktemp</code>, not from you: a predictable name in <code>/tmp</code> is both a race condition and a security hole.</p>
+    <div class="prints"><strong>What gets asked:</strong> “How do you make a script safe for repeated runs and ensure temporary files are cleaned up?”</div>
+
+    <h2 id="logging">5 · Logging and diagnostics <a class="yakor" href="#logging">#</a></h2>
+    <p>Separating streams is not style, but a prerequisite for pipelines: <strong>results go to stdout, everything else to stderr.</strong> Otherwise your “[INFO] starting” message ends up in the data read by the next command.</p>
+<pre><code>log() { printf '%s %s\n' "$(date +%T)" "$*" &gt;&amp;2; }
+
+log "starting"
+PS4='+ ${BASH_SOURCE}:${LINENO}: '
+set -x          # enable tracing
+set +x          # disable</code></pre>
+    <p><code>set -x</code> prints each command after expansion - the fastest way to see what actually ran. <code>PS4</code> adds the file and line number to the trace. <strong>Enabling tracing across an entire script in production is dangerous:</strong> variable values, including secrets, appear in the log.</p>
+    <div class="prints"><strong>What gets asked:</strong> “Where should a script write its messages and why not stdout?”</div>
+
+    <h2 id="quality">6 · Quality: shellcheck and formatting <a class="yakor" href="#quality">#</a></h2>
+    <p>Bash has a static analyzer that catches almost every common mistake before you run the script: unquoted expansions, useless <code>cat</code>, string comparisons where numbers were intended, <code>cd</code> without a check.</p>
+<pre><code>shellcheck script.sh
+shfmt -i 2 -w script.sh
+
+# placed on the line immediately above:
+# deliberate rule override:
+# shellcheck disable=SC2086</code></pre>
+    <p><strong>Overriding a rule is allowed, but only on the line directly above and with a comment explaining why.</strong> Disabling <code>SC2086</code> globally means “we decided not to quote expansions”, and that decision should be stated out loud.</p>
+    <p>For testing, there is <code>bats</code>. But the first test of any script is running with <code>--dry-run</code>: a mode where it prints what it would do and does nothing. Build it in from the start, not after the first incident.</p>
+    <div class="prints"><strong>What gets asked:</strong> “How do you test shell scripts and what does <code>shellcheck</code> catch that humans miss?”</div>
+
+    <h2 id="artifacts">Artifacts: what you have after this page <a class="yakor" href="#artifacts">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Reading &gt;&gt; Your quantum of life's time · A partnership of dignity with AI · Rewiring your neural network</p>
+      <p><strong>A skeleton typed without thinking, and an understanding of why it looks exactly like that.</strong> Time was not wasted if you stopped explaining failures with “for some reason”: each failure here has a named cause - shell mode, unquoted expansion, lost exit status, or missing trap. That is the neural rewire: the skeleton you might forget to type from memory in a month, but the reason for it you will not.</p>
+    </div>
+    <ol>
+      <li><strong>The boundary between two modes:</strong> what an interactive shell reads versus what a script reads.</li>
+      <li><strong>The five-line skeleton:</strong> shebang, strict mode, <code>IFS</code>, usage, argument validation.</li>
+      <li><strong>The two-channel rule:</strong> stdout for result, stderr for everything else, exit status for outcome.</li>
+      <li><strong>Idempotence and <code>trap EXIT</code></strong> as requirements, not mere neatness.</li>
+      <li><strong><code>shellcheck</code> and <code>--dry-run</code></strong> - two checks cheaper than any incident.</li>
+    </ol>
+
     <footer>
-      Part of the AI Factory series. Built with the same toolchain as the rest: plain HTML and CSS, a bash check, published through GitHub Pages.
+      Next up: the strength of Bash - why it has not been replaced yet. What is deferred and why: in <a href="../lessons/potom.md">potom.md</a>.
     </footer>
   </main>
 
 </div>
 </div>
 <script src="../assets/swa.js"></script>
+<script src="../assets/terms.js"></script>
+<script src="../assets/cp.js"></script>
 </body>
 </html>
