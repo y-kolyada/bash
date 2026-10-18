@@ -10,7 +10,9 @@
 //
 // Two window heights, because the spy failed only on tall windows: a page hits
 // its bottom before the last heading reaches the top third.
-
+//
+// The phone is measured twice: at the reader's default size and at the largest
+// of the three, where the text grows but the screen does not.
 //
 // Exits 1 if any page is faulty. Output is Russian: it speaks to the person
 // who accepts the work.
@@ -61,6 +63,12 @@ try {
 }
 
 const phone = await browser.newPage({ viewport: PHONE });
+// A reader who picked the largest font: the choice is read from storage by the
+// inline script in <head>, so it has to be there before the page loads.
+const phoneBig = await browser.newPage({ viewport: PHONE });
+await phoneBig.addInitScript(() => {
+  try { localStorage.setItem('ai-font', 'l'); } catch (e) { /* private window */ }
+});
 const desktops = [];
 for (const viewport of DESKTOPS) desktops.push([viewport, await browser.newPage({ viewport })]);
 const bad = [];
@@ -206,6 +214,71 @@ for (const file of files) {
   });
 
   if (overflow.length) bad.push([file, 'за край вылезло элементов: ' + overflow.length + ' (' + overflow[0] + ')']);
+
+  await phoneBig.goto(url);
+  const big = await phoneBig.evaluate(() => {
+    const out = { font: document.documentElement.getAttribute('data-font'), over: [], early: true };
+    const viewport = document.documentElement.clientWidth;
+    for (const el of document.querySelectorAll('body *')) {
+      if (el.getBoundingClientRect().right > viewport + 1) {
+        out.over.push(el.tagName + ': ' + el.textContent.trim().slice(0, 30));
+      }
+    }
+    // The size has to be set in <head>: applied later, the page would first
+    // paint at the default size and then jump.
+    const head = document.head.innerHTML;
+    out.early = head.includes("'ai-font'") && head.includes('data-font');
+    return out;
+  });
+  if (big.font !== 'l') bad.push([file, 'выбранный размер шрифта не применился: data-font=' + big.font]);
+  if (!big.early) bad.push([file, 'размер шрифта применяется не в <head>, страница мигнёт']);
+  if (big.over.length) {
+    bad.push([file, 'при большом шрифте за край вылезло элементов: ' + big.over.length + ' (' + big.over[0] + ')']);
+  }
+
+  // The font scale is measured where it was broken: the search panel. One page
+  // per language is enough - the stylesheet is one.
+  if (/\/01\.html$/.test(file.replace(/\\/g, '/'))) {
+    const scale = await phone.evaluate(async () => {
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      const px = (sel) => {
+        const el = document.querySelector(sel);
+        return el ? parseFloat(getComputedStyle(el).fontSize) : null;
+      };
+      const find = document.querySelector('.find-btn');
+      if (!find) return ['кнопки поиска нет в шапке'];
+      find.click();
+      for (let i = 0; i < 60 && !document.querySelector('.search-input'); i++) await sleep(50);
+      const input = document.querySelector('.search-input');
+      if (!input) return ['панель поиска не открылась'];
+      input.value = 'pipefail';
+      input.dispatchEvent(new Event('input'));
+      await sleep(150);
+
+      const read = (size) => {
+        document.querySelector('.font-' + size).click();
+        return { h2: px('main h2'), where: px('.search-where'), snip: px('.search-snip') };
+      };
+      const small = read('s');
+      const medium = read('m');
+      const large = read('l');
+      read('m');
+      document.querySelector('.search-close').click();
+
+      const bad = [];
+      for (const part of ['h2', 'where', 'snip']) {
+        if (small[part] === null) continue;
+        if (!(small[part] < medium[part] && medium[part] < large[part])) {
+          bad.push('размер «' + part + '» не следует за настройкой шрифта: '
+                   + small[part] + ' / ' + medium[part] + ' / ' + large[part]);
+        }
+      }
+      if (localStorage.getItem('ai-font') !== 'm') bad.push('настройка шрифта не вернулась к средней');
+      return bad;
+    });
+    for (const why of scale) bad.push([file, why + ' (телефон)']);
+  }
+
   for (const [viewport, desktop] of desktops) {
     await desktop.goto(url);
     const seen = await desktop.evaluate(async (top) => {

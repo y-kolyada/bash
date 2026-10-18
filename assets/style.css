@@ -36,9 +36,14 @@ html[data-font="l"] { --base-font-size: 18px; }
 
 * { box-sizing: border-box; }
 
+/* The scale sits on the root, not on the body: every rem in this file resolves
+   against it, so headings, the footer and the search panel follow the reader's
+   choice. Breakpoints are safe - rem in a media query always means 16px. */
+html { font-size: var(--base-font-size); }
+
 body {
   margin: 0; padding: 0; background: var(--bg); color: var(--fg);
-  font: var(--base-font-size)/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 1rem/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 .wrap { max-width: 68rem; margin: 0 auto; padding: 0 16px 64px; }
