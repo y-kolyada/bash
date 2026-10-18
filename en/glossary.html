@@ -363,7 +363,7 @@
       <p class="glossary-lead">The public runtime contract of a script upon which calling automation and external systems rely.</p>
       <p>A script contract specifies stream conventions, valid exit codes, structured output formats, dry-run flags, and backward compatibility guarantees. Implementation logic may be refactored freely, but the public contract cannot: external systems depend on it, and unannounced changes break downstream consumers without warning. Custom exit codes should be selected from the 3-63 range or align with <code>sysexits.h</code>, leaving codes 126, 127, and 128+N reserved for shell and signal semantics.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>First seen in:</strong> <a href="../ru/12.html#tool-contract">Examples · IGL · Script contract</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>First seen in:</strong> <a href="12.html#tool-contract">Examples · IGL · Script contract</a>
       </div>
     </div>
 
@@ -376,7 +376,7 @@
       <p class="glossary-lead">The maximum potential damage a script can cause when it fails or encounters unexpected input.</p>
       <p>Robust scripts are engineered around the worst-case scenario rather than optimistic assumptions. Blast radius is constrained by two checks at the very start: an allowlist bounding the operational target (restricting execution to explicit directory paths or resource identifiers) and an upper limit on items modified per invocation. A script that resolves three thousand targets instead of five must abort immediately and alert a human: this transforms a catastrophic outage into an ordinary operational incident.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>First seen in:</strong> <a href="../ru/12.html#blast-radius">Examples · IGL · Blast radius</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>First seen in:</strong> <a href="12.html#blast-radius">Examples · IGL · Blast radius</a>
       </div>
     </div>
 
