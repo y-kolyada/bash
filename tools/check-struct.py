@@ -47,6 +47,7 @@ RU_ONLY = re.compile(r'[ыэъЫЭЪ]')
 
 # A comment starts a word: inside ${v#x} the hash is not a comment.
 COMMENT = re.compile(r'(?m)(?:(?<=\s)|^)#.*$')
+EXPANSION = re.compile(r'(\$(?:[a-zA-Z0-9_?#*@!$-]+|\{[^}]*\}|\([^)]*\))|`[^`]*`)')
 
 
 def read(path):
@@ -84,7 +85,21 @@ def skeleton(code):
                 out.append('""')
                 i = j + 1
             else:
-                out.append(text[i:j+1] if j < n else text[i:])
+                content = text[i+1:j] if j < n else text[i+1:]
+                parts = []
+                last = 0
+                for m in EXPANSION.finditer(content):
+                    inter = content[last:m.start()]
+                    codeish = ''.join(c for c in inter if c in '/=:')
+                    if codeish:
+                        parts.append(codeish)
+                    parts.append(m.group(0))
+                    last = m.end()
+                tail = content[last:]
+                codeish = ''.join(c for c in tail if c in '/=:')
+                if codeish:
+                    parts.append(codeish)
+                out.append('"' + ''.join(parts) + '"')
                 i = j + 1 if j < n else n
         else:
             out.append(text[i])
