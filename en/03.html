@@ -74,23 +74,101 @@
 
   <main>
     <h1>The strength of Bash</h1>
+    <p class="lead">Why a forty-year-old language was not displaced by Python, Go, or any of the shells designed to replace it. This section exists to keep the comparison with weaknesses honest.</p>
 
-    <div class="stub-card">
-      <h2>The English version is in preparation</h2>
-      <p>The full working version of this page is published in Russian (на русском языке).</p>
-      <p>Open the full version:</p>
-      <div class="stub-actions">
-        <a href="../ru/03.html" class="btn-primary">The strength of Bash in Russian (на русском языке) →</a>
-      </div>
+    <div class="box key" id="key-idea">
+      <h2>Key idea <a class="yakor" href="#key-idea" aria-label="link to this block">#</a></h2>
+      <p>Bash holds its ground not from inertia or administrator habit. It has four irreplaceable strengths: it is already installed everywhere you go; it starts in milliseconds; process and file control are part of its syntax rather than a library; and it turns a manually tested command into a running program with zero rewrites. A fifth comes from the ecosystem: it does little on its own, but joins forty years of utilities sharing a common interface. None of this excuses its weaknesses - the next section covers them just as honestly as this one.</p>
     </div>
 
+    <h2 id="everywhere">1 · It is already installed wherever you go <a class="yakor" href="#everywhere">#</a></h2>
+    <p>The main strength of Bash is not technical, but logistical: <strong>it does not need to be installed.</strong> It exists in every Linux distribution, Docker image, CI runner, Git hook, and <code>cloud-init</code> of a freshly created VM. The executable is a few megabytes, and no surrounding runtime is required.</p>
+<pre><code>ls -lh /bin/bash
+# ~1.4M, and that is all
+
+docker run --rm debian bash -c 'echo ok'
+# ok   - without installing anything</code></pre>
+    <p>Compare this to the cost of entry for alternatives: a matching Python version, a virtual environment, dependencies from the network, sometimes a compiler. On your laptop that is fifteen minutes; on a thousand nodes, an entire project. <strong>A Bash script runs where nothing else exists yet</strong> - which is why it powers what runs first: installers, container entrypoints, cloud bootstrap scripts.</p>
+    <div class="prints"><strong>What gets asked:</strong> “Why are provisioning and container entrypoints still written in shell rather than Python?”</div>
+
+    <h2 id="startup-cost">2 · Startup cost is measured in milliseconds <a class="yakor" href="#startup-cost">#</a></h2>
+    <p>Bash starts almost instantly because it has nothing to load. Where a script is invoked thousands of times - in a pre-commit hook, in a loop over files, in a test runner - the difference is not cosmetic.</p>
+<pre><code>time bash -c 'exit'
+# real ~0m0.003s
+
+time python3 -c 'pass'
+# real ~0m0.030s</code></pre>
+    <p>Ten invocations do not justify choosing a language. <strong>Ten thousand in a CI loop do.</strong> The same logic cuts both ways and is named honestly on the weaknesses page: every external command in Bash is also a new process, and a loop of a hundred thousand iterations calling <code>grep</code> will be slower than any interpreter.</p>
+    <div class="prints"><strong>What gets asked:</strong> “When is startup speed more important than execution speed?”</div>
+
+    <h2 id="system-access">3 · Direct system access without an abstraction layer <a class="yakor" href="#system-access">#</a></h2>
+    <p>In Bash, processes, files, streams, and permissions are not a library, but <strong>syntax</strong>. What takes imports and a dozen lines in other languages takes one here.</p>
+<pre><code># redirection, pipeline, background,
+# wait, exit status - in a single line
+cmd &gt;out 2&gt;err &amp;
+pid=$!
+wait "$pid" || echo "failed: $?"</code></pre>
+    <p>This language was built for exactly one task - managing other programs - and for that task it remains more expressive than general-purpose languages. <code>subprocess</code> in Python expresses the same logic three times longer with more places to make a mistake.</p>
+    <div class="prints"><strong>What gets asked:</strong> “Why is starting and piping processes in shell more concise than in a general-purpose language?”</div>
+
+    <h2 id="glue">4 · Glue: the power is not in Bash, but in what it connects <a class="yakor" href="#glue">#</a></h2>
+    <p>Bash does almost nothing on its own - an architectural choice, not a flaw. It excels at <strong>connecting</strong> programs, each doing one job well.</p>
+<pre><code>grep -h ERROR app-*.log \
+  | awk '{print $4}' \
+  | sort | uniq -c | sort -rn \
+  | head -5</code></pre>
+    <p>Four lines extract the top error sources from gigabytes of logs - and not one was written by you. <strong>Expressiveness lives in the ecosystem, not the language</strong>: forty years of tools sharing a single interface - a text stream. You could replace this pipeline in any language, but the code would be longer and introduce your own bugs where none exist now.</p>
+    <p><strong>The toolset evolves, and the pipeline benefits automatically.</strong> <code>ripgrep</code> replaces <code>grep -r</code>, <code>fd</code> sits alongside <code>find</code>, <code>sd</code> replaces <code>sed</code> for simple edits, <code>hyperfine</code> measures performance, <code>delta</code> formats diffs. Most are written in Rust and run noticeably faster on large trees - but their interface is identical: text in, text out, an honest exit status.</p>
+    <p><strong>This proves that the power lies in the architecture, not in specific tools:</strong> you can upgrade half the ecosystem without changing the language or your scripts. A language that does nothing itself outlived its generation of utilities precisely because it knew nothing about them - except that they read and write text.</p>
+    <div class="prints"><strong>What gets asked:</strong> “What is the Unix philosophy in practice, and how does it appear in a pipeline?”</div>
+
+    <h2 id="one-language">5 · One language from the terminal to production <a class="yakor" href="#one-language">#</a></h2>
+    <p>A unique property unmatched by any other language: <strong>what you typed by hand and verified with your eyes becomes a program without rewriting.</strong></p>
+<pre><code># checked in terminal:
+curl -fsS "$URL/health" | jq -e .ok
+
+# exactly this - into a script, a hook,
+# a CI step, a systemd unit</code></pre>
+    <p>Moving from “I figured it out manually” to “it runs unattended” is a matter of copying the line. In any other language, translation sits between them, and every translation is an opportunity for behavior to shift unnoticed.</p>
+    <div class="prints"><strong>What gets asked:</strong> “Why is it valuable that a terminal command and a script line are identical text?”</div>
+
+    <h2 id="evolving">6 · It is not frozen: the language evolves <a class="yakor" href="#evolving">#</a></h2>
+    <p>Viewing Bash as an artifact of the 1980s does not survive inspection. Version 5 brought associative arrays, <code>mapfile</code>, safe quoting, and waiting on any background process.</p>
+<pre><code>declare -A cfg
+cfg[port]=8080
+
+mapfile -t lines &lt; file.txt
+echo "${#lines[@]}"
+
+wait -n          # first to finish
+echo "${cfg[port]@Q}"</code></pre>
+    <p><code>mapfile</code> reads a file into an array without a loop or word-splitting traps. <code>${var@Q}</code> outputs a safely re-usable quoted string. <code>wait -n</code> makes trivial what once required clumsy workarounds - reacting to the first completed job.</p>
+    <p class="dim">Check version: <code>bash --version</code>. macOS ships 3.2 by default for licensing reasons, which is no sign that the language stopped evolving.</p>
+    <div class="prints"><strong>What gets asked:</strong> “What was introduced in Bash 4 and 5, and why does macOS still default to 3.2?”</div>
+
+    <h2 id="artifacts">Artifacts: what you have after this page <a class="yakor" href="#artifacts">#</a></h2>
+    <div class="box key">
+      <p class="artifacts-slogan">Reading &gt;&gt; Your quantum of life's time · A partnership of dignity with AI · Rewiring your neural network</p>
+      <p><strong>Arguments instead of vague impressions.</strong> Time was well spent if, when asked “why Bash when Python exists”, you no longer say “it’s common practice”, but point to concrete properties: zero installation, startup speed, syntax-level process control, or the translation-free path from terminal to production. That is the neural rewire: you stop choosing tools by habit and start choosing by the price of the decision.</p>
+    </div>
+    <ol>
+      <li><strong>Zero installation</strong> as the reason shell runs first.</li>
+      <li><strong>Startup cost:</strong> milliseconds versus tens of milliseconds, and when it matters.</li>
+      <li><strong>Processes as syntax</strong> rather than as a library.</li>
+      <li><strong>Pipelines as composition</strong> of forty years of work - and how the toolset updates (<code>ripgrep</code>, <code>fd</code>, <code>sd</code>) without altering your scripts.</li>
+      <li><strong>Terminal → script → CI without translation</strong> - a property unique among languages.</li>
+      <li><strong>What Bash 4 and 5 introduced:</strong> associative arrays, <code>mapfile</code>, <code>wait -n</code>, <code>${var@Q}</code>.</li>
+    </ol>
+
     <footer>
-      Part of the AI Factory series. Built with the same toolchain as the rest: plain HTML and CSS, a bash check, published through GitHub Pages.
+      Next up: weaknesses and limits, stated just as directly. What is deferred and why: in <a href="../lessons/potom.md">potom.md</a>.
     </footer>
   </main>
 
 </div>
 </div>
 <script src="../assets/swa.js"></script>
+<script src="../assets/terms.js"></script>
+<script src="../assets/cp.js"></script>
 </body>
 </html>
