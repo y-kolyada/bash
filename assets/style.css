@@ -4,7 +4,7 @@
   --bg: #fbfbfa; --fg: #1a1a18; --dim: #6b6b66; --line: #e4e4e0;
   --acc: #1d4ed8; --ok: #126b2f; --warn: #8a5a00; --code: #f1f1ee;
   --term-accent: #db8b0e; --term-bg-hover: rgba(252, 189, 74, 0.28);
-  --step-target-bg: rgba(252, 189, 74, 0.12); --step-target-border: rgba(219, 139, 14, 0.55);
+  --target-bg: rgba(252, 189, 74, 0.12); --target-line: rgba(219, 139, 14, 0.55);
   --base-font-size: 16px;
 }
 @media (prefers-color-scheme: dark) {
@@ -12,7 +12,7 @@
     --bg: #16161a; --fg: #f0f0ee; --dim: #9a9a95; --line: #2e2e34;
     --acc: #8ab0ff; --ok: #6fd48c; --warn: #e0b45a; --code: #22222a;
     --term-accent: #fcbd4a; --term-bg-hover: rgba(252, 189, 74, 0.22);
-    --step-target-bg: rgba(252, 189, 74, 0.08); --step-target-border: rgba(252, 189, 74, 0.45);
+    --target-bg: rgba(252, 189, 74, 0.08); --target-line: rgba(252, 189, 74, 0.45);
   }
 }
 /* Manual theme switch */
@@ -20,13 +20,13 @@ html[data-theme="dark"] {
   --bg: #16161a; --fg: #f0f0ee; --dim: #9a9a95; --line: #2e2e34;
   --acc: #8ab0ff; --ok: #6fd48c; --warn: #e0b45a; --code: #22222a;
   --term-accent: #fcbd4a; --term-bg-hover: rgba(252, 189, 74, 0.22);
-  --step-target-bg: rgba(252, 189, 74, 0.08); --step-target-border: rgba(252, 189, 74, 0.45);
+  --target-bg: rgba(252, 189, 74, 0.08); --target-line: rgba(252, 189, 74, 0.45);
 }
 html[data-theme="light"] {
   --bg: #fbfbfa; --fg: #1a1a18; --dim: #6b6b66; --line: #e4e4e0;
   --acc: #1d4ed8; --ok: #126b2f; --warn: #8a5a00; --code: #f1f1ee;
   --term-accent: #db8b0e; --term-bg-hover: rgba(252, 189, 74, 0.28);
-  --step-target-bg: rgba(252, 189, 74, 0.12); --step-target-border: rgba(219, 139, 14, 0.55);
+  --target-bg: rgba(252, 189, 74, 0.12); --target-line: rgba(219, 139, 14, 0.55);
 }
 
 /* Font scale steps */
@@ -326,23 +326,6 @@ pre code {
 .cp-say:empty { display: none; }
 .cp-say { overflow-wrap: anywhere; }
 
-/* --- step: one open, the rest collapsed, no JavaScript --- */
-details.step {
-  border: 1px solid var(--line); border-radius: 10px; margin: 0 0 10px; background: var(--bg);
-}
-details.step > summary {
-  cursor: pointer; padding: 12px 14px; font-weight: 600; list-style: none;
-  display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap;
-}
-details.step > summary::-webkit-details-marker { display: none; }
-details.step > summary::before { content: "▸"; color: var(--dim); font-weight: 400; }
-details.step[open] > summary::before { content: "▾"; }
-details.step[open] > summary { border-bottom: 1px solid var(--line); }
-details.step .body { padding: 14px; }
-details.step .n { color: var(--dim); font-variant-numeric: tabular-nums; }
-/* A command in a step title never breaks mid-way: at 390px `git diff` wrapped
-   between words and read as two commands. */
-details.step > summary code { white-space: nowrap; }
 
 /* --- what exists after a step --- */
 .after {
@@ -378,14 +361,7 @@ footer { margin-top: 48px; border-top: 1px solid var(--line); padding-top: 14px;
 .anchor-link:hover, .anchor-link:focus { opacity: 1; color: var(--acc); }
 /* Highlight the place a link led to, otherwise a long page hides it. */
 :target { scroll-margin-top: 14px; }
-/* The anchor sits on the body so the browser opens a collapsed step without
-   JavaScript; the offset brings the step title back into view. */
-details.step .body:target { scroll-margin-top: 124px; }
-@media (min-width: 56rem) { details.step .body:target { scroll-margin-top: 64px; } }
-details.step .body:target { background: var(--step-target-bg); border-radius: 0 0 9px 9px; }
-details.step:has(.body:target) { border-color: var(--step-target-border); }
-details.step:has(.body:target) > summary { border-bottom-color: var(--step-target-border); }
-h2:target, h3:target { background: var(--step-target-bg); border-radius: 6px; }
+h2:target, h3:target { background: var(--target-bg); border-radius: 6px; }
 
 /* --- search --- */
 
@@ -409,8 +385,8 @@ h2:target, h3:target { background: var(--step-target-bg); border-radius: 6px; }
 .clear-mark-btn,
 .search-clear {
   color: var(--term-accent);
-  background: var(--step-target-bg);
-  border-color: var(--step-target-border);
+  background: var(--target-bg);
+  border-color: var(--target-line);
 }
 .clear-mark-btn:hover,
 .clear-mark-btn:focus-visible,
@@ -914,22 +890,6 @@ nav.contents .nav-extra a[aria-current="page"] {
     page-break-after: avoid;
     color: #000 !important;
   }
-  details.step {
-    display: block !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
-    margin: 0 0 12pt !important;
-    border: 1px solid #ddd !important;
-    background: #fff !important;
-  }
-  details.step > summary {
-    list-style: none !important;
-    font-weight: 700 !important;
-    padding: 8pt 10pt !important;
-  }
-  details.step > summary::-webkit-details-marker {
-    display: none !important;
-  }
   pre {
     break-inside: avoid;
     page-break-inside: avoid;
@@ -1004,7 +964,7 @@ nav.contents .nav-extra a[aria-current="page"] {
     pointer-events: none;
   }
   nav.contents {
-    top: calc(var(--header-h, 68px) + 12px);
+    top: calc(var(--header-h, 68px) + 18px);
     max-height: calc(100vh - var(--header-h, 68px) - 24px);
   }
 }

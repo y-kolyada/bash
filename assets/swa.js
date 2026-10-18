@@ -253,8 +253,6 @@
             pos = at + needle.length;
           }
           if (pos < text.length) frag.appendChild(document.createTextNode(text.slice(pos)));
-          const step = textNode.parentElement && textNode.parentElement.closest('details.step');
-          if (step && !step.open) step.open = true;
           textNode.parentNode.replaceChild(frag, textNode);
         });
       });
@@ -374,18 +372,4 @@
   fitNav();
   fitFloats();
   markActive();
-
-  // 8. Print and PDF: expand every step for the booklet
-  window.addEventListener('beforeprint', () => {
-    document.querySelectorAll('details.step:not([open])').forEach((d) => {
-      d.setAttribute('data-was-closed', 'true');
-      d.setAttribute('open', '');
-    });
-  });
-  window.addEventListener('afterprint', () => {
-    document.querySelectorAll('details.step[data-was-closed]').forEach((d) => {
-      d.removeAttribute('data-was-closed');
-      d.removeAttribute('open');
-    });
-  });
 })();
