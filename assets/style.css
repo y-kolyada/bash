@@ -1,5 +1,4 @@
-/* Сайт курса AI Bootcamp. Обычный CSS, без сборки: всё, что здесь есть,
-   участник может повторить у себя. Телефон первым, потом широкий экран. */
+/* devops-bash. Plain CSS, no build step. Phone first, wide screen second. */
 
 :root {
   --bg: #fbfbfa; --fg: #1a1a18; --dim: #6b6b66; --line: #e4e4e0;
@@ -16,7 +15,7 @@
     --step-target-bg: rgba(252, 189, 74, 0.08); --step-target-border: rgba(252, 189, 74, 0.45);
   }
 }
-/* Ручное переключение темы */
+/* Manual theme switch */
 html[data-theme="dark"] {
   --bg: #16161a; --fg: #f0f0ee; --dim: #9a9a95; --line: #2e2e34;
   --acc: #8ab0ff; --ok: #6fd48c; --warn: #e0b45a; --code: #22222a;
@@ -30,7 +29,7 @@ html[data-theme="light"] {
   --step-target-bg: rgba(252, 189, 74, 0.12); --step-target-border: rgba(219, 139, 14, 0.55);
 }
 
-/* Масштабы шрифта */
+/* Font scale steps */
 html[data-font="s"] { --base-font-size: 14px; }
 html[data-font="m"] { --base-font-size: 16px; }
 html[data-font="l"] { --base-font-size: 18px; }
@@ -44,7 +43,7 @@ body {
 
 .wrap { max-width: 68rem; margin: 0 auto; padding: 0 16px 64px; }
 
-/* --- шапка и двухуровневый логотип --- */
+/* --- header and two-tier brand --- */
 header.top {
   border-bottom: 1px solid var(--line);
   margin-bottom: 18px;
@@ -81,7 +80,7 @@ header.top a.home {
   border-radius: 4px;
   transition: box-shadow 0.15s ease;
 }
-/* Инверсия цветов логотипа в ночном режиме */
+/* Inverted badge artwork in dark mode */
 html[data-theme="dark"] .badge-ai {
   background-image: url('img/ai-badge-invert.png');
   box-shadow: 0 0 12px rgba(252, 189, 74, 0.35);
@@ -102,11 +101,8 @@ header.top .three {
   font-size: .85rem;
   margin-top: 3px;
 }
-/* ТЕМА САЙТА В СЛОГАНЕ. Янтарная плашка - тот же акцент, что у блока
-   «Главная мысль» и у бейджа в ночной теме, поэтому шапка читается как одно
-   целое. Текст на плашке всегда тёмный: янтарный фон одинаков в обеих темах,
-   и светлый текст на нём теряет контраст. Начертание обычное - жирное поверх
-   цвета спорит с продуктовым маркером devops-bash. */
+/* Topic chip. Dark text in both themes: the amber background never changes,
+   and light text on it loses contrast. */
 header.top .three .topic {
   background: var(--term-accent);
   color: #121316;
@@ -114,7 +110,7 @@ header.top .three .topic {
   border-radius: 4px;
 }
 
-/* --- сервисная планка (Utility Tray) --- */
+/* --- utility tray --- */
 .utility-tray {
   display: inline-flex;
   align-items: center;
@@ -223,18 +219,13 @@ header.top .three .topic {
   }
 }
 
-/* --- две колонки на широком экране, одна на телефоне --- */
+/* --- two columns on a wide screen, one on a phone --- */
 .cols { display: block; }
 nav.sessions { margin: 0 0 28px; padding: 0; }
 nav.sessions ol { list-style: none; margin: 0; padding: 0; }
 nav.sessions li { margin: 0 0 2px; }
-/* ПРЯМЫЕ ДЕТИ li, И ЭТО ИСПРАВЛЕНИЕ, А НЕ СТИЛЬ. Было написано
-   `nav.sessions span`, и этот селектор ловил ещё и <span class="num"> с
-   номером ВНУТРИ ссылки: номер становился блоком со своими отступами, и к
-   нему приклеивалось " · будет". Слова наезжали друг на друга. Нашёл тренер
-   глазами на телефоне за минуту - проверка из девяти строк этого не видит.
-   Чтобы не повторилось, ненаписанные занятия помечены классом .later, а не
-   типом элемента, и проверка считает их. */
+/* Direct children only: a looser selector also matched .num inside the link
+   and turned the number into a block, so words overlapped on a phone. */
 nav.sessions li > a, nav.sessions li > .later {
   display: block; padding: 7px 10px; border-radius: 7px; text-decoration: none;
   font-size: .95rem; border: 1px solid transparent;
@@ -245,10 +236,6 @@ nav.sessions li > a[aria-current="page"] { border-color: var(--line); background
 nav.sessions li > .later { color: var(--dim); text-wrap: pretty; }
 nav.sessions li > .later::after { content: " · будет"; font-size: .85em; }
 html[lang="uk"] nav.sessions li > .later::after { content: " · буде"; }
-html[lang="be"] nav.sessions li > .later::after { content: " · будзе"; }
-html[lang="kk"] nav.sessions li > .later::after { content: " · болады"; }
-html[lang="ky"] nav.sessions li > .later::after { content: " · болот"; }
-html[lang="ka"] nav.sessions li > .later::after { content: " · იქნება"; }
 html[lang="en"] nav.sessions li > .later::after { content: " · coming soon"; }
 html[lang="de"] nav.sessions li > .later::after { content: " · folgt"; }
 nav.sessions .num { display: inline-block; width: 1.4em; color: var(--dim); flex: none; }
@@ -271,11 +258,8 @@ nav.sessions .num { display: inline-block; width: 1.4em; color: var(--dim); flex
   }
 }
 
-/* ВСТРОЕННЫЕ ЗНАЧКИ, И ЭТО ИСПРАВЛЕНИЕ, А НЕ СТИЛЬ. В навигации и в словаре
-   стояли эмодзи (📖 и 🎯), а на машине без шрифта с эмодзи они рисуются пустым
-   квадратом - ровно то, что уже случилось со значком кнопки копирования (⧉).
-   SVG не зависит ни от шрифта, ни от внешнего файла и берёт цвет текста через
-   currentColor. */
+/* Inline SVG icons: emoji render as empty boxes without an emoji font.
+   SVG needs no font, no file, and takes its colour from currentColor. */
 .icon {
   width: 1.15em;
   height: 1.15em;
@@ -283,17 +267,15 @@ nav.sessions .num { display: inline-block; width: 1.4em; color: var(--dim); flex
   flex: none;
 }
 
-/* В навигации значок стоит рядом с набором строчных букв, а не в строке текста:
-   там работает не базовая линия, а выравнивание по центру строки, и значок
-   кажется поднятым, как верхний индекс. Поэтому здесь он крупнее и опущен на
-   пиксель - подобрано глазами на снимке, а не вычислено. */
+/* In the sidebar the icon is centred on the line box, not the baseline, so it
+   reads as a superscript unless it is larger and nudged down by a pixel. */
 nav.sessions .nav-extra .icon {
   width: 1.45em;
   height: 1.45em;
   margin-top: 1px;
 }
 
-/* --- текст --- */
+/* --- text --- */
 h1 { font-size: 1.7rem; line-height: 1.2; margin: 0 0 .4rem; }
 h2 { font-size: 1.25rem; margin: 2.2rem 0 .6rem; }
 h3 { font-size: 1.02rem; margin: 1.4rem 0 .4rem; }
@@ -310,25 +292,19 @@ code, kbd {
 pre {
   background: var(--code); border: 1px solid var(--line); border-radius: 8px;
   padding: 12px 14px; overflow-x: auto; margin: 0 0 .7rem;
-  /* МЕСТО ПОД КНОПКУ «СКОПИРОВАТЬ». position:relative - якорь для неё,
-     а верхний отступ - чтобы первая строка кода не ушла ей под низ. */
+  /* Room for the copy button: relative anchors it, padding keeps the first
+     line of code out from under it. */
   position: relative; padding-top: 34px;
 }
-/* ПЕРЕНОС, А НЕ ГОРИЗОНТАЛЬНАЯ ПРОКРУТКА. Замер headless-браузером на ширине
-   390px показал семь элементов, уезжающих за край внутри своих рамок: длинные
-   команды и адреса. Страница при этом не прокручивалась, то есть предикат
-   формально держался - а команду на телефоне было не прочитать целиком.
-   `pre-wrap` сохраняет настоящие переводы строк и переносит только длинные:
-   при копировании команда остаётся одной строкой. */
+/* Wrap instead of scrolling sideways: at 390px long commands ran outside
+   their box. pre-wrap keeps real newlines, so a copied command stays one line. */
 pre code {
   background: none; padding: 0; font-size: .88rem;
   white-space: pre-wrap; overflow-wrap: anywhere;
 }
 
-/* --- кнопка «скопировать» в блоке кода (cp.js) ---
-   ВИДНА ВСЕГДА, А НЕ ПО НАВЕДЕНИЮ. На телефоне наведения не существует, а
-   команду с телефона копируют чаще, чем с настольной машины. Та же причина,
-   по которой всегда видны якоря `#`. */
+/* --- copy button inside a code block (cp.js) ---
+   Always visible: a phone has no hover, and phones copy commands most. */
 .cp-btn {
   position: absolute; top: 5px; right: 6px;
   display: inline-flex; align-items: center; gap: 5px;
@@ -345,7 +321,7 @@ pre code {
 .cp-say:empty { display: none; }
 .cp-say { overflow-wrap: anywhere; }
 
-/* --- шаг: открыт один, остальные свёрнуты. Без JavaScript --- */
+/* --- step: one open, the rest collapsed, no JavaScript --- */
 details.step {
   border: 1px solid var(--line); border-radius: 10px; margin: 0 0 10px; background: var(--bg);
 }
@@ -359,11 +335,11 @@ details.step[open] > summary::before { content: "▾"; }
 details.step[open] > summary { border-bottom: 1px solid var(--line); }
 details.step .body { padding: 14px; }
 details.step .n { color: var(--dim); font-variant-numeric: tabular-nums; }
-/* В заголовке шага команда не разрывается посередине: на ширине 390px
-   `git diff` переносился между словами и читался как два разных. */
+/* A command in a step title never breaks mid-way: at 390px `git diff` wrapped
+   between words and read as two commands. */
 details.step > summary code { white-space: nowrap; }
 
-/* --- после шага существует --- */
+/* --- what exists after a step --- */
 .after {
   border-left: 3px solid var(--ok); background: var(--code);
   padding: 8px 12px; border-radius: 0 7px 7px 0; margin: 0 0 .8rem;
@@ -379,7 +355,7 @@ details.step > summary code { white-space: nowrap; }
 .box h2, .box h3 { margin-top: 0; }
 .box.key h2 { font-size: 1.15rem; margin-bottom: 8px; }
 
-/* --- банк вопросов: длинный нумерованный список с тремя строками в пункте --- */
+/* --- question bank: a long ordered list, three lines per item --- */
 ol.qa { padding-left: 1.6em; }
 ol.qa > li { margin: 0 0 1.1rem; line-height: 1.55; }
 ol.qa > li::marker { color: var(--dim); font-variant-numeric: tabular-nums; }
@@ -388,20 +364,17 @@ ol.qa > li > span.dim { font-size: .92em; }
 .soon { color: var(--dim); }
 footer { margin-top: 48px; border-top: 1px solid var(--line); padding-top: 14px; color: var(--dim); font-size: .9rem; }
 
-/* --- якоря: ссылка на конкретный шаг, а не на страницу целиком --- */
-/* ВИДИМЫ ВСЕГДА, А НЕ ПО НАВЕДЕНИЮ. На телефоне наведения не существует,
-   а ссылку на шаг чаще всего нужно взять именно с телефона. */
+/* --- anchors: a link to one section, not to the whole page --- */
+/* Always visible: a phone has no hover, and that is where links are copied. */
 .yakor {
   color: var(--dim); text-decoration: none; font-weight: 400;
   padding: 0 .35em; opacity: .45;
 }
 .yakor:hover, .yakor:focus { opacity: 1; color: var(--acc); }
-/* Куда пришли по ссылке - подсвечивается, иначе на длинной странице
-   непонятно, то ли это место. */
+/* Highlight the place a link led to, otherwise a long page hides it. */
 :target { scroll-margin-top: 14px; }
-/* Якорь шага стоит на СОДЕРЖИМОМ - только так браузер раскрывает свёрнутый
-   шаг сам, без JavaScript (проверено). Но тогда заголовок шага уезжает за
-   верх экрана, и непонятно, куда ты попал. Отступ возвращает его в кадр. */
+/* The anchor sits on the body so the browser opens a collapsed step without
+   JavaScript; the offset brings the step title back into view. */
 details.step .body:target { scroll-margin-top: 124px; }
 @media (min-width: 56rem) { details.step .body:target { scroll-margin-top: 64px; } }
 details.step .body:target { background: var(--step-target-bg); border-radius: 0 0 9px 9px; }
@@ -409,8 +382,8 @@ details.step:has(.body:target) { border-color: var(--step-target-border); }
 details.step:has(.body:target) > summary { border-bottom-color: var(--step-target-border); }
 h2:target, h3:target { background: var(--step-target-bg); border-radius: 6px; }
 
-/* --- «свернуть всё»: видна всегда, даже когда уехали вниз --- */
-/* Низ справа - под большой палец на телефоне и подальше от текста на широком. */
+/* --- collapse-all button: visible at any scroll position --- */
+/* Bottom right: under the thumb on a phone, clear of the text on a wide screen. */
 .svernut {
   position: fixed; right: 14px; bottom: 14px; z-index: 10;
   background: var(--bg); color: var(--fg); border: 1px solid var(--line);
@@ -418,10 +391,56 @@ h2:target, h3:target { background: var(--step-target-bg); border-radius: 6px; }
   box-shadow: 0 2px 10px rgba(0,0,0,.12);
 }
 .svernut:hover, .svernut:focus { border-color: var(--acc); color: var(--acc); }
-/* Чтобы кнопка не накрывала последние строки страницы. */
+
+/* --- floating button stack --- */
+
+/* One corner, one stack. Buttons accumulate; if each picks its own corner they
+   collide. The container owns the corner, swa.js moves .svernut in here. */
+.floats {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.floats .svernut {
+  position: static;
+  right: auto;
+  bottom: auto;
+}
+.float-btn {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .12);
+  cursor: pointer;
+  /* Muted at rest: the button floats over the text. Full strength on hover
+     and on keyboard focus. */
+  opacity: .55;
+  transition: opacity .15s ease, border-color .15s ease, color .15s ease;
+}
+.float-btn:hover,
+.float-btn:focus-visible {
+  opacity: 1;
+  border-color: var(--acc);
+  color: var(--acc);
+}
+.float-btn .icon {
+  width: 22px;
+  height: 22px;
+}
+/* Keeps the floating button clear of the last lines of the page. */
 body { padding-bottom: 72px; }
 
-/* --- Интерактивные термины курса --- */
+/* --- interactive term cards --- */
 .term {
   position: relative;
   display: inline-block;
@@ -546,7 +565,7 @@ body { padding-bottom: 72px; }
   }
 }
 
-/* Ссылка на словарь в боковом меню */
+/* Glossary link in the sidebar */
 nav.sessions .nav-extra {
   margin-top: 14px;
   padding-top: 12px;
@@ -573,7 +592,7 @@ nav.sessions .nav-extra a[aria-current="page"] {
   font-weight: 600;
 }
 
-/* --- Карточки в глоссарии --- */
+/* --- glossary entries --- */
 .glossary-term {
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -634,7 +653,7 @@ nav.sessions .nav-extra a[aria-current="page"] {
   border-top: 1px solid var(--line);
 }
 
-/* --- динамический навигатор по странице (In-Page TOC) --- */
+/* --- in-page table of contents --- */
 .page-toc {
   margin-top: 0;
   padding-top: 12px;
@@ -681,7 +700,7 @@ nav.sessions .nav-extra a[aria-current="page"] {
   background: var(--term-bg-hover);
 }
 
-/* --- карточка-заглушка для не-RU языков --- */
+/* --- stub card for a language that is not translated yet --- */
 .stub-card {
   padding: 24px;
   margin: 20px 0 32px;
@@ -718,11 +737,11 @@ nav.sessions .nav-extra a[aria-current="page"] {
   box-shadow: 0 4px 8px rgba(0,0,0,0.18);
 }
 
-/* --- режим чтения и печати (Machine Reading / Accessibility / PDF Export) --- */
+/* --- screen reading, accessibility and print --- */
 @media print {
-  /* В бумажной брошюре кнопка копирования не нажимается. */
+  /* Nothing to press on paper. */
   .cp-btn { display: none; }
-  nav.sessions, .utility-tray, .page-toc, .yakor, .svernut, .term-card {
+  nav.sessions, .utility-tray, .page-toc, .yakor, .svernut, .term-card, .floats {
     display: none !important;
   }
   .cols {
@@ -794,35 +813,22 @@ nav.sessions .nav-extra a[aria-current="page"] {
   }
 }
 
-/* --- липкая панель: дно страницы принадлежит правой колонке --- */
+/* --- sticky sidebar: the bottom air belongs to the right column --- */
 
-/* ЭТО ИСПРАВЛЕНИЕ, А НЕ СТИЛЬ. Липкий элемент не может выйти за границу своего
-   контейнера - здесь это сетка .cols. Под сеткой лежало пустое дно: 64px у
-   .wrap и 72px у body (запас под плавающую кнопку .svernut, которой на этом
-   сайте нет ни на одной странице). На дне страницы панель навигации
-   прижималась к границе сетки и уезжала вверх на 136 - 18 = 118px: два первых
-   раздела сайта становились недостижимы ни прокруткой панели (её scrollTop уже
-   0), ни прокруткой страницы (она уже внизу). Нашёл Приёмщик руками, мерит
-   tools/check-pages.mjs.
-
-   Блок стоит в конце файла намеренно: правило body { padding-bottom: 72px }
-   объявлено ниже медиазапроса с панелью, и при равной специфичности побеждает
-   то, что записано позже. */
+/* A sticky element cannot leave its container, and empty page padding below
+   the grid pushed the sidebar 118px above the viewport at the bottom of a page.
+   Declared last on purpose: body padding-bottom is set below the sidebar rules. */
 @media (min-width: 56rem) {
   body { padding-bottom: 0; }
   .wrap { padding-bottom: 0; }
   main { padding-bottom: 64px; }
 }
 
-/* --- закреплённая шапка --- */
+/* --- pinned header --- */
 
-/* ШАПКА НЕ УЕЗЖАЕТ ВВЕРХ НА ШИРОКОМ ЭКРАНЕ. Решение Архитектора: язык, тема и
-   размер шрифта должны быть под рукой на любой высоте страницы. На телефоне
-   шапка остаётся обычной - там она стоила бы седьмой части экрана.
-
-   --header-h ставит swa.js по настоящей высоте шапки: она меняется от размера
-   шрифта и длины слогана, и вычислить её в CSS нельзя. Значения по умолчанию
-   рассчитаны на средний шрифт и нужны до того, как отработает скрипт. */
+/* Pinned on a wide screen so language, theme and font size stay in reach; left
+   scrolling on a phone, where it would cost a seventh of the screen.
+   swa.js sets --header-h from the real height; the fallback covers first paint. */
 @media (min-width: 56rem) {
   header.top {
     position: sticky;
@@ -831,18 +837,14 @@ nav.sessions .nav-extra a[aria-current="page"] {
     background: var(--bg);
   }
 
-  /* ВОЗДУХ ПОД ЧЕРТОЙ, И ЭТО НЕ УКРАШЕНИЕ. Панель навигации закреплена на 12px
-     ниже шапки, и её пункты в черту не врезаются. Текст в правой колонке
-     проезжает под шапкой сплошняком и упирается в черту вплотную. Полоса цвета
-     страницы продолжает шапку вниз: первые 12px - тот же воздух, что у панели,
-     дальше цвет уходит в прозрачность. Без этого растворения под краем полосы
-     видна нижняя кромка уезжающей строки - буквы, срезанные поперёк. */
+  /* Air under the rule. The sidebar stops 12px below it; text in the right
+     column would otherwise run straight into it. The strip fades out, so a line
+     passing underneath dissolves instead of being cut across the letters. */
   header.top::after {
     content: "";
     position: absolute;
-    /* Отступ в процентах считается от внутренней рамки, а нижняя граница
-       лежит на пиксель ниже: без этой поправки полоса накрывала саму черту,
-       и шапка переставала отделяться от панели и от текста. */
+    /* Percentages resolve against the padding box, so without the extra pixel
+       the strip covered the border rule itself. */
     top: calc(100% + 1px);
     left: 0;
     right: 0;
@@ -856,14 +858,13 @@ nav.sessions .nav-extra a[aria-current="page"] {
   }
 }
 
-/* На телефоне шапка не закреплена, и прижимать её к самому верху экрана незачем:
-   воздух над логотипом там читается как поля страницы. */
+/* Not pinned on a phone, so the air above the brand reads as a page margin. */
 @media (max-width: 56rem) {
   header.top { padding-top: 16px; }
 }
 
-/* Куда пришли по якорю - не под шапкой. Переменная равна нулю, пока шапка не
-   закреплена, поэтому на телефоне отступ остаётся прежним. */
+/* An anchor must not land under the header. The variable is 0 while the header
+   is not pinned, so a phone keeps the old offset. */
 :target,
 .glossary-term:target {
   scroll-margin-top: calc(var(--header-h, 0px) + 14px);

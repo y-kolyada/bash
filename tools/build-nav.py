@@ -109,6 +109,12 @@ def rewrite(text, lang, migrate=False):
 
     text = PAGE.sub(page, text)
 
+    # Ключи настроек читателя не привязаны к продукту: b1 - маркер другого сайта.
+    for stale, fresh in (("'b1-theme'", "'ai-theme'"), ("'b1-font'", "'ai-font'")):
+        if stale in text:
+            text = text.replace(stale, fresh)
+            counts['assets'] += 1
+
     # КНОПКА МЕЛКОГО ШРИФТА БЫЛА ПОДПИСАНА КИРИЛЛИЧЕСКОЙ «А». Глиф тот же,
     # буква чужая: на английской странице она была единственным кириллическим
     # символом, а проверка перевода считает такие символы непереведённым
@@ -150,9 +156,52 @@ def rewrite(text, lang, migrate=False):
     return text, counts
 
 
+ANCHOR_LINK = re.compile(r'href="(?:\.\./ru/)?(index|glossary|[0-9]{2})\.html#([A-Za-z0-9_-]+)"')
+
+
+def anchors_of(path):
+    if path not in anchors_of.cache:
+        try:
+            with open(path, encoding='utf-8') as handle:
+                anchors_of.cache[path] = set(re.findall(r'\bid="([^"]+)"', handle.read()))
+        except OSError:
+            anchors_of.cache[path] = set()
+    return anchors_of.cache[path]
+
+
+anchors_of.cache = {}
+
+
+def cross_links(text, lang):
+    """Ссылка на раздел ведёт туда, где этот раздел есть.
+
+    Пока страница языка - заглушка, у неё нет якорей, и ссылка из словаря на
+    «где встретилось впервые» повисает: читатель попадает в никуда, а проверка
+    ссылок краснеет. Пока раздела в своём языке нет, ссылка ведёт на русскую
+    версию; как только страница переведена и якорь появился, ссылка сама
+    возвращается в свой язык. Обе стороны делает один проход, поэтому правило
+    не нужно помнить руками при каждой сданной странице.
+    """
+    moved = [0]
+
+    def fix(m):
+        page, anchor = m.group(1), m.group(2)
+        here = anchors_of(os.path.join(lang, page + '.html'))
+        if anchor in here:
+            link = 'href="%s.html#%s"' % (page, anchor)
+        else:
+            link = 'href="../ru/%s.html#%s"' % (page, anchor)
+        if link != m.group(0):
+            moved[0] += 1
+        return link
+
+    return ANCHOR_LINK.sub(fix, text), moved[0]
+
+
 def main(argv):
     args = [a for a in argv[1:] if not a.startswith('--')]
     migrate = '--migrate' in argv[1:]
+    relink = '--relink' in argv[1:]
     roots = [d for d in (args or LANGS) if os.path.isdir(d)]
     if not roots:
         print('нет папок языков - запускайте из корня репозитория')
@@ -167,6 +216,9 @@ def main(argv):
             with open(path, encoding='utf-8') as handle:
                 before = handle.read()
             after, counts = rewrite(before, lang, migrate)
+            if relink and lang != 'ru':
+                after, moved = cross_links(after, lang)
+                counts['pages'] += moved
             total['files'] += 1
             for key in counts:
                 total[key] += counts[key]

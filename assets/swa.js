@@ -1,13 +1,13 @@
 // swa.js - Simple Web Architecture utilities: theme, font scale & dynamic in-page TOC
 (function () {
-  // 1. Инициализация и переключение темы (День / Ночь)
-  const savedTheme = localStorage.getItem('b1-theme');
+  // 1. Theme: restore and toggle
+  const savedTheme = localStorage.getItem('ai-theme');
   if (savedTheme) {
     document.documentElement.setAttribute('data-theme', savedTheme);
   }
 
-  // Значки кнопки темы - встроенный SVG по той же причине, что и остальные:
-  // символы ☼ и ☾ есть не в каждом шрифте и рисуются пустым квадратом.
+  // Inline SVG for the same reason as every other icon: the sun and moon
+  // characters are missing from many fonts and render as empty boxes.
   const icon = (name, body) => '<svg class="icon" data-icon="' + name + '"'
     + ' viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor"'
     + ' stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"'
@@ -37,13 +37,13 @@
         (!currentTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
       const nextTheme = isDark ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', nextTheme);
-      localStorage.setItem('b1-theme', nextTheme);
+      localStorage.setItem('ai-theme', nextTheme);
       updateThemeUI();
     });
   }
 
-  // 2. Управление размером шрифта (S / M / L)
-  const savedFont = localStorage.getItem('b1-font') || 'm';
+  // 2. Font size: S / M / L
+  const savedFont = localStorage.getItem('ai-font') || 'm';
   document.documentElement.setAttribute('data-font', savedFont);
 
   const fontBtns = document.querySelectorAll('.font-btn');
@@ -59,13 +59,13 @@
       const size = btn.getAttribute('data-size');
       if (!size) return;
       document.documentElement.setAttribute('data-font', size);
-      localStorage.setItem('b1-font', size);
+      localStorage.setItem('ai-font', size);
       updateFontUI(size);
     });
   });
 
-  // 3. Высота закреплённой шапки: от неё зависят отступ якоря и место панели.
-  //    В CSS её не вычислить - она зависит от размера шрифта и длины слогана.
+  // 3. Pinned header height. Anchor offset and sidebar position depend on it,
+  //    and CSS cannot compute it: it follows the font size and the tagline.
   const header = document.querySelector('header.top');
 
   function fitHeader() {
@@ -75,7 +75,7 @@
     document.documentElement.style.setProperty('--header-h', height + 'px');
   }
 
-  // 4. Динамический навигатор по странице (In-Page TOC / Scroll Spy)
+  // 4. In-page table of contents and scroll spy
   let fitNav = function () {};
   let markActive = function () {};
 
@@ -89,7 +89,7 @@
         const li = document.createElement('li');
         const a = document.createElement('a');
         a.href = '#' + item.id;
-        // Берём заголовок: для карточки термина из вложенного h2/h3, иначе из самого элемента
+        // A term card keeps its title in a nested h2/h3; a section is its own title.
         const titleEl = item.matches('.glossary-term')
           ? item.querySelector('h2, h3')
           : item;
@@ -104,14 +104,10 @@
       });
       tocContainer.hidden = false;
 
-      // ПОДСВЕТКА РАЗДЕЛА СЧИТАЕТСЯ ПО ПОЛОЖЕНИЮ, А НЕ ЧЕРЕЗ IntersectionObserver,
-      // И ЭТО ИСПРАВЛЕНИЕ. Наблюдатель подсвечивал раздел, когда тот входил в
-      // верхнюю треть окна. У последнего раздела страницы такой возможности нет:
-      // страница упирается в своё дно раньше, чем он туда доедет. На окне высотой
-      // 1200px и выше «Артефакты» не подсвечивались никогда - ни прокруткой, ни
-      // щелчком по самому пункту. Счёт по положению такой ловушки не имеет: на
-      // дне страницы активен последний раздел, это верно по определению.
-      const LINE = 0.35; // та же треть экрана, что была у наблюдателя
+      // Computed from position, not from IntersectionObserver: the last section
+      // never reaches the top third on a tall window, so it was never active.
+      // At the bottom of a page the last section is active by definition.
+      const LINE = 0.35;
 
       markActive = function () {
         const line = window.innerHeight * LINE;
@@ -128,10 +124,8 @@
         });
       };
 
-      // ВЫСОТА ПАНЕЛИ РАВНА ТОМУ, ЧТО ВИДНО, А НЕ ВЫСОТЕ ОКНА. Пока шапка не
-      // уехала вверх, панель начинается ниже верха окна, и её низ оказывается за
-      // нижним краем: последние пункты недостижимы, хотя панель «прокручена до
-      // конца». Поэтому предел высоты считается от её настоящего положения.
+      // The sidebar is as tall as what is visible below it, not as the window:
+      // otherwise its last items sit off screen while the header is still there.
       const nav = tocContainer.closest('nav.sessions');
 
       fitNav = function () {
@@ -145,9 +139,61 @@
     }
   }
 
-  // 5. Один обработчик на всё, что зависит от прокрутки и размера окна.
-  //    Пересчёт идёт в кадре отрисовки: иначе чтение размеров на каждом
-  //    событии прокрутки заставляет браузер считать разметку заново.
+  // 5. Floating scroll buttons: to the top and to the bottom. Paging by screen
+  //    is left to the finger and the wheel. Built here, not in the markup, so
+  //    no page has to be edited to gain them.
+  const SAY = {
+    ru: ['В начало страницы', 'В конец страницы'],
+    en: ['To the top of the page', 'To the bottom of the page'],
+    uk: ['На початок сторінки', 'У кінець сторінки'],
+    de: ['Zum Anfang der Seite', 'Zum Ende der Seite'],
+  };
+  const LONG_ENOUGH = 1.5; // shorter than this many screens needs no buttons
+
+  function arrow(name, body) {
+    return '<svg class="icon" data-icon="' + name + '" viewBox="0 0 20 20" width="22"'
+      + ' height="22" fill="none" stroke="currentColor" stroke-width="1.7"'
+      + ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + body + '</svg>';
+  }
+
+  const floats = document.createElement('div');
+  floats.className = 'floats';
+  floats.hidden = true;
+
+  const says = SAY[document.documentElement.lang] || SAY.ru;
+  const steps = [
+    [says[0], arrow('to-top', '<path d="M5 10.5l5-5 5 5"/><path d="M5 15l5-5 5 5"/>'), 0],
+    [says[1], arrow('to-bottom', '<path d="M5 5l5 5 5-5"/><path d="M5 9.5l5 5 5-5"/>'), 1],
+  ];
+
+  steps.forEach(([label, svg, toEnd]) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'float-btn';
+    btn.setAttribute('aria-label', label);
+    btn.title = label;
+    btn.innerHTML = svg;
+    btn.addEventListener('click', () => {
+      const doc = document.scrollingElement || document.documentElement;
+      window.scrollTo({ top: toEnd ? doc.scrollHeight : 0, behavior: 'smooth' });
+    });
+    floats.appendChild(btn);
+  });
+
+  document.body.appendChild(floats);
+
+  // A collapse-all button pins itself to the same corner, so move it into the
+  // stack instead of letting two buttons overlap.
+  const svernut = document.querySelector('.svernut');
+  if (svernut) floats.insertBefore(svernut, floats.firstChild);
+
+  function fitFloats() {
+    const doc = document.scrollingElement || document.documentElement;
+    floats.hidden = doc.scrollHeight < window.innerHeight * LONG_ENOUGH;
+  }
+
+  // 6. One handler for everything that depends on scrolling and window size,
+  //    throttled to an animation frame to avoid forced layout on every event.
   let ticking = false;
 
   function onScroll() {
@@ -157,16 +203,24 @@
       ticking = false;
       fitHeader();
       fitNav();
+      fitFloats();
       markActive();
     });
   }
 
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll);
+  window.addEventListener('load', onScroll);
   fontBtns.forEach((btn) => btn.addEventListener('click', onScroll));
-  onScroll();
 
-  // 6. Поддержка режима печати и PDF (раскрытие всех шагов для брошюры)
+  // First pass runs now, not in the next frame: until that frame the stack is
+  // still hidden and the sidebar unsized, which is what a checker reads.
+  fitHeader();
+  fitNav();
+  fitFloats();
+  markActive();
+
+  // 7. Print and PDF: expand every step for the booklet
   window.addEventListener('beforeprint', () => {
     document.querySelectorAll('details.step:not([open])').forEach((d) => {
       d.setAttribute('data-was-closed', 'true');

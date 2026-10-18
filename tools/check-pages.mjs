@@ -75,6 +75,67 @@ for (const file of files) {
   const url = 'file://' + resolve(file);
 
   await phone.goto(url);
+  // Стопка плавающих кнопок мерится на телефоне: там теснее всего и там
+  // палец. Поведение (щелчок уводит в начало и в конец) проверяется на одной
+  // странице каждого языка - плавная прокрутка идёт секунду, и гонять её по
+  // всем 69 страницам значит получить проверку, которую перестанут запускать.
+  const floats = await phone.evaluate(async (checkClicks) => {
+    const sleep = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    await sleep();
+    const doc = document.scrollingElement;
+    const stack = document.querySelector('.floats');
+    if (!stack) return ['стопки кнопок нет вовсе'];
+
+    const bad = [];
+    const long = doc.scrollHeight >= window.innerHeight * 1.5;
+    const shown = !stack.hidden;
+    if (long && !shown) bad.push('на длинной странице нет кнопок прокрутки');
+    if (!long && shown) bad.push('на короткой странице кнопки прокрутки лишние');
+    if (!shown) return bad;
+
+    const btns = [...stack.children];
+    const rect = (el) => el.getBoundingClientRect();
+    for (const b of btns) {
+      const r = rect(b);
+      if (Math.round(r.width) < 44 || Math.round(r.height) < 44) {
+        bad.push('кнопка меньше 44px: ' + Math.round(r.width) + 'x' + Math.round(r.height));
+      }
+      if (!b.getAttribute('aria-label')) bad.push('у кнопки нет доступного имени');
+    }
+    for (let i = 0; i < btns.length; i++) {
+      for (let j = i + 1; j < btns.length; j++) {
+        const a = rect(btns[i]), b = rect(btns[j]);
+        if (a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom) {
+          bad.push('кнопки в стопке наезжают друг на друга');
+        }
+      }
+    }
+    const r = rect(stack);
+    if (Math.round(r.right) > window.innerWidth || Math.round(r.bottom) > window.innerHeight) {
+      bad.push('стопка вылезает за край экрана');
+    }
+
+    if (checkClicks && btns.length >= 2) {
+      const down = btns[btns.length - 1];
+      const up = btns[btns.length - 2];
+      down.click();
+      for (let i = 0; i < 120; i++) {
+        if (doc.scrollTop + window.innerHeight >= doc.scrollHeight - 2) break;
+        await sleep();
+      }
+      if (doc.scrollTop + window.innerHeight < doc.scrollHeight - 2) bad.push('кнопка «в конец» не доводит до низа');
+      up.click();
+      for (let i = 0; i < 120; i++) {
+        if (doc.scrollTop === 0) break;
+        await sleep();
+      }
+      if (doc.scrollTop !== 0) bad.push('кнопка «в начало» не доводит до верха');
+    }
+    return bad;
+  }, /\/02\.html$/.test(file.replace(/\\/g, '/')));
+
+  for (const why of floats) bad.push([file, why + ' (телефон)']);
+
   const overflow = await phone.evaluate(() => {
     const viewport = document.documentElement.clientWidth;
     const out = [];
