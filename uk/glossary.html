@@ -137,7 +137,7 @@
       <p class="glossary-lead">Змінна, яку оболонка передає дочірнім процесам.</p>
       <p>Звичайне присвоєння <code>VAR=value</code> видно лише поточній оболонці; <code>export</code> позначає змінну для успадкування. Успадкування йде лише вниз: дочірній процес не може змінити оточення батька. Тому значення з одного кроку CI не видно в наступному - кожен крок це новий процес.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="../ru/01.html#variables">Ключові компоненти · Перемінні</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#variables">Ключові компоненти · Перемінні</a>
       </div>
     </div>
 
@@ -150,7 +150,7 @@
       <p class="glossary-lead">Вираз, який оболонка розкриває у список відповідних імен файлів до запуску команди.</p>
       <p>Розкриття робить сама оболонка, а не програма, тому імена з пробілами зберігаються цілком - на відміну від <code>$(ls)</code>. Якщо жоден файл не підійшов, шаблон за замовчуванням залишається самим собою, і цикл виконається один раз із рядком <code>*.log</code>; <code>shopt -s nullglob</code> змінює цю поведінку на порожній список.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="../ru/01.html#parsing">Ключові компоненти · Розбір командного рядка</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#parsing">Ключові компоненти · Розбір командного рядка</a>
       </div>
     </div>
 
@@ -163,7 +163,7 @@
       <p class="glossary-lead">Розбиття результату підстановки на окремі слова за пробілами та переводами рядків.</p>
       <p>Bash підставляє значення змінної, а потім ріже його. Тому шлях <code>/home/My Files/a.txt</code> без лапок перетворюється на два аргументи, і команда видалення видалить не те, що ви мали на увазі. Лапки навколо підстановки - не стиль, а захист; і це перша помилка, якої регулярно припускаються ШІ-агенти.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="../ru/01.html#expansions">Ключові компоненти · Розкриття та словоподіл</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#expansions">Ключові компоненти · Розкриття та словоподіл</a>
       </div>
     </div>
 
@@ -176,7 +176,7 @@
       <p class="glossary-lead">Набір символів, за якими оболонка ріже текст на слова.</p>
       <p>За замовчуванням це пробіл, табуляція та перевід рядка. Звуження <code>IFS</code> до переводу рядка та табуляції на початку скрипту прибирає розрізання за пробілами там, де воно майже ніколи не потрібне. У конструкції <code>IFS= read -r line</code> порожнє значення діє лише на одну команду і зберігає пробіли по краях рядка.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="../ru/01.html#expansions">Ключові компоненти · Розкриття та словоподіл</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#expansions">Ключові компоненти · Розкриття та словоподіл</a>
       </div>
     </div>
 
@@ -189,7 +189,7 @@
       <p class="glossary-lead">Пронумерований канал введення або виведення процесу: 0 - введення, 1 - результат, 2 - помилки та все інше.</p>
       <p>Дескриптор - це номер, потік - те, що ним тече. Розділення 1 та 2 - умова роботи в конвеєрі: наступна команда читає лише потік 1, і повідомлення «починаю роботу», відправлене туди, опиниться в її даних. Звідси правило: результат у stdout, решта в stderr, статус - кодом повернення.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="../ru/01.html#processes">Ключові компоненти · Процеси та перенаправлення</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#processes">Ключові компоненти · Процеси та перенаправлення</a>
       </div>
     </div>
 
@@ -202,7 +202,7 @@
       <p class="glossary-lead">Вказівка оболонці, куди спрямувати потік процесу замість термінала.</p>
       <p><code>&gt;</code> перезаписує файл, <code>&gt;&gt;</code> дописує, <code>2&gt;&amp;1</code> спрямовує помилки туди ж, куди зараз іде результат. Перенаправлення застосовуються зліва направо, тому <code>cmd &gt;log 2&gt;&amp;1</code> та <code>cmd 2&gt;&amp;1 &gt;log</code> дають різний результат: у другому випадку помилки залишаються в терміналі.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="../ru/01.html#processes">Ключові компоненти · Процеси та перенаправлення</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#processes">Ключові компоненти · Процеси та перенаправлення</a>
       </div>
     </div>
 
@@ -215,7 +215,7 @@
       <p class="glossary-lead">Ланцюжок команд, де виведення однієї стає введенням наступної.</p>
       <p>Ланки запускаються одночасно, а не по черзі, і кожна живе у своєму процесі. Код повернення конвеєра за замовчуванням береться лише в останньої ланки - тому <code>хибна_команда | tee log</code> поверне 0. Увесь набір кодів лежить у <code>${PIPESTATUS[@]}</code>.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="../ru/01.html#pipelines">Ключові компоненти · Конвеєри та коди повернення</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#pipelines">Ключові компоненти · Конвеєри та коди повернення</a>
       </div>
     </div>
 
@@ -228,7 +228,7 @@
       <p class="glossary-lead">Число від 0 до 255, яким команда повідомляє про успіх (0) або про помилку (не 0).</p>
       <p>Це єдина машинна ознака провалу: текст у stderr - для людини, код повернення - для автоматики. Повідомлення про помилку без ненульового коду означає, що CI побачить зелене. Коди 126, 127 та 128+N видає сама оболонка: «не виконувано», «не знайдено», «вбито сигналом N».</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="../ru/01.html#pipelines">Ключові компоненти · Конвеєри та коди повернення</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#pipelines">Ключові компоненти · Конвеєри та коди повернення</a>
       </div>
     </div>
 
@@ -241,7 +241,7 @@
       <p class="glossary-lead">Дочірній процес оболонки: він успадковує оточення, але його зміни назовні не повертаються.</p>
       <p>Звідси класична загадка: цикл після конвеєра рахує рядки, а після його завершення змінна знову порожня - цикл виконувався у сабшелі. Підоболонку створюють круглі дужки, ланки конвеєра та підстановка <code>$( )</code>; фігурні дужки - ні. Розуміння цієї межі пояснює і втрачений <code>cd</code>, і <code>exit</code>, який не завершив скрипт.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="../ru/01.html#variables">Ключові компоненти · Змінні та області видимості</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#variables">Ключові компоненти · Змінні та області видимості</a>
       </div>
     </div>
 
@@ -254,7 +254,7 @@
       <p class="glossary-lead">Асинхронне повідомлення процесу від ядра, іншого процесу або термінала.</p>
       <p><code>SIGINT</code> надсилає <code>Ctrl+C</code>, <code>SIGTERM</code> - <code>kill</code> та зупинка контейнера, <code>SIGKILL</code> - <code>kill -9</code>. Перші два процес може перехопити і коректно завершитися; <code>SIGKILL</code> - ні, це властивість ядра. Процес, убитий сигналом N, повертає код <code>128+N</code>: 130 для <code>Ctrl+C</code>, 143 для <code>SIGTERM</code>.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="../ru/01.html#signals">Ключові компоненти · Сигнали та пастки</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#signals">Ключові компоненти · Сигнали та пастки</a>
       </div>
     </div>
 
@@ -267,7 +267,7 @@
       <p class="glossary-lead">Обробник, який оболонка виконує під час сигналу або при настанні події.</p>
       <p>Пастка на <code>EXIT</code> спрацьовує при будь-якому завершенні, яке оболонка встигає помітити, - успішному, через помилку, через переривання - і тому залишається єдиним надійним способом прибрати за собою. Виняток - <code>SIGKILL</code>: процес знищує ядро, і пастка не виконується зовсім. Пастка на <code>ERR</code> спрацьовує на помилці; щоб її успадковували функції та підоболонки, потрібен <code>set -E</code>.</p>
       <div class="glossary-meta">
-        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="../ru/01.html#signals">Ключові компоненти · Сигнали та пастки</a>
+        <svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> <strong>Де зустрілося вперше:</strong> <a href="01.html#signals">Ключові компоненти · Сигнали та пастки</a>
       </div>
     </div>
 
