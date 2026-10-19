@@ -1,7 +1,8 @@
 """Page metadata: the size in words and the links to the neighbouring topics.
 
-    python3 tools/build-meta.py            write it into the pages
-    python3 tools/build-meta.py --check    tell whether the pages are stale
+    python3 tools/build-meta.py                  write it into the pages
+    python3 tools/build-meta.py --check          tell whether the pages are stale
+    python3 tools/build-meta.py --descriptions   list the descriptions for proof-reading
 
 WHY IT IS BAKED AND NOT COUNTED IN THE BROWSER. A number written into the markup
 is visible in the browser's reading mode, in print, to a search engine and to a
@@ -305,7 +306,11 @@ def audit(sizes):
                 if len(data['hasDefinedTerm']) != on_page:
                     trouble.append('%s: терминов в схеме %d, на странице %d'
                                    % (page, len(data['hasDefinedTerm']), on_page))
-            if not re.search(r'<meta name="description" content="..', text):
+            found = re.search(r'<meta name="description" content="([^"]*)">', text)
+            # Заглушке описание взять негде: лида на ней нет. Это не дефект,
+            # а состояние - ровно как схема TechArticle вместо FAQPage на
+            # странице без вопросов.
+            if not (found and found.group(1)) and 'stub-card' not in text:
                 trouble.append('%s: описание пустое' % page)
     return trouble
 
@@ -333,7 +338,77 @@ def write_sitemap(check):
     return True
 
 
+def report_descriptions():
+    """Все описания страниц одним списком: что о странице прочтут в выдаче.
+
+    Описание живёт не на странице, а рядом с ней: в выдаче поисковика и в
+    карточке мессенджера оно стоит без текста, картинок и заголовков раздела.
+    Поэтому его вычитывают отдельно, и этот список - рабочий лист вычитки.
+
+    Три состояния считаются дефектом: пусто, длиннее 160 знаков и обрезано
+    по границе слова. Обрезка правится в лиде, а не здесь: генератор берёт
+    первое предложение лида, и если оно не укладывается в 160 знаков, коротким
+    должно стать предложение.
+
+    У заглушки лида нет, брать описание негде - она только считается.
+
+    Описание считается из лида, а не читается из собранной головы: правка лида
+    видна в этом списке сразу, без пересборки страниц. Свежесть самой головы -
+    дело --check.
+    """
+    rows = []
+    for lang in LANGS:
+        for name in CHAIN:
+            page = '%s/%s.html' % (lang, name)
+            text = pathlib.Path(page).read_text(encoding='utf-8')
+            desc = description(text)
+            stub = 'stub-card' in text
+            if stub:
+                flaw = ''
+            elif not desc:
+                flaw = 'пусто'
+            elif desc.endswith('...'):
+                flaw = 'обрезано'
+            elif len(desc) > 160:
+                flaw = 'длинно'
+            else:
+                flaw = ''
+            rows.append((page, desc, stub, flaw))
+
+    print()
+    print('  Описания страниц: что о странице прочтут в выдаче')
+    print('  ' + '-' * 46)
+    for page, desc, stub, flaw in rows:
+        if stub:
+            print('  [ --- ] %-16s заглушка, лида нет' % page)
+            continue
+        print('  [ %s ] %-16s %3d знаков%s'
+              % ('ДА ' if not flaw else 'НЕТ', page, len(desc),
+                 '' if not flaw else ', ' + flaw))
+        print('          %s' % desc)
+    print('  ' + '-' * 46)
+    live = [r for r in rows if not r[2]]
+    bad = [r for r in live if r[3]]
+    print('  описаний: %d, заглушек: %d, с дефектом: %d'
+          % (len(live), len(rows) - len(live), len(bad)))
+    if bad:
+        for page, desc, stub, flaw in bad:
+            print('        -> %s: %s' % (page, flaw))
+        print('  обрезка и длина правятся в лиде: первое предложение лида')
+        print('  должно укладываться в 160 знаков')
+        print('  ' + '-' * 46)
+        print('  \033[31mКРАСНОЕ\033[0m')
+        print()
+        return 1
+    print('  ' + '-' * 46)
+    print('  \033[32mЗЕЛЁНОЕ\033[0m')
+    print()
+    return 0
+
+
 def main():
+    if '--descriptions' in sys.argv:
+        return report_descriptions()
     check = '--check' in sys.argv
     stale = []
     done = 0
