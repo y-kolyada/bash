@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bash practices in the cloud · devops-bash · ai|</title>
 <!-- meta: built by tools/build-meta.py - do not edit by hand -->
-<meta name="description" content="Cloud CLIs, awaiting readiness, access without static keys, API limits, guardrails against the wrong account, and tag-based cleanup - and where the boundary...">
+<meta name="description" content="Cloud CLIs, polling for readiness, keyless access, API limits, account guardrails, and tag cleanup - and where the boundary with Terraform lies.">
 <link rel="canonical" href="https://y-kolyada.github.io/bash/en/07.html">
 <link rel="alternate" hreflang="ru" href="https://y-kolyada.github.io/bash/ru/07.html">
 <link rel="alternate" hreflang="en" href="https://y-kolyada.github.io/bash/en/07.html">
@@ -15,14 +15,14 @@
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="devops-bash">
 <meta property="og:title" content="Practices in the cloud">
-<meta property="og:description" content="Cloud CLIs, awaiting readiness, access without static keys, API limits, guardrails against the wrong account, and tag-based cleanup - and where the boundary...">
+<meta property="og:description" content="Cloud CLIs, polling for readiness, keyless access, API limits, account guardrails, and tag cleanup - and where the boundary with Terraform lies.">
 <meta property="og:url" content="https://y-kolyada.github.io/bash/en/07.html">
 <meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Practices in the cloud","description":"Cloud CLIs, awaiting readiness, access without static keys, API limits, guardrails against the wrong account, and tag-based cleanup - and where the boundary...","url":"https://y-kolyada.github.io/bash/en/07.html","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Practices in the cloud","description":"Cloud CLIs, polling for readiness, keyless access, API limits, account guardrails, and tag cleanup - and where the boundary with Terraform lies.","url":"https://y-kolyada.github.io/bash/en/07.html","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
 <!-- /meta -->
-<link rel="stylesheet" href="../assets/style.css?v=1">
+<link rel="stylesheet" href="../assets/style.css?v=12">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -92,7 +92,7 @@
 
   <main id="main">
     <h1>Practices in the cloud</h1>
-    <p class="page-size" data-words="1114">Words: 1114</p>
+    <p class="page-size" data-words="1110">Words: 1110</p>
     <p class="lead">Cloud CLIs, polling for readiness, keyless access, API limits, account guardrails, and tag cleanup - and where the boundary with Terraform lies.</p>
 
     <div class="box key" id="key-idea">
@@ -215,8 +215,8 @@ got_acc=$(aws sts get-caller-identity \
 
 </div>
 </div>
-<script src="../assets/swa.js"></script>
-<script src="../assets/terms.js"></script>
-<script src="../assets/cp.js"></script>
+<script src="../assets/swa.js?v=12"></script>
+<script src="../assets/terms.js?v=12"></script>
+<script src="../assets/cp.js?v=12"></script>
 </body>
 </html>
