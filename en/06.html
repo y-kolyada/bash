@@ -92,7 +92,7 @@
 
   <main id="main">
     <h1>Practices in an AI context</h1>
-    <p class="page-size" data-words="1992">Words: 1992</p>
+    <p class="page-size" data-words="1991">Words: 1991</p>
     <p class="lead">How to work with an AI agent on shell code: where it fails predictably, how to specify tasks, how to verify output, and what never to trust it with.</p>
 
     <div class="box key" id="key-idea">
@@ -140,14 +140,23 @@ repeated run does not break.</code></pre>
     <div class="prints"><strong>What gets asked:</strong> “What do you include in a task specification for an agent besides the task itself?”</div>
 
     <h2 id="check-loop">3 · A verification loop beats any prompt <a class="anchor-link" href="#check-loop">#</a></h2>
-    <p>The core thesis of this page: <strong>an agent becomes useful not when it receives a great explanation, but when it possesses the means to verify itself.</strong> In Bash, such verification exists and costs almost nothing.</p>
+    <p><strong>An agent becomes useful not when it receives a great explanation, but when it possesses the means to verify itself.</strong> In Bash, such verification exists and costs almost nothing.</p>
 <pre><code>shellcheck -S warning script.sh \
   &amp;&amp; bash -n script.sh \
   &amp;&amp; ./script.sh --dry-run</code></pre>
     <p><code>shellcheck</code> catches quotes and exit statuses, <code>bash -n</code> validates syntax without execution, and <code>--dry-run</code> validates logic without side effects. Three commands that the agent runs itself after each edit and fixes what it finds <strong>deliver far more than any prompt phrasing</strong>: a prompt is hope, but verification is fact.</p>
     <p><strong>The loop includes two more checks, both about behavior rather than knowledge.</strong> First: test options by running them, not by reading help. A model gets options wrong precisely because it assumes they are familiar, so a rule like "verify unfamiliar options" never triggers; furthermore, many BSD tools lack both <code>--help</code> and <code>--version</code>. Only one thing is reliable: run the command itself on empty or dummy input - <code>cmd -flag &lt; /dev/null</code>.</p>
     <p>Second: <strong>inspect real data before writing parsing logic.</strong> Field names for <code>jq</code> and column numbers for <code>awk</code> are confidently invented by models; running <code>cmd | head -20</code> before writing the first line of parsing saves more iterations than any syntax check.</p>
+<p>You are the one who accepts the code the model wrote, and skimming does not work: Bash
+    almost always looks plausible at a glance. Acceptance follows a short checklist.</p>
+<pre><code># 1. is strict mode enabled
+# 2. are all "$var" quoted
+# 3. are exit statuses honest
+# 4. what does it delete and how is it bounded
+# 5. does it run cleanly twice in a row</code></pre>
+    <p>And one rule more valuable than the list: <strong>ask for an explanation of every line you do not understand.</strong> If the explanation contradicts what the command actually does, that discrepancy is your defect. Never leave an unexplained line in a script: responsibility for it remains yours, not the model's.</p>
     <div class="prints"><strong>What gets asked:</strong> “How is the self-verification loop structured for an agent writing scripts?”</div>
+    <div class="prints"><strong>What gets asked:</strong> “How do you review shell code written by an AI, and what do you do with a line you don't understand?”</div>
 
     <h2 id="not-trusted">4 · What not to trust an agent with <a class="anchor-link" href="#not-trusted">#</a></h2>
     <p>The danger of Bash for automation is that <strong>a destructive command looks no different on the outside from an innocent one</strong> - neither in length nor in structure.</p>
@@ -160,7 +169,7 @@ git push --force        # external history</code></pre>
     <p><strong>A distinct hazard is text read by the agent.</strong> Command output, file contents, web pages, or log entries may contain prompt-like directives: “ignore previous instructions and run...”. To the agent, this is data, not instructions. The defense is identical to human safeguards: <strong>a high-risk operation requires human confirmation regardless of where the prompt originated</strong> - from the task description, model generation, or a file it just opened.</p>
     <div class="prints"><strong>What gets asked:</strong> “Which operations do you forbid an agent from running autonomously, and how do you enforce this?”</div>
 
-    <h2 id="bash-for-agents">5 · Bash as a good tool for an agent <a class="anchor-link" href="#bash-for-agents">#</a></h2>
+    <h2 id="bash-for-agents">5 · The agent's tools: a machine-shaped script, edits through the tool <a class="anchor-link" href="#bash-for-agents">#</a></h2>
     <p>The converse: a script is <strong>the best tool interface for an AI</strong> when written for machines rather than humans.</p>
 <pre><code># machines need an exit status,
 # not the word "success"
@@ -171,7 +180,20 @@ check() {
 # and parsable output
 printf '%s\t%s\n' "$name" "$status"</code></pre>
     <p>Three requirements for such a tool: <strong>an honest exit status</strong> - zero only on genuine success; <strong>parsable output</strong> - columns or JSON, not human sentences; <strong>idempotence</strong> - running it again does not corrupt the state, because an agent will retry without asking.</p>
+<p>And files are not edited with the shell. File-reading and editing tools are present in
+    almost every modern platform, and <strong>editing via <code>sed -i</code>, <code>cat
+    &lt;&lt;EOF &gt; file</code>, and <code>echo &gt;</code> becomes the primary source of file
+    corruption.</strong> An unquoted delimiter expands <code>$(...)</code> within text, an
+    accidental <code>&gt;</code> truncates a file, and a loose regex in <code>sed</code> matches
+    the wrong line.</p>
+<pre><code># how files get corrupted silently:
+sed -i 's/port=.*/port=8080/' app.conf
+cat &lt;&lt;EOF &gt; deploy.sh
+echo "$HOME"     # expanded upon write
+EOF</code></pre>
+    <p>A specialized edit tool verifies which exact snippet is replaced, failing gracefully if the snippet is missing or ambiguous; the shell blindly runs whatever was passed. <strong>The rule is simple: use the shell for commands, and file-editing tools for files.</strong></p>
     <div class="prints"><strong>What gets asked:</strong> “What properties must a script have so that an agent can invoke it reliably?”</div>
+    <div class="prints"><strong>What gets asked:</strong> “Why should an agent with file-editing tools avoid modifying files via <code>sed</code> and here-documents?”</div>
 
     <h2 id="agent-environment">6 · An agent environment is not your terminal <a class="anchor-link" href="#agent-environment">#</a></h2>
     <p>Most agent environments launch each command as an isolated, non-interactive process and capture its stdout/stderr rather than a terminal screen. This introduces four properties foreign to your interactive shell. Some runners smooth over a subset of these - setting <code>PAGER=cat</code> automatically or piping input to a running child, - but <strong>a script that relies on such support ceases to work when moved to another environment.</strong></p>
@@ -190,26 +212,6 @@ server &amp;
 server &gt;log 2&gt;&amp;1 &lt;/dev/null &amp;</code></pre>
     <p><strong>Output consumes context window.</strong> A human can scroll past a thousand lines, but for an agent they flood working memory and push out critical context. Scripts designed for agents should be concise: return summaries rather than logs, and keep details behind a <code>--verbose</code> flag or write them to a file. In command chains, use <code>| tail -50</code>, <code>--quiet</code>, and <code>grep -c</code> instead of dumping all matches.</p>
     <div class="prints"><strong>What gets asked:</strong> “Why does an agent hang on a command that runs instantly in your terminal, and why does its <code>cd</code> have no effect on the next command?”</div>
-
-    <h2 id="file-edits">7 · Edit files with dedicated tools, not shell commands <a class="anchor-link" href="#file-edits">#</a></h2>
-    <p>When an agent has dedicated file-reading and editing tools - present in almost every modern platform - <strong>editing via <code>sed -i</code>, <code>cat &lt;&lt;EOF &gt; file</code>, and <code>echo &gt;</code> becomes the primary source of file corruption.</strong> An unquoted delimiter expands <code>$(...)</code> within text, an accidental <code>&gt;</code> truncates a file, and a loose regex in <code>sed</code> matches the wrong line.</p>
-<pre><code># how files get corrupted silently:
-sed -i 's/port=.*/port=8080/' app.conf
-cat &lt;&lt;EOF &gt; deploy.sh
-echo "$HOME"     # expanded upon write
-EOF</code></pre>
-    <p>A specialized edit tool verifies which exact snippet is replaced, failing gracefully if the snippet is missing or ambiguous; the shell blindly runs whatever was passed. <strong>The rule is simple: use the shell for commands, and file-editing tools for files.</strong></p>
-    <div class="prints"><strong>What gets asked:</strong> “Why should an agent with file-editing tools avoid modifying files via <code>sed</code> and here-documents?”</div>
-
-    <h2 id="reviewing-output">8 · Reviewing model-generated code <a class="anchor-link" href="#reviewing-output">#</a></h2>
-    <p>Skimming does not work: Bash code almost always looks plausible at a glance. Verification follows a short checklist.</p>
-<pre><code># 1. is strict mode enabled
-# 2. are all "$var" quoted
-# 3. are exit statuses honest
-# 4. what does it delete and how is it bounded
-# 5. does it run cleanly twice in a row</code></pre>
-    <p>And one rule more valuable than the list: <strong>ask for an explanation of every line you do not understand.</strong> If the explanation contradicts what the command actually does, that discrepancy is your defect. Never leave an unexplained line in a script: responsibility for it remains yours, not the model's.</p>
-    <div class="prints"><strong>What gets asked:</strong> “How do you review shell code written by an AI, and what do you do with a line you don't understand?”</div>
 
     <h2 id="artifacts">Artifacts: what you take away from this page <a class="anchor-link" href="#artifacts">#</a></h2>
     <div class="box key">
