@@ -109,7 +109,7 @@
 
 aws s3api head-object … &gt;/dev/null 2&gt;&amp;1 \
   &amp;&amp; echo exists || echo missing</code></pre>
-    <p>Two habits save the most time. <strong><code>--query</code> filters on the CLI client side</strong> before data reaches <code>jq</code>: less output, simpler parsing. <strong>A missing object returns a non-zero exit status</strong>, not an empty string; inspect the exit code rather than stdout. And disable the built-in pager via <code>AWS_PAGER=""</code> to prevent scripts from hanging waiting for a <code>q</code> keystroke.</p>
+        <p>Automating cloud CLIs efficiently relies on two primary rules. <strong>The <code>--query</code> parameter applies client-side filtering</strong> before output reaches <code>jq</code>, minimizing data transfer and parsing overhead. Second: <strong>a missing cloud resource returns a non-zero exit code</strong>, not an empty string, meaning scripts must check status codes rather than stdout text. To keep CI scripts from freezing on paginated output, disable the built-in pager using <code>AWS_PAGER=""</code>.</p>
     <div class="prints"><strong>What gets asked:</strong> “How does <code>--query</code> differ from <code>jq</code>, and how do you test in a script whether a cloud resource exists?”</div>
 
     <h2 id="provisioning">2 · Resource provisioning: waiting is part of the job <a class="anchor-link" href="#provisioning">#</a></h2>
@@ -126,7 +126,7 @@ for i in {1..30}; do
   ready &amp;&amp; break
   sleep 5
 done</code></pre>
-    <p>Use built-in waiters (<code>wait</code>) provided by CLIs whenever available. Where absent, write polling loops <strong>with a strict attempt limit</strong>: infinite polling in CI means jobs hang until runner timeout, burning minutes. Tag everything you provision so it can be located and torn down later.</p>
+        <p>When awaiting cloud resource readiness, rely on native CLI commands (<code>wait</code>) wherever available. Where absent, implement polling loops <strong>with strict attempt limits and timeouts</strong>, preventing failed provisions from locking CI runners for hours. Always tag every provisioned resource immediately so automated cleanup scripts can reliably discover and delete temporary infrastructure.</p>
     <div class="prints"><strong>What gets asked:</strong> “How do you wait for cloud resource readiness in a script, and what happens without polling?”</div>
 
     <h2 id="credentials">3 · Credentials: what must never appear in scripts <a class="anchor-link" href="#credentials">#</a></h2>
@@ -142,7 +142,7 @@ aws --profile prod s3 ls
 token=$(aws secretsmanager \
   get-secret-value --secret-id t \
   --query SecretString --output text)</code></pre>
-    <p>Order of preference: <strong>instance roles or OIDC</strong> - zero credentials to store; <strong>named profiles</strong> - keys remain in user configuration, not in code; <strong>environment variables</strong> - strictly as a last resort. Crucially: <code>set -x</code> prints parameter values, dumping secrets directly into CI logs; never enable shell execution tracing on steps handling secrets.</p>
+        <p>Script authentication across cloud providers follows a strict hierarchy: <strong>instance roles or OIDC</strong> eliminate static secrets altogether; <strong>named profiles</strong> isolate credentials in user configs away from code; <strong>environment variables</strong> remain strictly a last resort. Crucially: enabling <code>set -x</code> prints parameter expansions into public CI logs, making tracing strictly forbidden in steps handling authentication.</p>
     <div class="prints"><strong>What gets asked:</strong> “How does a script access cloud APIs without storing static credentials, and why is <code>set -x</code> dangerous there?”</div>
 
     <h2 id="throttling">4 · Pagination, API throttling, and avoiding CLI loops <a class="anchor-link" href="#throttling">#</a></h2>
@@ -185,7 +185,7 @@ got_acc=$(aws sts get-caller-identity \
   --query '…[].InstanceId' --output text \
   | xargs -r aws ec2 terminate-instances \
       --instance-ids</code></pre>
-    <p><code>xargs -r</code> prevents execution when stdin is empty - without it, deleting “all” matched resources can degenerate into an argumentless command with unpredictable blast radius.</p>
+        <p>When piping cloud resource IDs to teardown commands, <code>xargs -r</code> prevents execution when standard input is empty. Without the <code>-r</code> flag, a resource deletion command runs without arguments, which in cloud CLIs risks applying the teardown across all resources in the account.</p>
     <div class="box">
       <p><strong>Where the boundary lies.</strong> Bash excels when the task is an <em>action</em>: ephemeral one-hour setups, account-wide auditing snapshots, bucket migrations, tag-based cleanups. Terraform and CloudFormation excel when the task is <em>state</em>: resources that must exist permanently. A script attempting state management inevitably degenerates into a defective Terraform clone - complete with custom state files, hand-rolled drift detection, and unique bugs.</p>
     </div>
