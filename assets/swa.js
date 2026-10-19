@@ -304,9 +304,19 @@
     tray.insertBefore(clearBtn, find);
   }
 
+  // A cached engine is a stale engine, so every asset URL carries ?v=N. The
+  // number lives in one place, tools/build-nav.py, which writes it into the
+  // page. The files loaded from here take it from the URL this very file
+  // arrived by, so the number is never written twice.
+  function stamp() {
+    const self = document.querySelector('script[src*="swa.js?v="]');
+    const query = self ? self.src.split('?v=')[1] : '';
+    return query ? '?v=' + query : '';
+  }
+
   function load(src, done) {
     const tag = document.createElement('script');
-    tag.src = src;
+    tag.src = src + stamp();
     tag.onload = done;
     tag.onerror = done;
     document.head.appendChild(tag);
