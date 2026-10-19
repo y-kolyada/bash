@@ -31,6 +31,18 @@ import re
 import sys
 
 LANGS = ('ru', 'en', 'uk', 'de')
+
+# Доступность, которую нельзя сделать стилями: ссылка в начало содержания и
+# язык у ссылок переключателя. Подписи - на языке страницы, имя языка - на
+# самом языке: читалка произносит их по его правилам, а не по правилам текущего.
+SKIP = {'ru': 'К содержанию', 'en': 'Skip to content',
+        'uk': 'До змісту', 'de': 'Zum Inhalt springen'}
+LANG_NAME = {'ru': 'Русский', 'en': 'English', 'uk': 'Українська', 'de': 'Deutsch'}
+LANG_GROUP = {'ru': 'Язык страницы', 'en': 'Page language',
+              'uk': 'Мова сторінки', 'de': 'Seitensprache'}
+SKIP_LINK = re.compile(r'\s*<a class="skip"[^>]*>.*?</a>', re.S)
+SWITCHER = re.compile(r'<(div|nav) class="lang-switcher"[^>]*>(.*?)</\1>', re.S)
+SWITCH_LINK = re.compile(r'<a ([^>]*?)href="([^"]+)"([^>]*)>([A-Z]{2})</a>')
 ASSETS = ('style.css', 'swa.js', 'terms.js', 'cp.js')
 PAGE = re.compile(r'(?P<attr>href=")(?P<name>index|glossary|[0-9]{2})(?:-(?P<lang>en|uk|de))?\.html')
 LESSON = re.compile(r'(href=")((?:zadanie|zapis)-[0-9]+\.md|potom\.md|review-gemini-[0-9]+\.md)"')
@@ -72,8 +84,43 @@ def which(svg):
     return 'book' if paths == 2 else None
 
 
+def accessible(text, lang):
+    """Две правки, которые видит только тот, кто ими пользуется."""
+    count = 0
+
+    # 1. Ссылка «к содержанию» - первая в порядке обхода, и у main есть якорь.
+    text = SKIP_LINK.sub('', text)
+    if '<main' in text:
+        if re.search(r'<main(?![^>]*\bid=)', text):
+            text = re.sub(r'<main\b', '<main id="main"', text, count=1)
+            count += 1
+        link = '\n<a class="skip" href="#main">%s</a>' % SKIP[lang]
+        text = text.replace('<body>', '<body>' + link, 1)
+        count += 1
+
+    # 2. Переключатель языков: область с подписью, у ссылок язык и имя языка.
+    def switcher(m):
+        inner = m.group(2)
+
+        def link(one):
+            href = one.group(2)
+            other = re.search(r'\.\./(\w\w)/', href)
+            code = other.group(1) if other else lang
+            keep = (one.group(1) + one.group(3)).replace('\n', ' ')
+            keep = re.sub(r'\s*(lang|hreflang|aria-label)="[^"]*"', '', keep).strip()
+            keep = (' ' + keep) if keep else ''
+            return ('<a href="%s" lang="%s" hreflang="%s" aria-label="%s"%s>%s</a>'
+                    % (href, code, code, LANG_NAME[code], keep, one.group(4)))
+
+        return ('<nav class="lang-switcher" aria-label="%s">%s</nav>'
+                % (LANG_GROUP[lang], SWITCH_LINK.sub(link, inner)))
+
+    text, switched = SWITCHER.subn(switcher, text, count=1)
+    return text, count + switched
+
+
 def rewrite(text, lang, migrate=False):
-    counts = {'assets': 0, 'pages': 0, 'lessons': 0, 'icons': 0}
+    counts = {'assets': 0, 'pages': 0, 'lessons': 0, 'icons': 0, 'access': 0}
     if '../assets/' in text:
         migrate = False  # page already moved, the one-off rule is done
 
@@ -135,6 +182,9 @@ def rewrite(text, lang, migrate=False):
 
     text = REDRAW.sub(redraw, text)
 
+    text, fixed = accessible(text, lang)
+    counts['access'] = fixed
+
     return text, counts
 
 
@@ -186,7 +236,8 @@ def main(argv):
         print('нет папок языков - запускайте из корня репозитория')
         return 2
 
-    total = {'files': 0, 'touched': 0, 'assets': 0, 'pages': 0, 'lessons': 0, 'icons': 0}
+    total = {'files': 0, 'touched': 0, 'assets': 0, 'pages': 0, 'lessons': 0, 'icons': 0,
+             'access': 0}
     for lang in roots:
         for name in sorted(os.listdir(lang)):
             if not name.endswith('.html'):
@@ -215,6 +266,7 @@ def main(argv):
     print('  ссылок между страницами: %d' % total['pages'])
     print('  ссылок на занятия:     %d' % total['lessons'])
     print('  значков заменено:      %d' % total['icons'])
+    print('  правок доступности:    %d' % total['access'])
     print('  ' + '-' * 46)
     print()
     return 0

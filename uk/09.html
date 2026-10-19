@@ -4,6 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Практики SRE · devops-bash · ai|</title>
+<!-- meta: built by tools/build-meta.py - do not edit by hand -->
+<meta name="description" content="Тріаж інциденту за хвилину, приховані відмови диска та пам&#x27;яті, розбір логів без добивання вузла, захист продакшену від самих скриптів і метрики для...">
+<link rel="canonical" href="https://y-kolyada.github.io/bash/uk/09.html">
+<link rel="alternate" hreflang="ru" href="https://y-kolyada.github.io/bash/ru/09.html">
+<link rel="alternate" hreflang="en" href="https://y-kolyada.github.io/bash/en/09.html">
+<link rel="alternate" hreflang="uk" href="https://y-kolyada.github.io/bash/uk/09.html">
+<link rel="alternate" hreflang="de" href="https://y-kolyada.github.io/bash/de/09.html">
+<link rel="alternate" hreflang="x-default" href="https://y-kolyada.github.io/bash/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="devops-bash">
+<meta property="og:title" content="Практики SRE">
+<meta property="og:description" content="Тріаж інциденту за хвилину, приховані відмови диска та пам&#x27;яті, розбір логів без добивання вузла, захист продакшену від самих скриптів і метрики для...">
+<meta property="og:url" content="https://y-kolyada.github.io/bash/uk/09.html">
+<meta property="og:locale" content="uk_UA">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Практики SRE","description":"Тріаж інциденту за хвилину, приховані відмови диска та пам'яті, розбір логів без добивання вузла, захист продакшену від самих скриптів і метрики для...","url":"https://y-kolyada.github.io/bash/uk/09.html","inLanguage":"uk","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
+<!-- /meta -->
 <link rel="stylesheet" href="../assets/style.css?v=1">
 <script>
   (function() {
@@ -15,6 +33,7 @@
 </script>
 </head>
 <body>
+<a class="skip" href="#main">До змісту</a>
 <div class="wrap">
 
 <header class="top">
@@ -26,12 +45,12 @@
     <div class="three" aria-hidden="true">інструменти · <span class="topic">Bash</span> · практика · 150 питань</div>
   </div>
   <div class="utility-tray" role="toolbar" aria-label="Налаштування відображення та мова">
-    <div class="lang-switcher" aria-label="Вибір мови">
-      <a href="../en/09.html">EN</a>
-      <a href="../ru/09.html">RU</a>
-      <a href="09.html" class="active" aria-current="page">UK</a>
-      <a href="../de/09.html">DE</a>
-    </div>
+    <nav class="lang-switcher" aria-label="Мова сторінки">
+      <a href="../en/09.html" lang="en" hreflang="en" aria-label="English">EN</a>
+      <a href="../ru/09.html" lang="ru" hreflang="ru" aria-label="Русский">RU</a>
+      <a href="09.html" lang="uk" hreflang="uk" aria-label="Українська" class="active" aria-current="page">UK</a>
+      <a href="../de/09.html" lang="de" hreflang="de" aria-label="Deutsch">DE</a>
+    </nav>
     <div class="font-scaler" role="group" aria-label="Розмір шрифту">
       <button type="button" class="font-btn font-s" data-size="s" title="Дрібний шрифт" aria-label="Дрібний шрифт">A</button>
       <button type="button" class="font-btn font-m active" data-size="m" title="Стандартний шрифт" aria-label="Стандартний шрифт">A</button>
@@ -71,7 +90,7 @@
     </div>
   </nav>
 
-  <main>
+  <main id="main">
     <h1>Практики SRE</h1>
     <p class="page-size" data-words="1253">Слів: 1253</p>
     <p class="lead">Тріаж інциденту за хвилину, приховані відмови диска та пам'яті, розбір логів без добивання вузла, захист продакшену від самих скриптів і метрики для моніторингу.</p>

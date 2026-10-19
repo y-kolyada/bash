@@ -408,7 +408,11 @@
     btn.innerHTML = svg;
     btn.addEventListener('click', () => {
       const doc = document.scrollingElement || document.documentElement;
-      window.scrollTo({ top: toEnd ? doc.scrollHeight : 0, behavior: 'smooth' });
+      // Плавность - по желанию системы. У людей с вестибулярными нарушениями
+      // плавная прокрутка вызывает головокружение, и это настройка системы, а
+      // не вопрос вкуса: её читают, а не переспрашивают.
+      const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: toEnd ? doc.scrollHeight : 0, behavior: calm ? 'auto' : 'smooth' });
     });
     floats.appendChild(btn);
   });

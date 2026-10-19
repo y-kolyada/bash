@@ -193,6 +193,38 @@ for (const file of files) {
     for (const why of search) bad.push([file, why]);
   }
 
+  // Доступность: три правила, которые видит только тот, кто ими пользуется.
+  // Ссылка «к содержанию» нужна на каждой странице, а порядок обхода и
+  // настройку «меньше движения» хватает проверить на одной странице языка.
+  const access = await phone.evaluate((deep) => {
+    const out = [];
+    const skip = document.querySelector('a.skip');
+    if (!skip) return ['нет ссылки «к содержанию»'];
+    if (skip !== document.body.querySelector('a, button, input, [tabindex]')) {
+      out.push('ссылка «к содержанию» не первая в порядке обхода');
+    }
+    const target = document.querySelector(skip.getAttribute('href'));
+    if (!target) out.push('ссылка «к содержанию» ведёт в никуда');
+
+    const switcher = document.querySelector('.lang-switcher');
+    if (!switcher) return out.concat('переключателя языков нет');
+    if (switcher.tagName !== 'NAV' || !switcher.getAttribute('aria-label')) {
+      out.push('переключатель языков не область с подписью');
+    }
+    const named = switcher.querySelectorAll('a[lang][hreflang][aria-label]').length;
+    if (named !== 4) out.push('у ссылок языков нет языка и имени: таких ' + named + ' из 4');
+    if (!deep) return out;
+
+    // Невидима мышью и появляется при получении фокуса.
+    const hidden = skip.getBoundingClientRect().left < -100;
+    skip.focus();
+    const shown = skip.getBoundingClientRect().left >= 0;
+    if (!hidden) out.push('ссылка «к содержанию» видна без фокуса');
+    if (!shown) out.push('ссылка «к содержанию» не появляется при фокусе');
+    return out;
+  }, /\/01\.html$/.test(file.replace(/\\/g, '/')));
+  for (const why of access) bad.push([file, why + ' (телефон)']);
+
   // Телефон: меню свёрнуто в строку, и страница открывается на своём тексте.
   // Раньше заголовок начинался на 901px при экране 844px - целый экран меню
   // перед текстом, на каждой странице и при любом способе прихода.

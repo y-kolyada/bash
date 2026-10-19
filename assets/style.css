@@ -1046,3 +1046,23 @@ nav.contents > .page-toc {
 .pager a:focus-visible {
   border-bottom-color: var(--acc);
 }
+
+/* --- ссылка «к содержанию» --- */
+/* Первая в порядке обхода клавиатурой и невидимая мышью. Без неё читатель с
+   клавиатуры проходит всё меню на каждой странице заново. Не display: none -
+   спрятанное так не получает фокус и не существует для читалки. */
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 10px 14px;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--acc);
+  border-radius: 0 0 8px 0;
+  text-decoration: none;
+}
+.skip:focus {
+  left: 0;
+}
