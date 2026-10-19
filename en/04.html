@@ -157,7 +157,7 @@ printf '%s\0' *.log \
 
 # condition, action, and error
 # handling - in a single line</code></pre>
-    <p>Add the absence of namespaces, global variables by default, and the fact that only <code>set -u</code> catches variable typos. <strong>The practical threshold is around three hundred lines:</strong> past that, reading the script demands the same esoteric knowledge as writing it, which is the antithesis of maintainable code.</p>
+        <p>As a script grows beyond three hundred lines, fundamental Bash limitations become painful: lack of modules and namespaces, global-by-default variables, and typos that pass unnoticed without <code>set -u</code>. <strong>The practical threshold is around three hundred lines:</strong> past that, reading the script demands the same esoteric context as writing it, defeating the goal of maintainable engineering.</p>
     <div class="prints"><strong>What gets asked:</strong> “At what boundary should a shell script be rewritten in another language?”</div>
 
     <h2 id="portability">6 · Portability: two different worlds <a class="anchor-link" href="#portability">#</a></h2>

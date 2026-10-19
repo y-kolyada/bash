@@ -112,7 +112,7 @@ echo "VER=$v" &gt;&gt; "$GITHUB_ENV"
 
 # 3. working directory is reset
 cd "$GITHUB_WORKSPACE"</code></pre>
-    <p><strong>The resulting rule: every step must be self-contained.</strong> It cannot rely on <code>export</code> from a preceding step, cannot assume a persistent working directory, and must declare its own strict mode explicitly. Extract multi-line logic into a <code>.sh</code> file in the repository: it can be executed locally, verified with <code>shellcheck</code>, and reviewed cleanly in diffs - unlike twenty lines inlined in YAML.</p>
+        <p><strong>Every CI pipeline step must be self-contained:</strong> it never relies on <code>export</code> from prior steps, never assumes a default directory, and declares its own strict mode explicitly. Extract complex logic into a dedicated <code>.sh</code> script in the repository: it can be executed locally, validated with <code>shellcheck</code>, and clearly reviewed in diffs - unlike dozens of lines embedded inside YAML.</p>
     <div class="prints"><strong>What gets asked:</strong> “Why is a variable set in one CI step invisible in the next, and how do you pass data between steps?”</div>
 
     <h2 id="build">2 · Building artifacts: reproducibility over speed <a class="anchor-link" href="#build">#</a></h2>
@@ -126,7 +126,7 @@ docker build \
 
 # artifact is named by version,
 # never latest</code></pre>
-    <p>Three rules catch the majority of build issues. <strong>Version strings must come from version control, not environment variables</strong> - preventing stale version numbers. <strong><code>latest</code> is not a version</strong>: rolling back to it is impossible. <strong>The <code>--dirty</code> suffix</strong> signals an uncommitted working tree - producing an artifact that cannot be reproduced from Git history, a condition that must be detected immediately.</p>
+        <p>Reproducibility of build artifacts rests on three fundamental rules. <strong>Version strings must come directly from Git</strong> rather than manual variables that can be forgotten. <strong>The <code>latest</code> tag is not a version:</strong> rolling back to it reliably is impossible. <strong>The <code>--dirty</code> suffix</strong> immediately warns of an uncommitted working tree whose build artifact cannot be reproduced from Git history.</p>
     <div class="prints"><strong>What gets asked:</strong> “Where should artifact versions originate, and why is deploying <code>latest</code> prohibited?”</div>
 
     <h2 id="environments">3 · Environments Dev → QA → Prod: one script, distinct parameters <a class="anchor-link" href="#environments">#</a></h2>
@@ -162,7 +162,7 @@ systemctl reload app
     shellcheck **/*.sh
 - run: shfmt -d -i 2 .
 - run: bats tests/</code></pre>
-    <p>Mirror the exact same checks locally via <code>pre-commit</code> so failing scripts never reach CI. <strong>Local and CI checks must run the exact same command</strong> - otherwise teams face “works on my machine, fails in CI” syndrome, eroding trust in the verification suite.</p>
+        <p>Run the script quality verification suite locally via <code>pre-commit</code> hooks so defect-laden code never reaches CI. <strong>Local developer checks and CI gate steps must execute the exact same command</strong> - otherwise teams suffer from “works on my machine, fails in CI” syndrome, destroying trust in the automated checks.</p>
     <div class="prints"><strong>What gets asked:</strong> “Which shell code checks do you include in CI pipelines, and why must they match local hooks?”</div>
 
     <h2 id="secrets">6 · Secrets and CI logs <a class="anchor-link" href="#secrets">#</a></h2>
@@ -175,7 +175,7 @@ curl -u "u:$PASS" …  # visible in ps
 # yes:
 curl --netrc-file "$f" …
 printf '%s' "$TOKEN" | cmd --token-stdin</code></pre>
-    <p>Three rules. <strong>Never pass secrets as command arguments</strong> - arguments are visible in <code>ps</code> to any user on the system; pass them via stdin, credentials files, or environment variables. <strong>Never enable shell execution tracing in steps handling secrets.</strong> <strong>CI secret masking is not a guarantee:</strong> it relies on exact string matching, meaning split secrets or alternate encodings will leak unmasked.</p>
+        <p>Handling secrets securely in scripts and CI pipelines rests on three rules. <strong>Never pass secrets as command-line arguments</strong> - process arguments are visible in <code>ps</code> to any local user; transmit them via stdin, files, or environment variables. <strong>Shell execution tracing via <code>set -x</code> is strictly forbidden in steps handling secrets.</strong> <strong>CI log masking provides no absolute guarantee:</strong> it matches exact strings only, so multi-line or re-encoded secrets will leak into build logs unmasked.</p>
     <div class="prints"><strong>What gets asked:</strong> “Why must passwords never be passed as command-line arguments, and what are the limits of CI secret masking?”</div>
 
     <h2 id="beyond-scripts">7 · When a pipeline outgrows shell scripts <a class="anchor-link" href="#beyond-scripts">#</a></h2>

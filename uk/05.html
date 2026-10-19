@@ -110,7 +110,7 @@ files=$(git diff --cached --name-only \
         --diff-filter=ACM | grep '\.sh$' || true)
 [ -z "$files" ] &amp;&amp; exit 0
 shellcheck $files</code></pre>
-    <p>Дві пастки. Перша: <code>grep</code> без збігів повертає 1 і під <code>set -e</code> впустить хук - звідси <code>|| true</code>. Друга: <strong>хуки не зберігаються в репозиторії</strong>, папка <code>.git/hooks</code> не версіонується; тому хуки кладуть в окремий каталог і вмикають через <code>git config core.hooksPath</code>, інакше в колег їх просто не буде.</p>
+        <p>Автоматизація Git-хуків на Bash стикається з двома пастками. Перша: утиліта <code>grep</code> за відсутності збігів повертає код 1 і під <code>set -e</code> аварійно зупиняє хук, тому фільтрацію завершують через <code>|| true</code>. Друга: <strong>каталог <code>.git/hooks</code> не версіонується Git’ом</strong>; командні хуки зберігають в окремій папці репозиторію та підключають командою <code>git config core.hooksPath</code>, інакше в колег перевірки не запустяться.</p>
     <div class="prints"><strong>Що запитують:</strong> «Як змусити хук скасувати коміт і чому хуки не потрапляють до інших розробників самі?»</div>
 
     <h2 id="ci">2 · CI та GitHub Actions: shell за замовчуванням <a class="anchor-link" href="#ci">#</a></h2>
@@ -125,7 +125,7 @@ shellcheck $files</code></pre>
 # export в одному кроці не видно
 # в наступному
 echo "VER=1.2" &gt;&gt; "$GITHUB_ENV"</code></pre>
-    <p><strong>Кожен крок - окремий процес</strong>, тому змінні між кроками передаються через файли (<code>$GITHUB_ENV</code>, <code>$GITHUB_OUTPUT</code>), а не через <code>export</code>. І окрема обережність: <code>set -x</code> у кроці друкує значення змінних, тобто <strong>виводить секрети в журнал</strong> - маскування рятує не завжди.</p>
+        <p>У конвеєрах CI <strong>кожен крок виконується в окремому процесі оболонки</strong>, тому змінні оточення не зберігаються через <code>export</code>, а передаються між кроками через файли на кшталт <code>$GITHUB_ENV</code> та <code>$GITHUB_OUTPUT</code>. Особлива обережність потрібна з налагодженням: режим <code>set -x</code> у кроці збірки розкриває аргументи й <strong>виводить секрети в журнал</strong>, де вбудоване маскування рятує далеко не завжди.</p>
     <div class="prints"><strong>Що запитують:</strong> «З якими ключами CI запускає ваш <code>run:</code> і як передати значення між кроками?»</div>
 
     <h2 id="docker">3 · Docker: PID 1, сигнали та форма запису <a class="anchor-link" href="#docker">#</a></h2>
@@ -138,7 +138,7 @@ ENTRYPOINT ["/app/run.sh"]
 
 # і в самому скрипті, наприкінці:
 exec /app/server "$@"</code></pre>
-    <p><code>exec</code> замінює процес оболонки процесом застосунку - PID 1 стає застосунком, сигнали доходять. У контейнері <strong>немає init</strong>, тому зомбі-процеси ніхто не збирає; якщо ваш скрипт породжує фонові завдання, потрібен <code>--init</code> або <code>tini</code>. І пам'ятайте про Alpine: там <code>/bin/sh</code> - це busybox <code>ash</code>, і <code>bash</code> відсутній зовсім.</p>
+        <p>У точці входу контейнера виклик <code>exec</code> замінює процес оболонки процесом застосунку: PID 1 дістається бінарнику сервісу, і сигнали завершення ОС доходять без утрат. Оскільки в контейнері <strong>немає системи init</strong>, зомбі-процеси від дочірніх завдань скрипта нікому збирати без прапорця <code>--init</code> або утиліти <code>tini</code>. А в образах Alpine командна оболонка <code>/bin/sh</code> представлена утилітою <code>ash</code> із BusyBox, і інтерпретатор <code>bash</code> там відсутній зовсім.</p>
     <div class="prints"><strong>Що запитують:</strong> «Чому контейнер не зупиняється за <code>docker stop</code> і до чого тут форма запису <code>ENTRYPOINT</code>?»</div>
 
     <h2 id="systemd">4 · systemd: коли скрипт не потрібен <a class="anchor-link" href="#systemd">#</a></h2>
@@ -168,7 +168,7 @@ build:
 
 # або один shell на весь рецепт:
 .ONESHELL:</code></pre>
-    <p>В Ansible те саме: модуль <code>shell</code> запускає рядок заново для кожного завдання. І там ще одна відмінність, про яку запитують: <code>command</code> запускає програму напряму, без оболонки - без конвеєрів, підстановок і шаблонів імен; <code>shell</code> - через оболонку, з усіма можливостями та всіма ризиками. <strong>Правило: <code>command</code>, поки не доведено, що потрібен <code>shell</code>.</strong></p>
+        <p>При виклику команд із Ansible модуль <code>shell</code> запускає окрему підоболонку для кожного завдання, не зберігаючи стан між ними. Головна проєктна відмінність модулів автоматизації: <code>command</code> запускає програму напряму системним викликом без оболонки, виключаючи конвеєри, підстановки та розкриття шаблонів, тоді як <code>shell</code> виконує рядок через командний інтерпретатор з усіма ризиками ін’єкцій. <strong>Правило: використовувати <code>command</code>, доки не доведено, що необхідний <code>shell</code>.</strong></p>
     <div class="prints"><strong>Що запитують:</strong> «Чому <code>cd</code> у Makefile не діє на наступний рядок і чим <code>command</code> відрізняється від <code>shell</code> в Ansible?»</div>
 
     <h2 id="boundaries">6 · Де Bash закінчується: jq, awk, Python <a class="anchor-link" href="#boundaries">#</a></h2>
