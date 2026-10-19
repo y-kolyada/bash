@@ -50,7 +50,7 @@ ASSETS = ('style.css', 'swa.js', 'terms.js', 'cp.js')
 # старый движок. Номер равен номеру релиза и стоит здесь один раз - в
 # страницах его пишет генератор, а загрузчик индекса поиска берёт его из
 # адреса, по которому пришёл сам swa.js.
-VERSION = 12
+VERSION = 13
 ASSET_LINK = re.compile(r'((?:href|src)="(?:\.\./)?assets/(?:%s))(?:\?v=[0-9]+)?"'
                         % '|'.join(a.replace('.', r'\.') for a in ASSETS))
 PAGE = re.compile(r'(?P<attr>href=")(?P<name>index|glossary|[0-9]{2})(?:-(?P<lang>en|uk|de))?\.html')
