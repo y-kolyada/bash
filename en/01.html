@@ -4,6 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Key components of Bash · devops-bash · ai|</title>
+<!-- meta: built by tools/build-meta.py - do not edit by hand -->
+<meta name="description" content="The six mechanisms every script is built from.">
+<link rel="canonical" href="https://y-kolyada.github.io/bash/en/01.html">
+<link rel="alternate" hreflang="ru" href="https://y-kolyada.github.io/bash/ru/01.html">
+<link rel="alternate" hreflang="en" href="https://y-kolyada.github.io/bash/en/01.html">
+<link rel="alternate" hreflang="uk" href="https://y-kolyada.github.io/bash/uk/01.html">
+<link rel="alternate" hreflang="de" href="https://y-kolyada.github.io/bash/de/01.html">
+<link rel="alternate" hreflang="x-default" href="https://y-kolyada.github.io/bash/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="devops-bash">
+<meta property="og:title" content="Key components of Bash">
+<meta property="og:description" content="The six mechanisms every script is built from.">
+<meta property="og:url" content="https://y-kolyada.github.io/bash/en/01.html">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Key components of Bash","description":"The six mechanisms every script is built from.","url":"https://y-kolyada.github.io/bash/en/01.html","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
+<!-- /meta -->
 <link rel="stylesheet" href="../assets/style.css?v=1">
 <script>
   (function() {
@@ -15,6 +33,7 @@
 </script>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <div class="wrap">
 
 <header class="top">
@@ -26,12 +45,12 @@
     <div class="three" aria-hidden="true">tools · <span class="topic">Bash</span> · practice · 150 questions</div>
   </div>
   <div class="utility-tray" role="toolbar" aria-label="Display settings and language">
-    <div class="lang-switcher" aria-label="Language">
-      <a href="01.html" class="active" aria-current="page">EN</a>
-      <a href="../ru/01.html">RU</a>
-      <a href="../uk/01.html">UK</a>
-      <a href="../de/01.html">DE</a>
-    </div>
+    <nav class="lang-switcher" aria-label="Page language">
+      <a href="01.html" lang="en" hreflang="en" aria-label="English" class="active" aria-current="page">EN</a>
+      <a href="../ru/01.html" lang="ru" hreflang="ru" aria-label="Русский">RU</a>
+      <a href="../uk/01.html" lang="uk" hreflang="uk" aria-label="Українська">UK</a>
+      <a href="../de/01.html" lang="de" hreflang="de" aria-label="Deutsch">DE</a>
+    </nav>
     <div class="font-scaler" role="group" aria-label="Font size">
       <button type="button" class="font-btn font-s" data-size="s" title="Small text" aria-label="Small text">A</button>
       <button type="button" class="font-btn font-m active" data-size="m" title="Default text" aria-label="Default text">A</button>
@@ -71,9 +90,9 @@
     </div>
   </nav>
 
-  <main>
+  <main id="main">
     <h1>Key components of Bash</h1>
-    <p class="page-size" data-words="1182">Words: 1182</p>
+    <p class="page-size" data-words="1336">Words: 1336</p>
     <p class="lead">The six mechanisms every script is built from. Knowing the order they run in
     is what separates an engineer who fixes a script in a minute from one who edits it by guess.</p>
 
@@ -104,11 +123,7 @@
 3. word splitting     on IFS
 4. filename globbing  *.txt
 5. quote removal</code></pre>
-    <p><strong>The second stage is one pass, not five steps.</strong> Tilde, parameters, command
-    substitution, arithmetic and process substitution expand together, left to right. One line
-    shows it: <code>x=1; echo $((x=2)) $x</code> prints <code>2 2</code> - arithmetic has already
-    changed <code>x</code> by the time the second <code>$x</code> is reached. Were parameters a
-    separate earlier step, the result would be <code>2 1</code>.</p>
+    <p><strong>The second stage of expansion order is a single left-to-right pass, not five sequential phases.</strong> Tilde expansion, parameter expansion, command substitution, arithmetic expansion, and process substitution occur together in one sweep. This is proven by <code>x=1; echo $((x=2)) $x</code>, which prints <code>2 2</code>: arithmetic has already updated <code>x</code> by the time the shell expands the second <code>$x</code>. If parameters were expanded in a separate step before arithmetic, the output would be <code>2 1</code>.</p>
     <p>Two more consequences. Globbing runs <em>after</em> parameter expansion, so
     <code>f="*.txt"; echo $f</code> prints a file list while <code>echo "$f"</code> prints the
     asterisk. And the reverse: <code>{1..3}</code> expands before parameters, which is why
@@ -123,9 +138,7 @@
 <pre><code>f="My File.txt"
 rm $f     # two targets: My and File.txt
 rm "$f"   # one target, correct</code></pre>
-    <p>The same difference applies to argument lists: <code>"$@"</code> expands to separate
-    arguments with their boundaries intact, while <code>$@</code> and <code>"$*"</code> do not.
-    The rule is simple: an unquoted expansion must be a deliberate decision, never a default.</p>
+    <p>Double quotes protect boundary splitting not only for single variables, but also for argument lists: <code>"$@"</code> expands each positional parameter into a distinct argument preserving internal spaces, whereas <code>$@</code> and <code>"$*"</code> flatten or resplit elements across <code>IFS</code>. The core rule: unquoted expansion should always be an intentional design choice rather than an unthinking default.</p>
     <div class="prints"><strong>Typical question:</strong> “how do <code>"$@"</code>,
     <code>$@</code> and <code>"$*"</code> differ, and what breaks on paths with spaces?”</div>
 
@@ -142,11 +155,7 @@ rm "$f"   # one target, correct</code></pre>
 <pre><code>cmd &gt;log 2&gt;&amp;1   # both streams to the file
 cmd 2&gt;&amp;1 &gt;log   # errors stay on the terminal
 echo &lt;(true)    # /dev/fd/63 (pipe)</code></pre>
-    <p>In the second case <code>2</code> copies the <em>current</em> destination of <code>1</code> -
-    the terminal - and only afterwards does <code>1</code> move to the file. Process substitution
-    <code>&lt;(cmd)</code> hands the command a path to an open pipe descriptor such as
-    <code>/dev/fd/63</code>: it can be read once and cannot be seeked (<code>lseek</code>), because
-    no file exists on disk.</p>
+    <p>When redirecting as <code>cmd 2&gt;&amp;1 &gt;log</code>, file descriptor <code>2</code> duplicates the <em>current</em> destination of stdout <code>1</code> (the terminal), and only then is stdout redirected to the file, leaving error messages visible on the screen; the correct sequence to route both streams into a file is <code>&gt;log 2&gt;&amp;1</code>. In turn, process substitution <code>&lt;(cmd)</code> provides the command with a readable pipe descriptor such as <code>/dev/fd/63</code>: it can only be read sequentially once, and rewinding via <code>lseek</code> is impossible because no physical file exists on disk.</p>
     <div class="prints"><strong>Typical question:</strong> “why do <code>2&gt;&amp;1 &gt;log</code>
     and <code>&gt;log 2&gt;&amp;1</code> produce different results, and what does
     <code>&lt;(cmd)</code> actually expand to?”</div>
@@ -162,11 +171,7 @@ echo "${PIPESTATUS[@]}"  # 1 0
 set -o pipefail
 yes | head -n 1 &gt;/dev/null
 echo $?                  # 141 (SIGPIPE)</code></pre>
-    <p>When the right-hand stage (<code>head -n 1</code> or <code>grep -q</code>) reads its line and
-    closes the pipe, the writer on the left receives <code>SIGPIPE</code> (13) from the kernel on
-    its next write and exits with <code>128 + 13 = 141</code>. Under <code>pipefail</code>, that
-    routine 141 is treated as a failure. And for the same reason - every stage is a separate child
-    process - a variable modified in a loop after <code>|</code> stays empty outside.</p>
+    <p>By default, a pipeline discards failures in earlier stages and reflects only the exit status of the rightmost command, while the <code>PIPESTATUS</code> array retains the status code of each stage; enabling <code>set -o pipefail</code> forces the pipeline to return the code of the rightmost failing command. However, when the consumer stage (such as <code>head -n 1</code>) closes the pipe early, the upstream writer receives kernel signal <code>SIGPIPE</code> (13) on its next write and exits with code <code>128 + 13 = 141</code>, which <code>pipefail</code> interprets as an unexpected crash. Furthermore, because each pipeline stage executes inside an isolated subshell, variables updated within a loop after a <code>|</code> remain unchanged in the parent shell.</p>
     <div class="prints"><strong>Typical question:</strong> “how do you get the exit code of one
     specific pipeline stage, and why does <code>yes | head -n 1</code> return 141 under
     <code>pipefail</code>?”</div>
@@ -177,10 +182,7 @@ echo $?                  # 141 (SIGPIPE)</code></pre>
     braces, unlike parentheses, do not create a subshell:</p>
 <pre><code>x=1; ( x=2 ); echo $x   # 1
 x=1; { x=2; }; echo $x  # 2</code></pre>
-    <p>Inside a function a variable is global by default - <code>local</code> is mandatory, or the
-    function silently overwrites someone else's value. Safe defaults:
-    <code>${var:-fallback}</code> instead of an empty string, and <code>set -u</code> so that a typo
-    in a name stops the script rather than continuing with nothing.</p>
+    <p>Parentheses launch a subshell that isolates environment mutations, whereas curly braces execute commands in the current shell process, preserving variable assignments. Inside shell functions, all variables are global by default: declaring them with <code>local</code> is mandatory to prevent accidental collisions with caller state. Safe defaults include fallback substitution <code>${var:-fallback}</code> to guard against empty strings and enabling <code>set -u</code> to abort execution immediately whenever an unbound variable is referenced.</p>
     <div class="prints"><strong>Typical question:</strong> “how does <code>export</code> differ from
     a plain assignment, and why is a function without <code>local</code> dangerous?”</div>
 
@@ -192,10 +194,7 @@ x=1; { x=2; }; echo $x  # 2</code></pre>
 <pre><code>tmp=$(mktemp)
 trap 'rm -f "$tmp"' EXIT
 trap 'echo interrupted; exit 130' INT</code></pre>
-    <p>A script killed by signal N exits with <code>128+N</code>: 130 for Ctrl+C
-    (<code>SIGINT</code>), 143 for <code>SIGTERM</code>. <code>SIGKILL</code> (9) can never be
-    caught - so “reliable cleanup on kill -9” does not exist, and that is a deliberate property of
-    the system rather than a gap in it.</p>
+    <p>When trapping an interrupt signal <code>INT</code>, the handler must explicitly terminate execution with <code>exit 130</code> so the parent process recognizes the abnormal abort. Under Unix conventions, a process terminated by fatal signal <code>N</code> yields exit code <code>128 + N</code>: 130 for Ctrl+C (<code>SIGINT</code>, signal 2) and 143 for <code>SIGTERM</code> (signal 15). Signal <code>SIGKILL</code> (9) is handled directly by the kernel and can never be caught with <code>trap</code>, meaning guaranteed cleanup on <code>kill -9</code> is architecturally impossible by system design.</p>
     <div class="prints"><strong>Typical question:</strong> “how do you guarantee a temporary file is
     removed on any termination, and why can <code>SIGKILL</code> not be trapped?”</div>
 

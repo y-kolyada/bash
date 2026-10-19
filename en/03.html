@@ -4,6 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The strength of Bash · devops-bash · ai|</title>
+<!-- meta: built by tools/build-meta.py - do not edit by hand -->
+<meta name="description" content="Why a forty-year-old language was not displaced by Python, Go, or any of the shells designed to replace it.">
+<link rel="canonical" href="https://y-kolyada.github.io/bash/en/03.html">
+<link rel="alternate" hreflang="ru" href="https://y-kolyada.github.io/bash/ru/03.html">
+<link rel="alternate" hreflang="en" href="https://y-kolyada.github.io/bash/en/03.html">
+<link rel="alternate" hreflang="uk" href="https://y-kolyada.github.io/bash/uk/03.html">
+<link rel="alternate" hreflang="de" href="https://y-kolyada.github.io/bash/de/03.html">
+<link rel="alternate" hreflang="x-default" href="https://y-kolyada.github.io/bash/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="devops-bash">
+<meta property="og:title" content="The strength of Bash">
+<meta property="og:description" content="Why a forty-year-old language was not displaced by Python, Go, or any of the shells designed to replace it.">
+<meta property="og:url" content="https://y-kolyada.github.io/bash/en/03.html">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"The strength of Bash","description":"Why a forty-year-old language was not displaced by Python, Go, or any of the shells designed to replace it.","url":"https://y-kolyada.github.io/bash/en/03.html","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
+<!-- /meta -->
 <link rel="stylesheet" href="../assets/style.css?v=1">
 <script>
   (function() {
@@ -15,6 +33,7 @@
 </script>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <div class="wrap">
 
 <header class="top">
@@ -26,12 +45,12 @@
     <div class="three" aria-hidden="true">tools · <span class="topic">Bash</span> · practice · 150 questions</div>
   </div>
   <div class="utility-tray" role="toolbar" aria-label="Display settings and language">
-    <div class="lang-switcher" aria-label="Language">
-      <a href="03.html" class="active" aria-current="page">EN</a>
-      <a href="../ru/03.html">RU</a>
-      <a href="../uk/03.html">UK</a>
-      <a href="../de/03.html">DE</a>
-    </div>
+    <nav class="lang-switcher" aria-label="Page language">
+      <a href="03.html" lang="en" hreflang="en" aria-label="English" class="active" aria-current="page">EN</a>
+      <a href="../ru/03.html" lang="ru" hreflang="ru" aria-label="Русский">RU</a>
+      <a href="../uk/03.html" lang="uk" hreflang="uk" aria-label="Українська">UK</a>
+      <a href="../de/03.html" lang="de" hreflang="de" aria-label="Deutsch">DE</a>
+    </nav>
     <div class="font-scaler" role="group" aria-label="Font size">
       <button type="button" class="font-btn font-s" data-size="s" title="Small text" aria-label="Small text">A</button>
       <button type="button" class="font-btn font-m active" data-size="m" title="Default text" aria-label="Default text">A</button>
@@ -71,9 +90,9 @@
     </div>
   </nav>
 
-  <main>
+  <main id="main">
     <h1>The strength of Bash</h1>
-    <p class="page-size" data-words="1132">Words: 1132</p>
+    <p class="page-size" data-words="1178">Words: 1178</p>
     <p class="lead">Why a forty-year-old language was not displaced by Python, Go, or any of the shells designed to replace it. This section exists to keep the comparison with weaknesses honest.</p>
 
     <div class="box key" id="key-idea">
@@ -98,7 +117,7 @@ docker run --rm debian bash -c 'echo ok'
 
 time python3 -c 'pass'
 # real ~0m0.030s</code></pre>
-    <p>Ten invocations do not justify choosing a language. <strong>Ten thousand in a CI loop do.</strong> The same logic cuts both ways and is named honestly on the weaknesses page: every external command in Bash is also a new process, and a loop of a hundred thousand iterations calling <code>grep</code> will be slower than any interpreter.</p>
+    <p>A tenfold difference in cold-start overhead (3 milliseconds for Bash versus 30 milliseconds for Python) seems trivial for a single run, but <strong>becomes a major bottleneck across tens of thousands of invocations in a CI pipeline.</strong> The inverse tradeoff also applies: every external utility called from Bash spawns a new process via <code>fork</code>, meaning a loop running 100,000 iterations calling <code>grep</code> will be substantially slower than equivalent logic in Python or Go.</p>
     <div class="prints"><strong>What gets asked:</strong> “When is startup speed more important than execution speed?”</div>
 
     <h2 id="system-access">3 · Direct system access without an abstraction layer <a class="anchor-link" href="#system-access">#</a></h2>
@@ -108,7 +127,7 @@ time python3 -c 'pass'
 cmd &gt;out 2&gt;err &amp;
 pid=$!
 wait "$pid" || echo "failed: $?"</code></pre>
-    <p>This language was built for exactly one task - managing other programs - and for that task it remains more expressive than general-purpose languages. <code>subprocess</code> in Python expresses the same logic three times longer with more places to make a mistake.</p>
+    <p>Bash is purpose-built to orchestrate operating system processes, allowing background execution, I/O redirection, and process waiting by PID to be written in a single compact line. Python’s <code>subprocess</code> module and standard libraries in general-purpose languages require several times more boilerplate to implement identical process management, multiplying opportunities for deadlocks and buffer stalls.</p>
     <div class="prints"><strong>What gets asked:</strong> “Why is starting and piping processes in shell more concise than in a general-purpose language?”</div>
 
     <h2 id="glue">4 · Glue: the power is not in Bash, but in what it connects <a class="anchor-link" href="#glue">#</a></h2>
@@ -117,7 +136,7 @@ wait "$pid" || echo "failed: $?"</code></pre>
   | awk '{print $4}' \
   | sort | uniq -c | sort -rn \
   | head -5</code></pre>
-    <p>Four lines extract the top error sources from gigabytes of logs - and not one was written by you. <strong>Expressiveness lives in the ecosystem, not the language</strong>: forty years of tools sharing a single interface - a text stream. You could replace this pipeline in any language, but the code would be longer and introduce your own bugs where none exist now.</p>
+    <p>A pipeline combining standard tools like <code>grep</code>, <code>awk</code>, <code>sort</code>, and <code>head</code> processes gigabytes of logs to produce an error breakdown in a single line without custom parsing code. <strong>The real strength lies within the Unix ecosystem</strong>: four decades of specialized utilities communicating over plain text streams make pipeline composition faster and less error-prone than hand-crafted scripts from scratch.</p>
     <p><strong>The toolset evolves, and the pipeline benefits automatically.</strong> <code>ripgrep</code> replaces <code>grep -r</code>, <code>fd</code> sits alongside <code>find</code>, <code>sd</code> replaces <code>sed</code> for simple edits, <code>hyperfine</code> measures performance, <code>delta</code> formats diffs. Most are written in Rust and run noticeably faster on large trees - but their interface is identical: text in, text out, an honest exit status.</p>
     <p><strong>This proves that the power lies in the architecture, not in specific tools:</strong> you can upgrade half the ecosystem without changing the language or your scripts. A language that does nothing itself outlived its generation of utilities precisely because it knew nothing about them - except that they read and write text.</p>
     <div class="prints"><strong>What gets asked:</strong> “What is the Unix philosophy in practice, and how does it appear in a pipeline?”</div>
@@ -129,7 +148,7 @@ curl -fsS "$URL/health" | jq -e .ok
 
 # exactly this - into a script, a hook,
 # a CI step, a systemd unit</code></pre>
-    <p>Moving from “I figured it out manually” to “it runs unattended” is a matter of copying the line. In any other language, translation sits between them, and every translation is an opportunity for behavior to shift unnoticed.</p>
+    <p>In Bash, moving from interactive exploration in the terminal to unattended automation is a direct copy-paste of the verified command into a script, CI step, or cron entry. In general-purpose languages, that step requires translating shell syntax into library calls, where subtle edge cases in argument escaping, shell expansion, and environment state often creep in.</p>
     <div class="prints"><strong>What gets asked:</strong> “Why is it valuable that a terminal command and a script line are identical text?”</div>
 
     <h2 id="evolving">6 · It is not frozen: the language evolves <a class="anchor-link" href="#evolving">#</a></h2>

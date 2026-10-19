@@ -4,6 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Сила Bash · devops-bash · ai|</title>
+<!-- meta: built by tools/build-meta.py - do not edit by hand -->
+<meta name="description" content="Чому мову, якій сорок років, не витіснили ані Python, ані Go, ані жодна з оболонок, вигаданих їй на зміну.">
+<link rel="canonical" href="https://y-kolyada.github.io/bash/uk/03.html">
+<link rel="alternate" hreflang="ru" href="https://y-kolyada.github.io/bash/ru/03.html">
+<link rel="alternate" hreflang="en" href="https://y-kolyada.github.io/bash/en/03.html">
+<link rel="alternate" hreflang="uk" href="https://y-kolyada.github.io/bash/uk/03.html">
+<link rel="alternate" hreflang="de" href="https://y-kolyada.github.io/bash/de/03.html">
+<link rel="alternate" hreflang="x-default" href="https://y-kolyada.github.io/bash/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="devops-bash">
+<meta property="og:title" content="Сила Bash">
+<meta property="og:description" content="Чому мову, якій сорок років, не витіснили ані Python, ані Go, ані жодна з оболонок, вигаданих їй на зміну.">
+<meta property="og:url" content="https://y-kolyada.github.io/bash/uk/03.html">
+<meta property="og:locale" content="uk_UA">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Сила Bash","description":"Чому мову, якій сорок років, не витіснили ані Python, ані Go, ані жодна з оболонок, вигаданих їй на зміну.","url":"https://y-kolyada.github.io/bash/uk/03.html","inLanguage":"uk","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
+<!-- /meta -->
 <link rel="stylesheet" href="../assets/style.css?v=1">
 <script>
   (function() {
@@ -15,6 +33,7 @@
 </script>
 </head>
 <body>
+<a class="skip" href="#main">До змісту</a>
 <div class="wrap">
 
 <header class="top">
@@ -26,12 +45,12 @@
     <div class="three" aria-hidden="true">інструменти · <span class="topic">Bash</span> · практика · 150 питань</div>
   </div>
   <div class="utility-tray" role="toolbar" aria-label="Налаштування відображення та мова">
-    <div class="lang-switcher" aria-label="Вибір мови">
-      <a href="../en/03.html">EN</a>
-      <a href="../ru/03.html">RU</a>
-      <a href="03.html" class="active" aria-current="page">UK</a>
-      <a href="../de/03.html">DE</a>
-    </div>
+    <nav class="lang-switcher" aria-label="Мова сторінки">
+      <a href="../en/03.html" lang="en" hreflang="en" aria-label="English">EN</a>
+      <a href="../ru/03.html" lang="ru" hreflang="ru" aria-label="Русский">RU</a>
+      <a href="03.html" lang="uk" hreflang="uk" aria-label="Українська" class="active" aria-current="page">UK</a>
+      <a href="../de/03.html" lang="de" hreflang="de" aria-label="Deutsch">DE</a>
+    </nav>
     <div class="font-scaler" role="group" aria-label="Розмір шрифту">
       <button type="button" class="font-btn font-s" data-size="s" title="Дрібний шрифт" aria-label="Дрібний шрифт">A</button>
       <button type="button" class="font-btn font-m active" data-size="m" title="Стандартний шрифт" aria-label="Стандартний шрифт">A</button>
@@ -71,9 +90,9 @@
     </div>
   </nav>
 
-  <main>
+  <main id="main">
     <h1>Сила Bash</h1>
-    <p class="page-size" data-words="1067">Слів: 1067</p>
+    <p class="page-size" data-words="1123">Слів: 1123</p>
     <p class="lead">Чому мову, якій сорок років, не витіснили ані Python, ані Go, ані жодна з оболонок, вигаданих їй на зміну. Розділ існує, щоб порівняння зі слабкостями було чесним.</p>
 
     <div class="box key" id="key-idea">
@@ -106,10 +125,7 @@ docker run --rm debian bash -c 'echo ok'
 
 time python3 -c 'pass'
 # real ~0m0.030s</code></pre>
-    <p>Десять разів - не привід для вибору мови. <strong>Десять тисяч разів у циклі CI - привід.</strong>
-    Та сама логіка працює у зворотний бік і чесно названа на сторінці слабкостей: кожна зовнішня
-    команда в Bash - це теж новий процес, і цикл на сто тисяч ітерацій з
-    <code>grep</code> усередині буде повільнішим за будь-який інтерпретатор.</p>
+    <p>Різниця в часі холодного старту вдесятеро (3 мілісекунди в Bash проти 30 мілісекунд у Python) здається незначною для поодинокої команди, але <strong>стає критичною за десятків тисяч запусків у конвеєрі CI.</strong> Та сама логіка працює і у зворотний бік: кожна зовнішня утиліта в Bash породжує новий системний процес через <code>fork</code>, тому цикл на сто тисяч ітерацій із викликом <code>grep</code> усередині виявиться в рази повільнішим за скрипт на Python або Go.</p>
     <div class="prints"><strong>Що запитують:</strong> «Коли швидкість запуску важливіша за швидкість виконання?»</div>
 
     <h2 id="system-access">3 · Прямий доступ до системи, без прошарку <a class="anchor-link" href="#system-access">#</a></h2>
@@ -120,9 +136,7 @@ time python3 -c 'pass'
 cmd &gt;out 2&gt;err &amp;
 pid=$!
 wait "$pid" || echo "впав: $?"</code></pre>
-    <p>Це мова, створена рівно для одного завдання - керувати іншими програмами, - і в цьому
-    завданні вона досі виразніша за універсальні мови. <code>subprocess</code> у Python
-    описує те саме втричі довше і з більшою кількістю місць, де можна помилитися.</p>
+    <p>Bash створений для керування програмами та процесами операційної системи, тому запуск у фоні, перенаправлення дескрипторів та очікування за PID записуються в ньому одним компактним рядком. Модуль <code>subprocess</code> у Python або аналогічні інтерфейси інших мов описують ту саму механіку керування дочірніми процесами втричі довше і створюють більше приводів для помилок із буферизацією та взаємними блокуваннями.</p>
     <div class="prints"><strong>Що запитують:</strong> «Чому запуск та зв'язування процесів у shell коротші, ніж у мові загального призначення?»</div>
 
     <h2 id="glue">4 · Клей: сила не в ньому, а в тому, що він з'єднує <a class="anchor-link" href="#glue">#</a></h2>
@@ -132,10 +146,7 @@ wait "$pid" || echo "впав: $?"</code></pre>
   | awk '{print $4}' \
   | sort | uniq -c | sort -rn \
   | head -5</code></pre>
-    <p>Чотири рядки дають топ джерел помилок із гігабайтів логів - і жоден із них не написаний
-    вами. <strong>Виразність тут не в мові, а в екосистемі</strong>: сорок років утиліт,
-    у яких спільний інтерфейс - текстовий потік. Замінити цей конвеєр кодом на будь-якій мові можна,
-    але він буде довшим, і в ньому з'являться ваші власні помилки там, де зараз їх немає.</p>
+    <p>Конвеєр зі стандартних утиліт <code>grep</code>, <code>awk</code>, <code>sort</code> та <code>head</code> фільтрує гігабайти логів і формує звіт за джерелами помилок одним рядком, без потреби писати власний код обробки. <strong>Сила Bash полягає в екосистемі Unix</strong>: десятиліття розвитку інструментів зі спільним інтерфейсом у вигляді текстового потоку дозволяють розв’язувати завдання композицією готових бінарників швидше та надійніше, ніж написанням спеціалізованих скриптів із нуля.</p>
     <p><strong>Набір утиліт оновлюється, і конвеєр від цього виграє.</strong>
     <code>ripgrep</code> замість <code>grep -r</code>, <code>fd</code> поруч із <code>find</code>,
     <code>sd</code> замість <code>sed</code> для простих замін, <code>hyperfine</code> для
@@ -156,9 +167,7 @@ curl -fsS "$URL/health" | jq -e .ok
 
 # рівно це - у скрипт, у хук,
 # у крок CI, у systemd-юніт</code></pre>
-    <p>Шлях від «я розібрався руками» до «це працює само» тут - копіювання рядка. У будь-якій
-    іншій мові між ними лежить переклад з однієї форми в іншу, і кожен такий переклад - місце,
-    де поведінка змінюється непомітно.</p>
+    <p>У Bash перехід від ручного налагодження команди в терміналі до автоматизації - це пряме копіювання перевіреного рядка в скрипт, крок CI чи конфігурацію cron. В універсальних мовах програмування між дослідницькою командою в консолі та кодом автоматизації завжди лежить трансляція логіки у виклики бібліотек, де легко пропустити приховані розбіжності в парсингу аргументів чи змінних оточення.</p>
     <div class="prints"><strong>Що запитують:</strong> «Чим цінно те, що команда з термінала і рядок скрипту - це один і той самий текст?»</div>
 
     <h2 id="evolving">6 · Він не застиг: мова розвивається <a class="anchor-link" href="#evolving">#</a></h2>

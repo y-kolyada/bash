@@ -4,6 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Writing Bash scripts · devops-bash · ai|</title>
+<!-- meta: built by tools/build-meta.py - do not edit by hand -->
+<meta name="description" content="Rules and techniques separating a script that runs on your machine from one that runs on someone else&#x27;s.">
+<link rel="canonical" href="https://y-kolyada.github.io/bash/en/02.html">
+<link rel="alternate" hreflang="ru" href="https://y-kolyada.github.io/bash/ru/02.html">
+<link rel="alternate" hreflang="en" href="https://y-kolyada.github.io/bash/en/02.html">
+<link rel="alternate" hreflang="uk" href="https://y-kolyada.github.io/bash/uk/02.html">
+<link rel="alternate" hreflang="de" href="https://y-kolyada.github.io/bash/de/02.html">
+<link rel="alternate" hreflang="x-default" href="https://y-kolyada.github.io/bash/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="devops-bash">
+<meta property="og:title" content="Writing scripts">
+<meta property="og:description" content="Rules and techniques separating a script that runs on your machine from one that runs on someone else&#x27;s.">
+<meta property="og:url" content="https://y-kolyada.github.io/bash/en/02.html">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Writing scripts","description":"Rules and techniques separating a script that runs on your machine from one that runs on someone else's.","url":"https://y-kolyada.github.io/bash/en/02.html","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
+<!-- /meta -->
 <link rel="stylesheet" href="../assets/style.css?v=1">
 <script>
   (function() {
@@ -15,6 +33,7 @@
 </script>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <div class="wrap">
 
 <header class="top">
@@ -26,12 +45,12 @@
     <div class="three" aria-hidden="true">tools · <span class="topic">Bash</span> · practice · 150 questions</div>
   </div>
   <div class="utility-tray" role="toolbar" aria-label="Display settings and language">
-    <div class="lang-switcher" aria-label="Language">
-      <a href="02.html" class="active" aria-current="page">EN</a>
-      <a href="../ru/02.html">RU</a>
-      <a href="../uk/02.html">UK</a>
-      <a href="../de/02.html">DE</a>
-    </div>
+    <nav class="lang-switcher" aria-label="Page language">
+      <a href="02.html" lang="en" hreflang="en" aria-label="English" class="active" aria-current="page">EN</a>
+      <a href="../ru/02.html" lang="ru" hreflang="ru" aria-label="Русский">RU</a>
+      <a href="../uk/02.html" lang="uk" hreflang="uk" aria-label="Українська">UK</a>
+      <a href="../de/02.html" lang="de" hreflang="de" aria-label="Deutsch">DE</a>
+    </nav>
     <div class="font-scaler" role="group" aria-label="Font size">
       <button type="button" class="font-btn font-s" data-size="s" title="Small text" aria-label="Small text">A</button>
       <button type="button" class="font-btn font-m active" data-size="m" title="Default text" aria-label="Default text">A</button>
@@ -71,9 +90,9 @@
     </div>
   </nav>
 
-  <main>
+  <main id="main">
     <h1>Writing scripts</h1>
-    <p class="page-size" data-words="1170">Words: 1170</p>
+    <p class="page-size" data-words="1240">Words: 1240</p>
     <p class="lead">Rules and techniques separating a script that runs on your machine from one that runs on someone else's. And the boundary between the two modes of Bash, where half of all bugs originate.</p>
 
     <div class="box key" id="key-idea">
@@ -88,7 +107,7 @@
 
 echo $-            # no i in scripts
 # hB  (interactive gives himBH)</code></pre>
-    <p>This leads to three consequences that most frequently cause bugs. <strong>Aliases do not work in scripts</strong> - <code>expand_aliases</code> is off by default for non-interactive shells. <strong>Scripts do not read <code>~/.bashrc</code></strong>: it is only read by an interactive non-login shell, which is why your <code>PATH</code> from <code>.bashrc</code> never reaches cron or CI. <strong><code>~/.bash_profile</code> is read only by login shells</strong> - SSH sessions, <code>su -</code>, or the first console.</p>
+    <p>Differences between an interactive login shell and a non-interactive script interpreter cause three widespread failure modes. <strong>Shell aliases do not expand in scripts</strong>: the <code>expand_aliases</code> option is disabled by default for non-interactive shells. <strong>Scripts never source <code>~/.bashrc</code></strong>: that initialization file is loaded only by interactive non-login shells, meaning customized <code>PATH</code> settings from <code>.bashrc</code> will be missing in cron jobs or CI runners. <strong>Only login shells parse <code>~/.bash_profile</code></strong>: SSH sessions, <code>su -</code>, or direct physical console logins.</p>
     <p>Practical takeaway: <strong>a script must not depend on your shell configuration.</strong> It must declare everything it needs itself - search paths, variables, and output locale.</p>
     <div class="prints"><strong>What gets asked:</strong> “Why does my <code>alias</code> or <code>PATH</code> work in the terminal but fail in a script or in cron?”</div>
 
@@ -116,7 +135,7 @@ usage() { echo "usage: $0 &lt;file&gt;" &gt;&amp;2; exit 2; }
 if out=$(greet "world"); then
   echo "$out"
 fi</code></pre>
-    <p>Do not confuse the two channels: <strong>stdout is the result, exit status is the status.</strong> A function that prints “error” and returns 0 breaks every caller.</p>
+    <p>The two communication channels of a function serve distinct roles: <strong>standard output (stdout) returns the payload data, while the return code signals execution success or error status.</strong> A function that prints an error message to stdout and exits with status 0 corrupts pipeline parsing and silently bypasses downstream error handling.</p>
     <p><code>"${1:?message}"</code> marks a required argument: if absent, Bash halts the script with a clear message. For option parsing, use <code>getopts</code>; a custom loop with <code>case</code> is justified only for long options, which <code>getopts</code> cannot handle.</p>
     <div class="prints"><strong>What gets asked:</strong> “How does returning a value from a Bash function differ from <code>return</code> in other languages?”</div>
 
@@ -127,7 +146,7 @@ trap 'rm -rf "$tmp"' EXIT
 
 mkdir -p /opt/app/releases
 ln -sfn "$new" /opt/app/current</code></pre>
-    <p><code>mkdir -p</code>, <code>ln -sfn</code>, <code>rsync</code>, <code>install -D</code> - these commands do not care whether the target state was already reached. Plain <code>mkdir</code> without <code>-p</code> and <code>ln -s</code> without <code>-f</code> do.</p>
+    <p>Commands such as <code>mkdir -p</code>, <code>ln -sfn</code>, <code>rsync</code>, and <code>install -D</code> are idempotent: running them repeatedly converges the system to the desired state cleanly, even if target directories or links already exist. Conversely, running <code>mkdir</code> without <code>-p</code> or <code>ln -s</code> without <code>-f</code> and <code>-n</code> fails with errors on a second pass due to existing filesystem targets.</p>
     <p><strong>A trap on <code>EXIT</code> is the only reliable cleanup:</strong> it fires on failure and on <code>Ctrl+C</code> alike. The temporary name must come from <code>mktemp</code>, not from you: a predictable name in <code>/tmp</code> is both a race condition and a security hole.</p>
     <div class="prints"><strong>What gets asked:</strong> “How do you make a script safe for repeated runs and ensure temporary files are cleaned up?”</div>
 
@@ -150,7 +169,7 @@ shfmt -i 2 -w script.sh
 # placed on the line immediately above:
 # deliberate rule override:
 # shellcheck disable=SC2086</code></pre>
-    <p><strong>Overriding a rule is allowed, but only on the line directly above and with a comment explaining why.</strong> Disabling <code>SC2086</code> globally means “we decided not to quote expansions”, and that decision should be stated out loud.</p>
+    <p><strong>Disabling ShellCheck linter rules is only acceptable directly above the specific target line, accompanied by an explicit explanation comment.</strong> Disabling a rule like <code>SC2086</code> globally across an entire file disables quote-wrapping checks everywhere, and such a design tradeoff must be deliberate and transparently documented.</p>
     <p>For testing, there is <code>bats</code>. But the first test of any script is running with <code>--dry-run</code>: a mode where it prints what it would do and does nothing. Build it in from the start, not after the first incident.</p>
     <div class="prints"><strong>What gets asked:</strong> “How do you test shell scripts and what does <code>shellcheck</code> catch that humans miss?”</div>
 
