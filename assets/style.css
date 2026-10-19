@@ -108,11 +108,17 @@ header.top .three {
 }
 /* Topic chip. Dark text in both themes: the amber background never changes,
    and light text on it loses contrast. */
+/* Жирная, и размер прежний. На телефоне плашка - 13.6px, и при таком размере
+   нежирный тёмный текст на янтаре читается плохо: контраст тут ни при чём, его
+   с запасом (6.82 : 1 в светлой теме, 11.07 : 1 в тёмной). Увеличивать размер
+   нельзя - слоган переносится на вторую строку и крадёт первый экран телефона.
+   Со знаком продукта плашка не спорит: тот 18.4px, она 13.6px. */
 header.top .three .topic {
   background: var(--term-accent);
   color: #121316;
   padding: 1px 6px;
   border-radius: 4px;
+  font-weight: 700;
 }
 
 /* --- utility tray --- */
@@ -1011,4 +1017,32 @@ nav.contents > .page-toc {
 :target,
 .glossary-term:target {
   scroll-margin-top: calc(var(--header-h, 0px) + 14px);
+}
+
+/* --- объём страницы и соседние темы --- */
+
+/* Объём в словах, а не в минутах: чтение бывает беглое, глубокое и
+   проверочное, и минуты врут. Число печёт генератор, поэтому оно видно и в
+   режиме чтения, и в печати, и без JavaScript. */
+.page-size {
+  margin: -6px 0 14px;
+  color: var(--dim);
+  font-size: .85rem;
+}
+
+/* Ссылки на соседние темы: текст, а не кнопки. Так их видит ридер, режим
+   чтения и поисковик, и так они не спорят с плавающими кнопками прокрутки. */
+.pager {
+  margin: 0 0 14px;
+}
+.pager p {
+  margin: 0 0 4px;
+}
+.pager a {
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+}
+.pager a:hover,
+.pager a:focus-visible {
+  border-bottom-color: var(--acc);
 }

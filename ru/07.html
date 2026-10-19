@@ -73,6 +73,7 @@
 
   <main>
     <h1>Практики в Clouds</h1>
+    <p class="page-size" data-words="1027">Слов: 1027</p>
     <p class="lead">CLI облака, ожидание готовности, доступы без ключей, лимиты API, защита от чужого аккаунта и уборка по тегам - и где проходит граница с Terraform.</p>
 
     <div class="box key" id="key-idea">
@@ -219,7 +220,10 @@ got_acc=$(aws sts get-caller-identity \
     </ol>
 
     <footer>
-      Следующая страница - практики DevOps: сборка, деплой и конвейеры.
+      <nav class="pager" aria-label="Соседние темы">
+        <p class="pager-next">Следующая тема: <a href="08.html">Практики DevOps</a></p>
+        <p class="pager-prev">Предыдущая тема: <a href="06.html">Практики в контексте AI</a></p>
+      </nav>
     </footer>
   </main>
 
