@@ -110,7 +110,7 @@ on_err() {
   echo "FAILURE: line $1, exit code $rc" &gt;&amp;2
   exit "$rc"
 }
-trap 'on_err $LINENO' ERR</code></pre>    <div class="prints"><strong>Why this works:</strong> Bash lacks stack traces on failure, so the failure line number is the sole substitute for a trace. <strong>The <code>-E</code> option is mandatory:</strong> without it, the <code>ERR</code> trap is not inherited by shell functions or subshells, causing errors inside functions to bypass the handler. <code>local rc=$?</code> must be captured on the very first line: any subsequent command overwrites the exit status.</div>
+trap 'on_err $LINENO' ERR</code></pre>        <div class="prints"><strong>Why so:</strong> Bash lacks native call stacks on failure, so reporting the exact line number of an error is the only diagnostic clue to help you localize crashes. <strong>Always specify the <code>-E</code> option:</strong> without it, your <code>ERR</code> trap is never inherited by functions or subshells, and internal function errors bypass your handler entirely. Store the exit status via <code>local rc=$?</code> as the first instruction: any intermediate command will overwrite the failure code.</div>
 
     <h2 id="mktemp">2 · Temporary directory guaranteed to clean up <a class="anchor-link" href="#mktemp">#</a></h2>
     <p><strong>Task:</strong> Process intermediate files leaving zero debris on error or <code>Ctrl+C</code>.</p>
@@ -119,7 +119,7 @@ cleanup() { rm -rf "$tmp"; }
 trap cleanup EXIT INT TERM
 
 work &gt; "$tmp/out"
-mv "$tmp/out" result.txt</code></pre>    <div class="prints"><strong>Why this works:</strong> The <code>EXIT</code> pseudo-signal trap runs on any script termination, including <code>set -e</code> failures - with the sole exception of <code>SIGKILL</code>, which the kernel prohibits trapping. <code>INT</code> and <code>TERM</code> add handling for terminal interruptions and process termination signals. <strong>Let <code>mktemp</code> generate unique names:</strong> predictable filenames in shared <code>/tmp</code> create race conditions under concurrent runs and open symlink attack vulnerabilities. Atomic renaming into final placement ensures callers never observe a partially written file.</div>
+mv "$tmp/out" result.txt</code></pre>        <div class="prints"><strong>Why so:</strong> An <code>EXIT</code> trap reliably executes upon any termination of your script (including abrupt exits under <code>set -e</code>), except uncatchable <code>SIGKILL</code> which the kernel handles directly. Trapping <code>INT</code> and <code>TERM</code> ensures cleanup handlers run when users interrupt execution. <strong>Always delegate temporary naming to <code>mktemp</code> rather than inventing paths yourself:</strong> predictable names in shared <code>/tmp</code> create race conditions and symlink vulnerabilities. Move completed artifacts to their destination atomically so readers never observe partial files.</div>
 
     <h2 id="getopts">3 · Command options and mandatory <code>--dry-run</code> <a class="anchor-link" href="#getopts">#</a></h2>
     <p><strong>Task:</strong> Equip a script with options and a “show what would happen without executing” mode.</p>
@@ -135,7 +135,7 @@ done
 shift $((OPTIND - 1))
 
 run() { (( dry )) &amp;&amp; { echo "DRY: $*"; return 0; }; "$@"; }
-run rm -rf "$target"</code></pre>    <div class="prints"><strong>Why this works:</strong> A leading colon in the option specification string puts <code>getopts</code> into silent mode, giving you control over error reporting. <code>shift $((OPTIND - 1))</code> consumes parsed options, leaving <code>$1</code> pointing to the first positional argument. <strong>The <code>run</code> wrapper makes dry-run support architectural rather than an afterthought:</strong> all mutating commands pass through it, making omitting <code>--dry-run</code> harder than remembering it. <strong>One critical caveat:</strong> shell redirections are evaluated <em>before</em> entering a function. <code>run echo x &gt; file</code> truncates <code>file</code> even in dry-run mode because <code>&gt;</code> has already executed. Encapsulate file writing inside the command: <code>run sh -c 'echo x &gt; file'</code> or write through a dedicated helper function that performs its own dry-run check.</p></div>
+run rm -rf "$target"</code></pre>        <div class="prints"><strong>Why so:</strong> A leading colon in your optstring places <code>getopts</code> into silent mode, letting you handle errors programmatically. Running <code>shift $((OPTIND - 1))</code> strips parsed options so that <code>$1</code> points directly to your first positional argument. <strong>The <code>run</code> wrapper bakes dry-run mode directly into your script architecture:</strong> route destructive commands through it so you never forget to respect <code>--dry-run</code>. <strong>Watch out for the redirection trap:</strong> the shell evaluates output operators <em>before</em> entering functions, meaning <code>run echo x &gt; file</code> truncates <code>file</code> even during simulation because <code>&gt;</code> has already executed. Wrap mutations inside subshells like <code>run sh -c 'echo x &gt; file'</code> or isolate them in functions that verify dry-run status internally.</div>
 
     <h2 id="retry">4 · Retries with exponential backoff <a class="anchor-link" href="#retry">#</a></h2>
     <p><strong>Task:</strong> Survive transient network hiccups without degenerating into an infinite loop.</p>
@@ -149,7 +149,7 @@ run rm -rf "$target"</code></pre>    <div class="prints"><strong>Why this works:
   done
 }
 
-retry curl -fsS --max-time 10 "$url"</code></pre>    <div class="prints"><strong>Why this works:</strong> Three conditions distinguish a resilient retry from an infinite hang: <strong>an attempt ceiling, growing backoff delays, and a command-level timeout.</strong> Without <code>--max-time</code>, retries are useless: the very first request can stall indefinitely. <code>curl -f</code> is mandatory: without it, HTTP 500 errors are treated as successful exits, leaving nothing to retry.</div>
+retry curl -fsS --max-time 10 "$url"</code></pre>        <div class="prints"><strong>Why so:</strong> Protect retry loops from infinite hanging with three safeguards: <strong>attempt limits, exponential backoff, and a command-level timeout.</strong> Without <code>--max-time</code>, your script will freeze on the very first stalled connection and retries will never trigger. Always pass <code>-f</code> to <code>curl</code>: without it, HTTP 500 responses are treated as successes, preventing your loop from detecting the outage.</div>
 
     <h2 id="parallel">5 · Bounded parallel processing with error aggregation <a class="anchor-link" href="#parallel">#</a></h2>
     <p><strong>Task:</strong> Process a hundred files across four parallel workers and verify if any failed.</p>
@@ -161,14 +161,14 @@ printf '%s\0' logs/*.log \
 
 # manual tracking with exit codes:
 pids=(); for f in logs/*.log; do work "$f" &amp; pids+=($!); done
-rc=0; for p in "${pids[@]}"; do wait "$p" || rc=1; done</code></pre>    <div class="prints"><strong>Why this works:</strong> The null delimiter <code>\0</code> paired with <code>-0</code> immunizes the pipeline against filenames with spaces and newlines. <strong><code>xargs</code> returns a non-zero exit status if any sub-process fails</strong> - providing the aggregated error detection absent in naive <code>&amp;</code> plus <code>wait</code> workflows. If you need individual process exit codes, store <code>$!</code> in an array and wait on each PID individually.</div>
+rc=0; for p in "${pids[@]}"; do wait "$p" || rc=1; done</code></pre>        <div class="prints"><strong>Why so:</strong> When processing batches in parallel, null terminators via <code>\0</code> and the <code>-0</code> flag safeguard your pipeline against spaces and newlines in filenames. <strong><code>xargs</code> returns a non-zero exit status if even a single worker fails</strong> - providing reliable failure aggregation that backgrounding with <code>&amp;</code> and <code>wait</code> lacks. If you need individual exit codes per file, preserve PIDs using <code>$!</code> and wait on each worker explicitly.</div>
 
     <h2 id="flock">6 · Single instance: protecting against concurrent runs <a class="anchor-link" href="#flock">#</a></h2>
     <p><strong>Task:</strong> Prevent a cron job from starting a second instance if the previous run is still active.</p>
 <pre><code>exec 9&gt;/var/lock/app.lock
 flock -n 9 || { echo "already running" &gt;&amp;2; exit 0; }
 
-# subsequent standard execution</code></pre>    <div class="prints"><strong>Why this works:</strong> The lock is bound to an open file descriptor, not a filesystem path: <strong>it is released automatically when the process terminates</strong> - including abrupt crashes. A custom “pid-file / flag-file” lacks this property: upon an unhandled crash, stale lock files remain on disk blocking future runs permanently. The <code>-n</code> flag requests non-blocking acquisition; exiting with status 0 is deliberate here - for cron, an already running instance is an expected condition, not a failure.</div>
+# subsequent standard execution</code></pre>        <div class="prints"><strong>Why so:</strong> An <code>flock</code> lock is bound to an open file descriptor, not a filesystem path: <strong>the kernel automatically releases it when your process terminates</strong>, even during unhandled panics. Ad-hoc lock files lack this property: a crashed process leaves stale locks behind, permanently blocking your subsequent runs. The <code>-n</code> flag requests non-blocking checks; exiting with code 0 is deliberate here so cron never inundates you with false alerts on skipped runs.</div>
 
     <h2 id="log-levels">7 · Leveled logging <a class="anchor-link" href="#log-levels">#</a></h2>
     <p><strong>Task:</strong> Provide diagnostic logging that does not corrupt command stdout.</p>
@@ -179,7 +179,7 @@ _log() {
     "$(date -Is)" "$lvl" "$*" &gt;&amp;2
 }
 info() { [ "$LOG_LEVEL" = debug ] || [ "$LOG_LEVEL" = info ] &amp;&amp; _log INFO "$@"; }
-die()  { _log ERROR "$@"; exit 1; }</code></pre>    <div class="prints"><strong>Why this works:</strong> All log output is directed to <strong>stderr</strong> because stdout is reserved for data consumed by downstream pipeline stages. Timestamps formatted with <code>-Is</code> (ISO 8601) sort naturally as strings and parse unambiguously by machine tools. <strong>Log level is driven by an environment variable</strong>: verbosity can be toggled without editing script code - essential when triaging issues in production.</div>
+die()  { _log ERROR "$@"; exit 1; }</code></pre>        <div class="prints"><strong>Why so:</strong> Always stream log messages from your script to <strong>stderr</strong>: standard output (stdout) is reserved for data consumed by downstream pipeline commands. Format timestamps with <code>-Is</code> (ISO 8601) so lines sort lexicographically and parsers process dates without regular expressions. Read log levels from environment variables: this allows you to toggle verbosity in production without modifying deployed scripts.</div>
 
     <h2 id="artifacts">Artifacts: what you take away from this page <a class="anchor-link" href="#artifacts">#</a></h2>
     <div class="box key">
