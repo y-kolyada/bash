@@ -46,6 +46,31 @@ def vocab(raw):
     return blocks, inline
 
 
+# Блок главной мысли опознаётся по якорю, а не по заголовку: заголовок написан
+# на четырёх языках, а якорь один и тот же (правило языконезависимых якорей).
+# Сам якорь стоит внутри <a> в заголовке, поэтому блок ищется от него назад до
+# <h2> и вперёд до закрытия рамки.
+KEY_ANCHOR = 'href="#key-idea"'
+
+
+def key_idea(raw):
+    """Имена в блоке «Главная мысль»: его читают первым и слушают голосом.
+
+    Сторож словаря сравнивает страницу целиком, поэтому имя, ушедшее из этого
+    блока в соседний раздел, он пропускает - а блок при этом обеднел. Поймано
+    ровно так: из главной мысли ушли shellcheck, bash -n и --dry-run, и
+    формально всё было на месте.
+    """
+    at = raw.find(KEY_ANCHOR)
+    if at < 0:
+        return None
+    start = raw.rfind('<h2', 0, at)
+    end = raw.find('</div>', at)
+    if start < 0 or end < 0:
+        return None
+    return {plain(c) for c in INLINE.findall(raw[start:end]) if plain(c)}
+
+
 def before(ref, page):
     out = subprocess.run(['git', 'show', '%s:%s' % (ref, page)],
                          capture_output=True, text=True)
@@ -71,14 +96,23 @@ def report(page, ref):
     lost = sorted(old_inline - new_inline)
     fresh = sorted(new_inline - old_inline)
 
+    old_key, new_key = key_idea(was), key_idea(now)
+    key_lost = sorted(old_key - new_key) if old_key and new_key else []
+
     if gone:
         bad.append('блоков кода потеряно: %d' % len(gone))
     if lost:
         bad.append('имён потеряно: %d' % len(lost))
+    if key_lost:
+        bad.append('имён ушло из главной мысли: %d' % len(key_lost))
 
     print('  [ %s ] %s' % ('ДА ' if not bad else 'НЕТ', page))
     print('        блоков кода: %d было, %d осталось дословно' % (len(old_blocks), len(kept)))
     print('        встроенных имён: %d было, %d стало' % (len(old_inline), len(new_inline)))
+    if old_key is not None and new_key is not None:
+        print('        в главной мысли: %d было, %d стало' % (len(old_key), len(new_key)))
+    for name in key_lost[:8]:
+        print('        -> ушло из главной мысли: %s' % name)
     for block in gone[:4]:
         print('        -> потерян блок: %s' % block[:70])
     for name in lost[:12]:
