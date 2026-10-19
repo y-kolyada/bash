@@ -22,7 +22,7 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Weaknesses and limits","description":"An honest inventory of what Bash does poorly, and the signals that a task has outgrown it.","url":"https://y-kolyada.github.io/bash/en/04.html","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
 <!-- /meta -->
-<link rel="stylesheet" href="../assets/style.css?v=12">
+<link rel="stylesheet" href="../assets/style.css?v=13">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -92,7 +92,7 @@
 
   <main id="main">
     <h1>Weaknesses and limits</h1>
-    <p class="page-size" data-words="1240">Words: 1240</p>
+    <p class="page-size" data-words="1248">Words: 1248</p>
     <p class="lead">An honest inventory of what Bash does poorly, and the signals that a task has outgrown it. Without this section, the previous one would just be marketing.</p>
 
     <div class="box key" id="key-idea">
@@ -157,7 +157,7 @@ printf '%s\0' *.log \
 
 # condition, action, and error
 # handling - in a single line</code></pre>
-    <p>Add the absence of namespaces, global variables by default, and the fact that only <code>set -u</code> catches variable typos. <strong>The practical threshold is around three hundred lines:</strong> past that, reading the script demands the same esoteric knowledge as writing it, which is the antithesis of maintainable code.</p>
+        <p>As a script grows beyond three hundred lines, fundamental Bash limitations become painful: lack of modules and namespaces, global-by-default variables, and typos that pass unnoticed without <code>set -u</code>. <strong>The practical threshold is around three hundred lines:</strong> past that, reading the script demands the same esoteric context as writing it, defeating the goal of maintainable engineering.</p>
     <div class="prints"><strong>What gets asked:</strong> “At what boundary should a shell script be rewritten in another language?”</div>
 
     <h2 id="portability">6 · Portability: two different worlds <a class="anchor-link" href="#portability">#</a></h2>
@@ -214,8 +214,8 @@ date -d @0       # GNU; BSD: -r 0</code></pre>
 
 </div>
 </div>
-<script src="../assets/swa.js?v=12"></script>
-<script src="../assets/terms.js?v=12"></script>
-<script src="../assets/cp.js?v=12"></script>
+<script src="../assets/swa.js?v=13"></script>
+<script src="../assets/terms.js?v=13"></script>
+<script src="../assets/cp.js?v=13"></script>
 </body>
 </html>

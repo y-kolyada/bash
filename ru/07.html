@@ -22,7 +22,7 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Практики в Clouds","description":"CLI облака, ожидание готовности, доступы без ключей, лимиты API, защита от чужого аккаунта и уборка по тегам - и где проходит граница с Terraform.","url":"https://y-kolyada.github.io/bash/ru/07.html","inLanguage":"ru","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
 <!-- /meta -->
-<link rel="stylesheet" href="../assets/style.css?v=12">
+<link rel="stylesheet" href="../assets/style.css?v=13">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -92,7 +92,7 @@
 
   <main id="main">
     <h1>Практики в Clouds</h1>
-    <p class="page-size" data-words="1027">Слов: 1027</p>
+    <p class="page-size" data-words="1081">Слов: 1081</p>
     <p class="lead">CLI облака, ожидание готовности, доступы без ключей, лимиты API, защита от чужого аккаунта и уборка по тегам - и где проходит граница с Terraform.</p>
 
     <div class="box key" id="key-idea">
@@ -111,11 +111,7 @@
 
 aws s3api head-object … &gt;/dev/null 2&gt;&amp;1 \
   &amp;&amp; echo есть || echo нет</code></pre>
-    <p>Два приёма экономят больше всего времени. <strong><code>--query</code> фильтрует на стороне
-    CLI</strong>, до того как данные дойдут до <code>jq</code>: меньше текста, меньше разбора.
-    <strong>Отсутствие объекта - это ненулевой код возврата</strong>, а не пустая строка; проверять
-    надо код, а не вывод. И отключайте встроенный пейджер через <code>AWS_PAGER=""</code>, чтобы
-    скрипт не завис в ожидании клавиши <code>q</code>.</p>
+        <p>При автоматизации облачных CLI наибольшую производительность дают два правила. <strong>Параметр <code>--query</code> фильтрует данные на стороне CLI</strong> до их передачи в <code>jq</code>, экономя сетевой трафик и процессорное время разбора. Второе правило: <strong>отсутствие объекта в облаке возвращает ненулевой код статуса</strong>, а не пустую строку, поэтому проверять нужно код возврата, а не вывод. А чтобы скрипты в CI не зависали в ожидании нажатия клавиши <code>q</code>, встроенный пейджер отключают через <code>AWS_PAGER=""</code>.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Чем <code>--query</code> отличается от <code>jq</code> и как в скрипте проверить, существует ли ресурс?»</div>
 
     <h2 id="provisioning">2 · Создание ресурсов: ожидание - часть работы <a class="anchor-link" href="#provisioning">#</a></h2>
@@ -133,10 +129,7 @@ for i in {1..30}; do
   ready &amp;&amp; break
   sleep 5
 done</code></pre>
-    <p>У CLI есть встроенные ожидания (<code>wait</code>) - берите их. Там, где их нет, пишите цикл
-    <strong>с обязательным пределом попыток</strong>: бесконечное ожидание в CI означает, что задача
-    висит до таймаута и жрёт минуты. И помечайте всё, что создаёте, тегами - по ним вы потом это
-    найдёте и удалите.</p>
+        <p>Для ожидания готовности облачных ресурсов используют встроенные команды CLI (<code>wait</code>). Там, где готовых ожиданий нет, проверку статуса организуют в цикле <strong>с обязательным лимитом попыток и таймаутом</strong>, иначе сбойная операция заблокирует раннер CI на часы. Любые создаваемые скриптом облачные ресурсы обязательно помечают тегами, чтобы автоматическая уборка могла гарантированно найти и удалить временную инфраструктуру.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Как в скрипте дождаться готовности облачного ресурса и что будет без ожидания?»</div>
 
     <h2 id="credentials">3 · Доступы: чего в скрипте быть не должно <a class="anchor-link" href="#credentials">#</a></h2>
@@ -153,11 +146,7 @@ aws --profile prod s3 ls
 token=$(aws secretsmanager \
   get-secret-value --secret-id t \
   --query SecretString --output text)</code></pre>
-    <p>Порядок предпочтения: <strong>роль инстанса или OIDC</strong> - ничего хранить не нужно;
-    <strong>профиль</strong> - ключи лежат у пользователя, а не в коде; <strong>переменные
-    окружения</strong> - только как последнее средство. Отдельно: <code>set -x</code> печатает
-    значения, то есть выводит секрет в журнал CI; включать трассировку в шаге, который работает с
-    секретами, нельзя.</p>
+        <p>Аутентификация скриптов в облачных провайдерах строится по строгому приоритету: <strong>роль инстанса или OIDC</strong> исключают необходимость хранить статические ключи вовсе; <strong>именованные профили</strong> держат токены в конфигурации пользователя, а не в репозитории; <strong>переменные окружения</strong> допустимы лишь как крайняя мера. Критическое правило: режим <code>set -x</code> выводит значения секретов в открытый журнал CI, поэтому трассировка в шагах с авторизацией запрещена.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Как скрипт получает доступ к облаку без хранения ключей и почему <code>set -x</code> там опасен?»</div>
 
     <h2 id="throttling">4 · Пагинация, троттлинг API и запрет на вызовы в цикле <a class="anchor-link" href="#throttling">#</a></h2>
@@ -212,8 +201,7 @@ got_acc=$(aws sts get-caller-identity \
   --query '…[].InstanceId' --output text \
   | xargs -r aws ec2 terminate-instances \
       --instance-ids</code></pre>
-    <p><code>xargs -r</code> не запустит команду на пустом вводе - без него удаление «всего»
-    может превратиться в команду без аргументов с непредсказуемым поведением.</p>
+        <p>При передаче списков облачных ресурсов на удаление через конвейер утилита <code>xargs -r</code> предотвращает запуск команды при пустом вводе. Без ключа <code>-r</code> удаление ресурсов превращается в вызов команды без аргументов, что в облачных CLI может привести к попытке применить действие ко всем ресурсам окружения.</p>
     <div class="box">
       <p><strong>Где проходит граница.</strong> Bash хорош там, где задача про
       <em>действие</em>: создать на час, собрать срез по аккаунту, мигрировать бакет, удалить по тегу.
@@ -248,8 +236,8 @@ got_acc=$(aws sts get-caller-identity \
 
 </div>
 </div>
-<script src="../assets/swa.js?v=12"></script>
-<script src="../assets/terms.js?v=12"></script>
-<script src="../assets/cp.js?v=12"></script>
+<script src="../assets/swa.js?v=13"></script>
+<script src="../assets/terms.js?v=13"></script>
+<script src="../assets/cp.js?v=13"></script>
 </body>
 </html>

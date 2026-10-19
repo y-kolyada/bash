@@ -22,7 +22,7 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Examples · Noob","description":"Six breakdowns for the “I run and occasionally tweak scripts” level.","url":"https://y-kolyada.github.io/bash/en/10.html","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
 <!-- /meta -->
-<link rel="stylesheet" href="../assets/style.css?v=12">
+<link rel="stylesheet" href="../assets/style.css?v=13">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -92,7 +92,7 @@
 
   <main id="main">
     <h1>Examples · Noob</h1>
-    <p class="page-size" data-words="803">Words: 803</p>
+    <p class="page-size" data-words="884">Words: 884</p>
     <p class="lead">Six breakdowns for the “I run and occasionally tweak scripts” level. The goal of this level is to remove magic: every line here is explained down to root cause, not just as a recipe.</p>
 
     <div class="box key" id="key-idea">
@@ -106,7 +106,8 @@
 echo "today: $(date +%F)"
 df -h / | tail -1</code></pre><pre><code>chmod +x hello.sh   # once
 ./hello.sh          # execute
-bash hello.sh       # without execute permission</code></pre>    <div class="prints"><strong>Why this works:</strong> A script file is ordinary text; the permission bit makes it executable, not the file extension. The <code>./</code> prefix is mandatory: without it, the shell searches <code>PATH</code>, which does not include the current directory - resulting in “command not found” for a file sitting right beside you. <code>bash hello.sh</code> works without execute permissions because <code>bash</code> itself executes, taking the script as a file argument.</div>
+bash hello.sh       # without execute permission</code></pre>    <div class="prints"><strong>Why this works:</strong> A script file is ordinary text; the permission bit makes it executable, not the file extension. The <code>./</code> prefix is mandatory: without it, the shell searches <code>PATH</code>, which does not include the current directory - resulting in “command not found” for a file sitting right beside you. <code>bash hello.sh</code> works without execute permissions because <code>bash</code> itself executes, taking the script as a file argument. Forget <code>chmod +x</code> and you get
+    <code>bash: ./hello.sh: Permission denied</code>.</div>
 
     <h2 id="quoting">2 · Variables and quotes <a class="anchor-link" href="#quoting">#</a></h2>
     <p><strong>Task:</strong> Output a filename containing a space.</p>
@@ -116,7 +117,9 @@ echo $file     # my report.txt - lucky
 ls $file       # ERROR: two files
 ls "$file"     # correct
 
-rm -f $file    # deletes "my" and "report.txt"</code></pre>    <div class="prints"><strong>Why this works:</strong> Bash expands the variable value and then <strong>splits it on whitespace</strong>. <code>echo</code> masks this because it prints all arguments separated by spaces - creating a false impression that everything worked. Quotes prevent word splitting. The rule is simple: <strong>unquoted expansion must be an intentional decision, never the default.</strong></div>
+rm -f $file    # deletes "my" and "report.txt"</code></pre>    <div class="prints"><strong>Why this works:</strong> Bash expands the variable value and then <strong>splits it on whitespace</strong>. <code>echo</code> masks this because it prints all arguments separated by spaces - creating a false impression that everything worked. Quotes prevent word splitting. The rule is simple: <strong>unquoted expansion must be an intentional decision, never the default.</strong>
+    Here is what you see in the terminal: <code>ls: cannot access 'my': No such file or
+    directory</code>, and the same line for <code>report.txt</code>.</div>
 
     <h2 id="conditionals">3 · Conditions: check before acting <a class="anchor-link" href="#conditionals">#</a></h2>
     <p><strong>Task:</strong> Copy a file if it exists; otherwise clearly report the failure.</p>
@@ -140,7 +143,9 @@ done
 # incorrect, yet common
 for f in $(ls *.log); do
   echo "processing: $f"
-done</code></pre>    <div class="prints"><strong>Why this works:</strong> The glob pattern <code>*.log</code> is expanded directly by the shell, preserving full filenames intact - even with embedded spaces. <code>$(ls)</code> outputs a single string that is subjected to word splitting, turning “old file.log” into two non-existent paths. The check <code>[ -e "$f" ]</code> is essential: <strong>if no files match, the glob remains as a literal string</strong>, causing the loop to run once with the literal string <code>*.log</code>.</div>
+done</code></pre>    <div class="prints"><strong>Why this works:</strong> The glob pattern <code>*.log</code> is expanded directly by the shell, preserving full filenames intact - even with embedded spaces. <code>$(ls)</code> outputs a single string that is subjected to word splitting, turning “old file.log” into two non-existent paths. The check <code>[ -e "$f" ]</code> is essential: <strong>if no files match, the glob remains as a literal string</strong>, causing the loop to run once with the literal string <code>*.log</code>. On a file named
+    “old file.log” the wrong variant prints two lines: “processing: old” and
+    “processing: file.log”.</div>
 
     <h2 id="arguments">5 · Arguments and exit status <a class="anchor-link" href="#arguments">#</a></h2>
     <p><strong>Task:</strong> Accept a name from the user and report whether the operation succeeded.</p>
@@ -153,13 +158,16 @@ if [ -z "$name" ]; then
 fi
 
 grep -q "$name" users.txt
-echo "exit code: $?"</code></pre>    <div class="prints"><strong>Why this works:</strong> <code>$1</code> is the first positional argument, <code>$#</code> is the argument count, and <code>$0</code> is the script name. <code>$?</code> holds the exit status of <strong>the most recently executed command</strong>, serving as the sole mechanism to determine whether a command succeeded: <code>grep</code> returns 0 on match and 1 on no match. Zero signifies success; any non-zero value indicates failure. Exit code 2 conventionally denotes invalid invocation.</div>
+echo "exit code: $?"</code></pre>    <div class="prints"><strong>Why this works:</strong> <code>$1</code> is the first positional argument, <code>$#</code> is the argument count, and <code>$0</code> is the script name. <code>$?</code> holds the exit status of <strong>the most recently executed command</strong>, serving as the sole mechanism to determine whether a command succeeded: <code>grep</code> returns 0 on match and 1 on no match. Zero signifies success; any non-zero value indicates failure. Exit code 2 conventionally denotes invalid invocation. Checking <code>$?</code> is not
+    optional: <code>grep -q</code> stays silent whether it matched or not, and if you skip
+    the check, your script reports success having found nothing - the example above prints
+    “exit code: 1”.</div>
 
     <h2 id="reading-files">6 · Reading files line by line <a class="anchor-link" href="#reading-files">#</a></h2>
     <p><strong>Task:</strong> Iterate through the lines of a file and process each.</p>
 <pre><code>while IFS= read -r line; do
   echo "line: $line"
-done &lt; names.txt</code></pre>    <div class="prints"><strong>Why this works:</strong> Three necessary details. <code>IFS=</code> before <code>read</code> prevents stripping leading and trailing whitespace. <strong><code>-r</code> disables backslash escape interpretation</strong> - without it, <code>C:\new</code> turns into a string with an embedded newline. And the input redirection <code>&lt; file</code> belongs after <code>done</code>, not before <code>while</code>.</div>
+done &lt; names.txt</code></pre>    <div class="prints"><strong>Why this works:</strong> Three necessary details. <code>IFS=</code> before <code>read</code> prevents stripping leading and trailing whitespace. <strong><code>-r</code> disables backslash escape interpretation</strong> - without it the backslash disappears and <code>C:\new</code> becomes <code>C:new</code>. And the input redirection <code>&lt; file</code> belongs after <code>done</code>, not before <code>while</code>.</div>
 
     <h2 id="artifacts">Artifacts: what you take away from this page <a class="anchor-link" href="#artifacts">#</a></h2>
     <div class="box key">
@@ -185,8 +193,8 @@ done &lt; names.txt</code></pre>    <div class="prints"><strong>Why this works:<
 
 </div>
 </div>
-<script src="../assets/swa.js?v=12"></script>
-<script src="../assets/terms.js?v=12"></script>
-<script src="../assets/cp.js?v=12"></script>
+<script src="../assets/swa.js?v=13"></script>
+<script src="../assets/terms.js?v=13"></script>
+<script src="../assets/cp.js?v=13"></script>
 </body>
 </html>

@@ -22,7 +22,7 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Практики у Clouds","description":"CLI хмари, очікування готовності, доступи без ключів, ліміти API, захист від чужого акаунту та прибирання за тегами - і де проходить межа з Terraform.","url":"https://y-kolyada.github.io/bash/uk/07.html","inLanguage":"uk","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
 <!-- /meta -->
-<link rel="stylesheet" href="../assets/style.css?v=12">
+<link rel="stylesheet" href="../assets/style.css?v=13">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -92,7 +92,7 @@
 
   <main id="main">
     <h1>Практики у Clouds</h1>
-    <p class="page-size" data-words="1026">Слів: 1026</p>
+    <p class="page-size" data-words="1081">Слів: 1081</p>
     <p class="lead">CLI хмари, очікування готовності, доступи без ключів, ліміти API, захист від чужого акаунту та прибирання за тегами - і де проходить межа з Terraform.</p>
 
     <div class="box key" id="key-idea">
@@ -109,7 +109,7 @@
 
 aws s3api head-object … &gt;/dev/null 2&gt;&amp;1 \
   &amp;&amp; echo є || echo немає</code></pre>
-    <p>Два прийоми економлять найбільше часу. <strong><code>--query</code> фільтрує на боці CLI</strong>, до того як дані дійдуть до <code>jq</code>: менше тексту, менше розбору. <strong>Відсутність об'єкта - це ненульовий код повернення</strong>, а не порожній рядок; перевіряти треба код, а не вивід. І вимикайте вбудований пейджер через <code>AWS_PAGER=""</code>, щоб скрипт не завис в очікуванні клавіші <code>q</code>.</p>
+        <p>При автоматизації хмарних CLI найбільшу продуктивність дають два правила. <strong>Параметр <code>--query</code> фільтрує дані на боці CLI</strong> до їх передачі в <code>jq</code>, заощаджуючи мережевий трафік і процесорний час розбору. Друге правило: <strong>відсутність об’єкта в хмарі повертає ненульовий код статусу</strong>, а не порожній рядок, тому перевіряти треба код повернення, а не вивід. А щоб скрипти в CI не зависали в очікуванні натискання клавіші <code>q</code>, вбудований пейджер вимикають через <code>AWS_PAGER=""</code>.</p>
     <div class="prints"><strong>Що запитують:</strong> «Чим <code>--query</code> відрізняється від <code>jq</code> і як у скрипті перевірити, чи існує ресурс?»</div>
 
     <h2 id="provisioning">2 · Створення ресурсів: очікування - частина роботи <a class="anchor-link" href="#provisioning">#</a></h2>
@@ -126,7 +126,7 @@ for i in {1..30}; do
   ready &amp;&amp; break
   sleep 5
 done</code></pre>
-    <p>У CLI є вбудовані очікування (<code>wait</code>) - беріть їх. Там, де їх немає, пишіть цикл <strong>з обов'язковою межею спроб</strong>: нескінченне очікування в CI означає, що завдання висить до таймауту і витрачає хвилини. І позначайте все, що створюєте, тегами - за ними ви потім це знайдете і видалите.</p>
+        <p>Для очікування готовності хмарних ресурсів використовують вбудовані команди CLI (<code>wait</code>). Там, де готових очікувань немає, перевірку статусу організовують у циклі <strong>з обов’язковою межею спроб і таймаутом</strong>, інакше збійна операція заблокує ранер CI на години. Будь-які створювані скриптом хмарні ресурси обов’язково позначають тегами, щоб автоматичне прибирання могло гарантовано знайти й видалити тимчасову інфраструктуру.</p>
     <div class="prints"><strong>Що запитують:</strong> «Як у скрипті дочекатися готовності хмарного ресурсу і що буде без очікування?»</div>
 
     <h2 id="credentials">3 · Доступи: чого в скрипті бути не повинно <a class="anchor-link" href="#credentials">#</a></h2>
@@ -142,7 +142,7 @@ aws --profile prod s3 ls
 token=$(aws secretsmanager \
   get-secret-value --secret-id t \
   --query SecretString --output text)</code></pre>
-    <p>Порядок переваги: <strong>роль інстансу або OIDC</strong> - нічого зберігати не потрібно; <strong>профіль</strong> - ключі лежать у користувача, а не в коді; <strong>змінні оточення</strong> - лише як останній засіб. Окремо: <code>set -x</code> друкує значення, тобто виводить секрет у журнал CI; вмикати трасування в кроці, який працює з секретами, не можна.</p>
+        <p>Автентифікація скриптів у хмарних провайдерах будується за суворим пріоритетом: <strong>роль інстансу або OIDC</strong> виключають необхідність зберігати статичні ключі взагалі; <strong>іменовані профілі</strong> тримають токени в конфігурації користувача, а не в коді; <strong>змінні оточення</strong> допустимі лише як крайній захід. Критичне правило: режим <code>set -x</code> виводить значення секретів у відкритий журнал CI, тому трасування в кроках з авторизацією заборонено.</p>
     <div class="prints"><strong>Що запитують:</strong> «Як скрипт отримує доступ до хмари без зберігання ключів і чому <code>set -x</code> там небезпечний?»</div>
 
     <h2 id="throttling">4 · Пагінація, тротлінг API та заборона на виклики в циклі <a class="anchor-link" href="#throttling">#</a></h2>
@@ -185,7 +185,7 @@ got_acc=$(aws sts get-caller-identity \
   --query '…[].InstanceId' --output text \
   | xargs -r aws ec2 terminate-instances \
       --instance-ids</code></pre>
-    <p><code>xargs -r</code> не запустить команду на порожньому вводі - без нього видалення «всього» може перетворитися на команду без аргументів із непередбачуваною поведінкою.</p>
+        <p>При передачі списків хмарних ресурсів на видалення через конвеєр утиліта <code>xargs -r</code> запобігає запуску команди при порожньому вводі. Без прапорця <code>-r</code> видалення ресурсів перетворюється на виклик команди без аргументів, що в хмарних CLI може призвести до спроби застосувати дію до всіх ресурсів оточення.</p>
     <div class="box">
       <p><strong>Де проходить межа.</strong> Bash хороший там, де завдання про <em>дію</em>: створити на годину, зібрати зріз за акаунтом, мігрувати бакет, видалити за тегом. Terraform та CloudFormation - там, де завдання про <em>стан</em>: що має існувати постійно. Скрипт, який намагається підтримувати стан, неминуче перетворюється на поганий Terraform - зі своїм файлом стану, своєю перевіркою розходжень і своїми помилками.</p>
     </div>
@@ -215,8 +215,8 @@ got_acc=$(aws sts get-caller-identity \
 
 </div>
 </div>
-<script src="../assets/swa.js?v=12"></script>
-<script src="../assets/terms.js?v=12"></script>
-<script src="../assets/cp.js?v=12"></script>
+<script src="../assets/swa.js?v=13"></script>
+<script src="../assets/terms.js?v=13"></script>
+<script src="../assets/cp.js?v=13"></script>
 </body>
 </html>

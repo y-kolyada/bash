@@ -22,7 +22,7 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Слабости и границы","description":"Честный список того, что в Bash устроено плохо, и признаки, по которым видно: задача уже не его.","url":"https://y-kolyada.github.io/bash/ru/04.html","inLanguage":"ru","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
 <!-- /meta -->
-<link rel="stylesheet" href="../assets/style.css?v=12">
+<link rel="stylesheet" href="../assets/style.css?v=13">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -92,7 +92,7 @@
 
   <main id="main">
     <h1>Слабости и границы</h1>
-    <p class="page-size" data-words="1106">Слов: 1106</p>
+    <p class="page-size" data-words="1118">Слов: 1118</p>
     <p class="lead">Честный список того, что в Bash устроено плохо, и признаки, по которым видно: задача уже не его. Без этого раздела предыдущий был бы рекламой.</p>
 
     <div class="box key" id="key-idea">
@@ -177,10 +177,7 @@ printf '%s\0' *.log \
 
 # условие, действие и обработка
 # ошибки - в одной строке</code></pre>
-    <p>Добавьте отсутствие пространств имён, глобальные переменные по умолчанию и то, что ошибку
-    в имени переменной ловит только <code>set -u</code>. <strong>Практический порог - около
-    трёхсот строк:</strong> дальше скрипт начинает требовать от читателя тех же знаний, что и от
-    автора, а это ровно то, чего избегает поддерживаемый код.</p>
+        <p>При росте скрипта свыше трёхсот строк сказываются фундаментальные ограничения Bash: отсутствие модулей и пространств имён, глобальные по умолчанию переменные и опечатки в именах, которые без <code>set -u</code> остаются незамеченными. <strong>Практический порог - около трёхсот строк:</strong> дальше код начинает требовать от читателя тех же неочевидных знаний контекста, что и от автора, а это ровно то, чего избегает поддерживаемый проект.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Где граница, после которой скрипт пора переписывать на другом языке?»</div>
 
     <h2 id="portability">6 · Переносимость: два разных мира <a class="anchor-link" href="#portability">#</a></h2>
@@ -252,8 +249,8 @@ date -d @0       # GNU; BSD: -r 0</code></pre>
 
 </div>
 </div>
-<script src="../assets/swa.js?v=12"></script>
-<script src="../assets/terms.js?v=12"></script>
-<script src="../assets/cp.js?v=12"></script>
+<script src="../assets/swa.js?v=13"></script>
+<script src="../assets/terms.js?v=13"></script>
+<script src="../assets/cp.js?v=13"></script>
 </body>
 </html>

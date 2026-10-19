@@ -22,7 +22,7 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Слабкості та межі","description":"Чесний список того, що в Bash влаштовано погано, і ознаки, за якими видно: завдання вже не його.","url":"https://y-kolyada.github.io/bash/uk/04.html","inLanguage":"uk","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
 <!-- /meta -->
-<link rel="stylesheet" href="../assets/style.css?v=12">
+<link rel="stylesheet" href="../assets/style.css?v=13">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -92,7 +92,7 @@
 
   <main id="main">
     <h1>Слабкості та межі</h1>
-    <p class="page-size" data-words="1105">Слів: 1105</p>
+    <p class="page-size" data-words="1119">Слів: 1119</p>
     <p class="lead">Чесний список того, що в Bash влаштовано погано, і ознаки, за якими видно: завдання вже не його. Без цього розділу попередній був би рекламою.</p>
 
     <div class="box key" id="key-idea">
@@ -177,10 +177,7 @@ printf '%s\0' *.log \
 
 # умова, дія та обробка
 # помилки - в одному рядку</code></pre>
-    <p>Додайте відсутність просторів імен, глобальні змінні за замовчуванням і те, що помилку
-    в імені змінної ловить лише <code>set -u</code>. <strong>Практичний поріг - близько
-    трьохсот рядків:</strong> далі скрипт починає вимагати від читача тих самих знань, що й від
-    автора, а це рівно те, чого уникає підтримуваний код.</p>
+        <p>При зростанні скрипта понад триста рядків даються взнаки фундаментальні обмеження Bash: відсутність модулів та просторів імен, глобальні за замовчуванням змінні та друкарські помилки в іменах, які без <code>set -u</code> залишаються непоміченими. <strong>Практичний поріг - близько трьохсот рядків:</strong> далі код починає вимагати від читача тих самих неочевидних знань контексту, що й від автора, а це рівно те, чого уникає підтримуваний проєкт.</p>
     <div class="prints"><strong>Що запитують:</strong> «Де межа, після якої скрипт час переписувати іншою мовою?»</div>
 
     <h2 id="portability">6 · Переносність: два різні світи <a class="anchor-link" href="#portability">#</a></h2>
@@ -251,8 +248,8 @@ date -d @0       # GNU; BSD: -r 0</code></pre>
 
 </div>
 </div>
-<script src="../assets/swa.js?v=12"></script>
-<script src="../assets/terms.js?v=12"></script>
-<script src="../assets/cp.js?v=12"></script>
+<script src="../assets/swa.js?v=13"></script>
+<script src="../assets/terms.js?v=13"></script>
+<script src="../assets/cp.js?v=13"></script>
 </body>
 </html>

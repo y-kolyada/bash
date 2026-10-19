@@ -22,7 +22,7 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Приклади · Noob","description":"Шість розборів для рівня «запускаю й іноді правитиму».","url":"https://y-kolyada.github.io/bash/uk/10.html","inLanguage":"uk","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
 <!-- /meta -->
-<link rel="stylesheet" href="../assets/style.css?v=12">
+<link rel="stylesheet" href="../assets/style.css?v=13">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -92,7 +92,7 @@
 
   <main id="main">
     <h1>Приклади · Noob</h1>
-    <p class="page-size" data-words="708">Слів: 708</p>
+    <p class="page-size" data-words="786">Слів: 786</p>
     <p class="lead">Шість розборів для рівня «запускаю й іноді правитиму». Завдання рівня - прибрати магію: кожен рядок тут пояснений до першопричини, а не до рецепта.</p>
 
     <div class="box key" id="key-idea">
@@ -106,7 +106,8 @@
 echo "сьогодні: $(date +%F)"
 df -h / | tail -1</code></pre><pre data-run="setup"><code>chmod +x hello.sh   # один раз
 ./hello.sh          # запуск
-bash hello.sh       # без прав</code></pre>    <div class="prints"><strong>Чому так:</strong> Файл зі скриптом - звичайний текст; виконуваним його робить біт прав, а не розширення. <code>./</code> перед ім’ям обов’язкове: без нього оболонка шукає програму в <code>PATH</code>, а поточного каталогу там немає - звідси «command not found» на файл, що лежить поруч. <code>bash hello.sh</code> працює і без прав, тому що виконується <code>bash</code>, а скрипт - його аргумент.</div>
+bash hello.sh       # без прав</code></pre>    <div class="prints"><strong>Чому так:</strong> Файл зі скриптом - звичайний текст; виконуваним його робить біт прав, а не розширення. <code>./</code> перед ім’ям обов’язкове: без нього оболонка шукає програму в <code>PATH</code>, а поточного каталогу там немає - звідси «command not found» на файл, що лежить поруч. <code>bash hello.sh</code> працює і без прав, тому що виконується <code>bash</code>, а скрипт - його аргумент. Забули <code>chmod +x</code> - побачите
+    <code>bash: ./hello.sh: Permission denied</code>.</div>
 
     <h2 id="quoting">2 · Змінні та лапки <a class="anchor-link" href="#quoting">#</a></h2>
     <p><strong>Завдання:</strong> вивести ім’я файлу, у якому є пробіл.</p>
@@ -116,7 +117,9 @@ echo $file     # мій звіт.txt - пощастило
 ls $file       # ПОМИЛКА: два файли
 ls "$file"     # правильно
 
-rm -f $file    # видалить "мій" та "звіт.txt"</code></pre>    <div class="prints"><strong>Чому так:</strong> Bash підставляє значення змінної, а потім <strong>розбиває його за пробілами</strong>. <code>echo</code> цього не показує, оскільки друкує всі аргументи через пробіл - і створює хибне враження, що все добре. Лапки скасовують розбиття. Правило просте: <strong>підстановка без лапок - усвідомлене рішення, а не замовчування.</strong></div>
+rm -f $file    # видалить "мій" та "звіт.txt"</code></pre>    <div class="prints"><strong>Чому так:</strong> Bash підставляє значення змінної, а потім <strong>розбиває його за пробілами</strong>. <code>echo</code> цього не показує, оскільки друкує всі аргументи через пробіл - і створює хибне враження, що все добре. Лапки скасовують розбиття. Правило просте: <strong>підстановка без лапок - усвідомлене рішення, а не замовчування.</strong>
+    Ось що ви побачите в терміналі: <code>ls: cannot access 'мій': No such file or
+    directory</code> - і такий самий рядок про <code>звіт.txt</code>.</div>
 
     <h2 id="conditionals">3 · Умови: перевірити, перш ніж робити <a class="anchor-link" href="#conditionals">#</a></h2>
     <p><strong>Завдання:</strong> скопіювати файл, якщо він існує, інакше зрозуміло повідомити про це.</p>
@@ -140,7 +143,8 @@ done
 # неправильно, хоча трапляється часто
 for f in $(ls *.log); do
   echo "обробляю: $f"
-done</code></pre>    <div class="prints"><strong>Чому так:</strong> Шаблон <code>*.log</code> розкриває сама оболонка, зберігаючи імена цілком - навіть із пробілами. <code>$(ls)</code> віддає один текст, який знову ріжеться за пробілами, й ім’я «old file.log» перетворюється на два неіснуючих файли. Перевірка <code>[ -e "$f" ]</code> потрібна, тому що <strong>якщо жоден файл не підійшов, шаблон залишається самим собою</strong> і цикл виконається один раз із рядком <code>*.log</code>.</div>
+done</code></pre>    <div class="prints"><strong>Чому так:</strong> Шаблон <code>*.log</code> розкриває сама оболонка, зберігаючи імена цілком - навіть із пробілами. <code>$(ls)</code> віддає один текст, який знову ріжеться за пробілами, й ім’я «old file.log» перетворюється на два неіснуючих файли. Перевірка <code>[ -e "$f" ]</code> потрібна, тому що <strong>якщо жоден файл не підійшов, шаблон залишається самим собою</strong> і цикл виконається один раз із рядком <code>*.log</code>. Неправильний варіант на файлі
+    «old file.log» напише два рядки: «обробляю: old» та «обробляю: file.log».</div>
 
     <h2 id="arguments">5 · Аргументи та код повернення <a class="anchor-link" href="#arguments">#</a></h2>
     <p><strong>Завдання:</strong> прийняти ім’я від користувача та повідомити, чи вдалося.</p>
@@ -153,13 +157,17 @@ if [ -z "$name" ]; then
 fi
 
 grep -q "$name" users.txt
-echo "код повернення: $?"</code></pre>    <div class="prints"><strong>Чому так:</strong> <code>$1</code> - перший аргумент, <code>$#</code> - їхня кількість, <code>$0</code> - ім’я самого скрипта. <code>$?</code> зберігає код повернення <strong>останньої виконаної команди</strong>, і це єдиний спосіб дізнатися в команди, чи все вдалося: <code>grep</code> повертає 0, коли знайшов, і 1, коли ні. Нуль - успіх, будь-яке інше число - ні; код 2 зазвичай означає «неправильний виклик».</div>
+echo "код повернення: $?"</code></pre>    <div class="prints"><strong>Чому так:</strong> <code>$1</code> - перший аргумент, <code>$#</code> - їхня кількість, <code>$0</code> - ім’я самого скрипта. <code>$?</code> зберігає код повернення <strong>останньої виконаної команди</strong>, і це єдиний спосіб дізнатися в команди, чи все вдалося: <code>grep</code> повертає 0, коли знайшов, і 1, коли ні. Нуль - успіх, будь-яке інше число - ні; код 2 зазвичай означає «неправильний виклик». Дивитися на <code>$?</code> обов’язково:
+    <code>grep -q</code> мовчить і коли знайшов, і коли ні, і якщо ви його не перевірите, ваш
+    скрипт відзвітує про успіх, нічого не знайшовши - у прикладі вище напишеться «код
+    повернення: 1».</div>
 
     <h2 id="reading-files">6 · Читання файлу рядок за рядком <a class="anchor-link" href="#reading-files">#</a></h2>
     <p><strong>Завдання:</strong> пройти рядками файлу й щось із ними зробити.</p>
 <pre data-run="setup"><code>while IFS= read -r line; do
   echo "рядок: $line"
-done &lt; names.txt</code></pre>    <div class="prints"><strong>Чому так:</strong> Три деталі, кожна з яких потрібна. <code>IFS=</code> перед <code>read</code> зберігає пробіли на початку та в кінці рядка. <strong><code>-r</code> забороняє трактувати зворотну скісну риску як екранування</strong> - без нього <code>C:\new</code> перетвориться на рядок із перенесенням рядка. І перенаправлення <code>&lt; файл</code> стоїть після <code>done</code>, а не перед <code>while</code>.</div>
+done &lt; names.txt</code></pre>    <div class="prints"><strong>Чому так:</strong> Три деталі, кожна з яких потрібна. <code>IFS=</code> перед <code>read</code> зберігає пробіли на початку та в кінці рядка. <strong><code>-r</code> забороняє трактувати зворотну скісну риску як екранування</strong> - без нього зворотна скісна риска зникає, і <code>C:\new</code> перетворюється на
+    <code>C:new</code>. І перенаправлення <code>&lt; файл</code> стоїть після <code>done</code>, а не перед <code>while</code>.</div>
 
     <h2 id="artifacts">Артефакти: що у вас є після цієї сторінки <a class="anchor-link" href="#artifacts">#</a></h2>
     <div class="box key">
@@ -185,8 +193,8 @@ done &lt; names.txt</code></pre>    <div class="prints"><strong>Чому так:
 
 </div>
 </div>
-<script src="../assets/swa.js?v=12"></script>
-<script src="../assets/terms.js?v=12"></script>
-<script src="../assets/cp.js?v=12"></script>
+<script src="../assets/swa.js?v=13"></script>
+<script src="../assets/terms.js?v=13"></script>
+<script src="../assets/cp.js?v=13"></script>
 </body>
 </html>
