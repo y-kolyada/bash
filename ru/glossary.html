@@ -4,7 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Словарь понятий · Bash · ai|</title>
-<link rel="stylesheet" href="../assets/style.css?v=1">
+<!-- meta: built by tools/build-meta.py - do not edit by hand -->
+<meta name="description" content="Двадцать два понятия, которые на страницах сайта уже не объясняются.">
+<link rel="canonical" href="https://y-kolyada.github.io/bash/ru/glossary.html">
+<link rel="alternate" hreflang="ru" href="https://y-kolyada.github.io/bash/ru/glossary.html">
+<link rel="alternate" hreflang="en" href="https://y-kolyada.github.io/bash/en/glossary.html">
+<link rel="alternate" hreflang="uk" href="https://y-kolyada.github.io/bash/uk/glossary.html">
+<link rel="alternate" hreflang="de" href="https://y-kolyada.github.io/bash/de/glossary.html">
+<link rel="alternate" hreflang="x-default" href="https://y-kolyada.github.io/bash/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="devops-bash">
+<meta property="og:title" content="Словарь понятий">
+<meta property="og:description" content="Двадцать два понятия, которые на страницах сайта уже не объясняются.">
+<meta property="og:url" content="https://y-kolyada.github.io/bash/ru/glossary.html">
+<meta property="og:locale" content="ru_RU">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"DefinedTermSet","name":"Словарь понятий","url":"https://y-kolyada.github.io/bash/ru/glossary.html","inLanguage":"ru","hasDefinedTerm":[{"@type":"DefinedTerm","name":"Shebang","description":"Первая строка скрипта, указывающая ядру, каким интерпретатором его запускать.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#shebang"},{"@type":"DefinedTerm","name":"Режимы оболочки","description":"Одна программа Bash в двух ролях: оболочка, с которой работает человек, и интерпретатор, который выполняет файл.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#shell-modes"},{"@type":"DefinedTerm","name":"PATH","description":"Список каталогов через двоеточие, в которых оболочка ищет программу по имени.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#path"},{"@type":"DefinedTerm","name":"Переменная окружения","description":"Переменная, которую оболочка передаёт дочерним процессам.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#environment-variable"},{"@type":"DefinedTerm","name":"Шаблон имён","description":"Выражение, которое оболочка раскрывает в список подходящих имён файлов до запуска команды.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#glob"},{"@type":"DefinedTerm","name":"Словоделение","description":"Разбиение результата подстановки на отдельные слова по пробелам и переводам строк.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#word-splitting"},{"@type":"DefinedTerm","name":"IFS","description":"Набор символов, по которым оболочка режет текст на слова.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#ifs"},{"@type":"DefinedTerm","name":"Поток и дескриптор","description":"Пронумерованный канал ввода или вывода процесса: 0 - ввод, 1 - результат, 2 - ошибки и всё остальное.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#stream-fd"},{"@type":"DefinedTerm","name":"Перенаправление","description":"Указание оболочке, куда направить поток процесса вместо терминала.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#redirection"},{"@type":"DefinedTerm","name":"Конвейер","description":"Цепочка команд, где вывод одной становится вводом следующей.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#pipeline"},{"@type":"DefinedTerm","name":"Код возврата","description":"Число от 0 до 255, которым команда сообщает об успехе (0) или об ошибке (не 0).","url":"https://y-kolyada.github.io/bash/ru/glossary.html#exit-code"},{"@type":"DefinedTerm","name":"Сабшелл","description":"Дочерний процесс оболочки: он наследует окружение, но его изменения наружу не возвращаются.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#subshell"},{"@type":"DefinedTerm","name":"Сигнал","description":"Асинхронное сообщение процессу от ядра, другого процесса или терминала.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#signal"},{"@type":"DefinedTerm","name":"Ловушка","description":"Обработчик, который оболочка выполняет при сигнале или при наступлении события.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#trap"},{"@type":"DefinedTerm","name":"POSIX и bashism","description":"POSIX - стандарт, общий для всех оболочек; bashism - возможность, которая есть только в Bash.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#posix"},{"@type":"DefinedTerm","name":"Строгий режим","description":"Три предохранителя: падать на ошибке, падать на необъявленной переменной, не терять ошибку в конвейере.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#strict-mode"},{"@type":"DefinedTerm","name":"Режим проверки","description":"Запуск, при котором скрипт печатает, что сделал бы, и ничего не делает.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#dry-run"},{"@type":"DefinedTerm","name":"Идемпотентность","description":"Свойство операции: повторный запуск не меняет результат и не ломает состояние.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#idempotence"},{"@type":"DefinedTerm","name":"Атомарность","description":"Свойство операции: она либо выполнена целиком, либо не выполнена вовсе, без видимого промежуточного состояния.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#atomicity"},{"@type":"DefinedTerm","name":"Блокировка","description":"Механизм, не дающий двум экземплярам одной задачи работать одновременно.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#locking"},{"@type":"DefinedTerm","name":"Контракт инструмента","description":"Объявленное поведение скрипта, на которое опираются вызывающие его программы.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#tool-contract"},{"@type":"DefinedTerm","name":"Радиус поражения","description":"Максимальный ущерб, который скрипт нанесёт, если ошибётся.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#blast-radius"}]}</script>
+<!-- /meta -->
+<link rel="stylesheet" href="../assets/style.css?v=12">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -15,6 +33,7 @@
 </script>
 </head>
 <body>
+<a class="skip" href="#main">К содержанию</a>
 <div class="wrap">
 
 <header class="top">
@@ -26,12 +45,12 @@
     <div class="three" aria-hidden="true">инструменты · <span class="topic">Bash</span> · практика · 150 вопросов</div>
   </div>
   <div class="utility-tray" role="toolbar" aria-label="Настройки отображения и язык">
-    <div class="lang-switcher" aria-label="Выбор языка">
-      <a href="../en/glossary.html">EN</a>
-      <a href="glossary.html" class="active" aria-current="page">RU</a>
-      <a href="../uk/glossary.html">UK</a>
-      <a href="../de/glossary.html">DE</a>
-    </div>
+    <nav class="lang-switcher" aria-label="Язык страницы">
+      <a href="../en/glossary.html" lang="en" hreflang="en" aria-label="English">EN</a>
+      <a href="glossary.html" lang="ru" hreflang="ru" aria-label="Русский" class="active" aria-current="page">RU</a>
+      <a href="../uk/glossary.html" lang="uk" hreflang="uk" aria-label="Українська">UK</a>
+      <a href="../de/glossary.html" lang="de" hreflang="de" aria-label="Deutsch">DE</a>
+    </nav>
     <div class="font-scaler" role="group" aria-label="Размер шрифта">
       <button type="button" class="font-btn font-s" data-size="s" title="Мелкий шрифт" aria-label="Мелкий шрифт">A</button>
       <button type="button" class="font-btn font-m active" data-size="m" title="Стандартный шрифт" aria-label="Стандартный шрифт">A</button>
@@ -71,7 +90,7 @@
     </div>
   </nav>
 
-  <main>
+  <main id="main">
     <h1>Словарь понятий</h1>
     <p class="page-size" data-words="1723">Слов: 1723</p>
     <p class="lead">Двадцать два понятия, которые на страницах сайта уже не объясняются. Каждое - не определение для экзамена, а механика, незнание которой стоит инцидента.</p>
@@ -404,8 +423,8 @@
 
 </div>
 </div>
-<script src="../assets/swa.js"></script>
-<script src="../assets/terms.js"></script>
-<script src="../assets/cp.js"></script>
+<script src="../assets/swa.js?v=12"></script>
+<script src="../assets/terms.js?v=12"></script>
+<script src="../assets/cp.js?v=12"></script>
 </body>
 </html>

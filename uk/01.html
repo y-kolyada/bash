@@ -4,7 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ключові компоненти Bash · devops-bash · ai|</title>
-<link rel="stylesheet" href="../assets/style.css?v=1">
+<!-- meta: built by tools/build-meta.py - do not edit by hand -->
+<meta name="description" content="Шість механізмів, з яких зібрано будь-який скрипт.">
+<link rel="canonical" href="https://y-kolyada.github.io/bash/uk/01.html">
+<link rel="alternate" hreflang="ru" href="https://y-kolyada.github.io/bash/ru/01.html">
+<link rel="alternate" hreflang="en" href="https://y-kolyada.github.io/bash/en/01.html">
+<link rel="alternate" hreflang="uk" href="https://y-kolyada.github.io/bash/uk/01.html">
+<link rel="alternate" hreflang="de" href="https://y-kolyada.github.io/bash/de/01.html">
+<link rel="alternate" hreflang="x-default" href="https://y-kolyada.github.io/bash/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="devops-bash">
+<meta property="og:title" content="Ключові компоненти Bash">
+<meta property="og:description" content="Шість механізмів, з яких зібрано будь-який скрипт.">
+<meta property="og:url" content="https://y-kolyada.github.io/bash/uk/01.html">
+<meta property="og:locale" content="uk_UA">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Ключові компоненти Bash","description":"Шість механізмів, з яких зібрано будь-який скрипт.","url":"https://y-kolyada.github.io/bash/uk/01.html","inLanguage":"uk","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
+<!-- /meta -->
+<link rel="stylesheet" href="../assets/style.css?v=12">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -15,6 +33,7 @@
 </script>
 </head>
 <body>
+<a class="skip" href="#main">До змісту</a>
 <div class="wrap">
 
 <header class="top">
@@ -26,12 +45,12 @@
     <div class="three" aria-hidden="true">інструменти · <span class="topic">Bash</span> · практика · 150 питань</div>
   </div>
   <div class="utility-tray" role="toolbar" aria-label="Налаштування відображення та мова">
-    <div class="lang-switcher" aria-label="Вибір мови">
-      <a href="../en/01.html">EN</a>
-      <a href="../ru/01.html">RU</a>
-      <a href="01.html" class="active" aria-current="page">UK</a>
-      <a href="../de/01.html">DE</a>
-    </div>
+    <nav class="lang-switcher" aria-label="Мова сторінки">
+      <a href="../en/01.html" lang="en" hreflang="en" aria-label="English">EN</a>
+      <a href="../ru/01.html" lang="ru" hreflang="ru" aria-label="Русский">RU</a>
+      <a href="01.html" lang="uk" hreflang="uk" aria-label="Українська" class="active" aria-current="page">UK</a>
+      <a href="../de/01.html" lang="de" hreflang="de" aria-label="Deutsch">DE</a>
+    </nav>
     <div class="font-scaler" role="group" aria-label="Розмір шрифту">
       <button type="button" class="font-btn font-s" data-size="s" title="Дрібний шрифт" aria-label="Дрібний шрифт">A</button>
       <button type="button" class="font-btn font-m active" data-size="m" title="Стандартний шрифт" aria-label="Стандартний шрифт">A</button>
@@ -71,9 +90,9 @@
     </div>
   </nav>
 
-  <main>
+  <main id="main">
     <h1>Ключові компоненти Bash</h1>
-    <p class="page-size" data-words="982">Слів: 982</p>
+    <p class="page-size" data-words="1118">Слів: 1118</p>
     <p class="lead">Шість механізмів, з яких зібрано будь-який скрипт. Знання їхнього порядку відрізняє
     інженера, який лагодить скрипт за хвилину, від того, хто править його навмання.</p>
 
@@ -102,12 +121,7 @@
 3. словоподіл        за IFS
 4. імена файлів      *.txt
 5. зняття лапок</code></pre>
-    <p><strong>Друга стадія - одна, а не п'ять послідовних.</strong> Тільда, параметри,
-    підстановка команд, арифметика та підстановка процесів розкриваються разом, зліва направо.
-    Це видно одним рядком: <code>x=1; echo $((x=2)) $x</code> друкує <code>2 2</code> -
-    арифметика вже змінила <code>x</code>, коли черга дійшла до другого <code>$x</code>.
-    Якби параметри розкривалися окремим кроком раніше за арифметику, результат був би
-    <code>2 1</code>.</p>
+    <p><strong>Друга стадія порядку розкриттів - один спільний прохід, а не п’ять послідовних кроків.</strong> Тильда, параметри змінних, підстановка команд, арифметика та підстановка процесів розкриваються разом, зліва направо в одному циклі. Це доводить виклик <code>x=1; echo $((x=2)) $x</code>, який друкує <code>2 2</code>: арифметика вже змінила <code>x</code>, коли черга дійшла до підстановки другого <code>$x</code>. Якби параметри розкривалися окремим кроком до арифметики, результат був би <code>2 1</code>.</p>
     <p>Ще два наслідки. Розкриття імен файлів відбувається <em>після</em> підстановки змінних - тому
     <code>f="*.txt"; echo $f</code> надрукує список файлів, а <code>echo "$f"</code> - зірочку.
     І навпаки: <code>{1..3}</code> розкривається до підстановки, тому
@@ -122,9 +136,7 @@
 <pre><code>f="My File.txt"
 rm $f     # дві цілі: My та File.txt
 rm "$f"   # одна ціль, правильно</code></pre>
-    <p>Та сама різниця у списків аргументів: <code>"$@"</code> розгортається в окремі
-    аргументи зі збереженням меж, а <code>$@</code> та <code>"$*"</code> - ні. Правило просте:
-    підстановка без лапок має бути усвідомленим рішенням, а не замовчуванням.</p>
+    <p>Лапки захищають межі не лише окремих змінних, але й списків аргументів: <code>"$@"</code> розгортається в окремі аргументи зі збереженням пробілів усередині кожного елемента, тоді як <code>$@</code> та <code>"$*"</code> склеюють або повторно розбивають слова за <code>IFS</code>. Головне правило: підстановка без подвійних лапок має бути рідкісним усвідомленим рішенням, а не автоматичною звичкою.</p>
     <div class="prints"><strong>Що запитують:</strong> «Чим <code>"$@"</code> відрізняється від
     <code>$@</code> та <code>"$*"</code>, і що зламається на шляхах із пробілами?»</div>
 
@@ -140,11 +152,7 @@ rm "$f"   # одна ціль, правильно</code></pre>
 <pre><code>cmd &gt;log 2&gt;&amp;1   # обидва потоки у файл
 cmd 2&gt;&amp;1 &gt;log   # помилки в термінал
 echo &lt;(true)    # /dev/fd/63 (канал)</code></pre>
-    <p>У другому випадку <code>2</code> копіює <em>поточне</em> призначення <code>1</code> -
-    термінал, - і лише потім <code>1</code> іде у файл. А підстановка процесу
-    <code>&lt;(cmd)</code> передає команді ім'я відкритого дескриптора каналу на кшталт
-    <code>/dev/fd/63</code>: читати з нього можна один раз, а перемотати назад
-    (<code>lseek</code>) не можна, бо на диску цього файлу немає.</p>
+    <p>У разі перенаправлення <code>cmd 2&gt;&amp;1 &gt;log</code> дескриптор помилок <code>2</code> дублює <em>поточне</em> призначення стандартного виводу <code>1</code> (термінал), і лише потім вивід <code>1</code> спрямовується у файл, тому помилки залишаються на екрані; правильний порядок для запису обох потоків у файл - <code>&gt;log 2&gt;&amp;1</code>. Своєю чергою, підстановка процесу <code>&lt;(cmd)</code> передає команді назву відкритого файлового дескриптора каналу на зразок <code>/dev/fd/63</code>: читати з нього можна лише один раз послідовно, а перемотування назад (<code>lseek</code>) неможливе, оскільки на диску такого файла немає.</p>
     <div class="prints"><strong>Що запитують:</strong> «Чому <code>2&gt;&amp;1 &gt;log</code>
     і <code>&gt;log 2&gt;&amp;1</code> дають різний результат і що насправді підставляє
     <code>&lt;(cmd)</code>?»</div>
@@ -159,12 +167,7 @@ echo "${PIPESTATUS[@]}"  # 1 0
 set -o pipefail
 yes | head -n 1 &gt;/dev/null
 echo $?                  # 141 (SIGPIPE)</code></pre>
-    <p>Коли права ланка (<code>head -n 1</code> або <code>grep -q</code>) прочитала свій рядок і
-    закрила канал, процес зліва, що пише, під час наступного запису отримує від ядра сигнал
-    <code>SIGPIPE</code> (13) і завершується з кодом <code>128 + 13 = 141</code>. Під
-    <code>pipefail</code> цей штатний 141 сприймається як аварія. І з тієї самої причини (кожна
-    ланка - окремий підпроцес) змінна, змінена в циклі після <code>|</code>, зовні
-    залишається порожньою.</p>
+    <p>За замовчуванням конвеєр приховує збої лівих ланок і повертає код завершення останньої команди, тоді як масив <code>PIPESTATUS</code> зберігає коди повернення кожного етапу; опція <code>set -o pipefail</code> змушує конвеєр повернути код останньої невдалої команди. Проте коли споживач (наприклад, <code>head -n 1</code>) закриває канал завчасно, процес зліва під час наступного запису отримує від ядра сигнал <code>SIGPIPE</code> (13) і завершується з кодом <code>128 + 13 = 141</code>, що під <code>pipefail</code> вважається аварією. І оскільки кожна ланка конвеєра виконується в окремому сабшелі, змінна, змінена в циклі після <code>|</code>, зовні залишається порожньою.</p>
     <div class="prints"><strong>Що запитують:</strong> «Як отримати код повернення конкретної
     ланки конвеєра і чому <code>yes | head -n 1</code> під <code>pipefail</code> повертає 141?»</div>
 
@@ -174,10 +177,7 @@ echo $?                  # 141 (SIGPIPE)</code></pre>
     повертає - фігурні дужки, на відміну від круглих, сабшел не створюють:</p>
 <pre><code>x=1; ( x=2 ); echo $x   # 1
 x=1; { x=2; }; echo $x  # 2</code></pre>
-    <p>У функціях змінна за замовчуванням глобальна - <code>local</code> обов'язковий, інакше
-    функція тихо затре чуже значення. Безпечні замовчування:
-    <code>${var:-значення}</code> замість порожнього рядка та <code>set -u</code>, щоб друкарська помилка в
-    імені зупиняла скрипт, а не продовжувала його з порожнечею.</p>
+    <p>Круглі дужки запускають підоболонку (сабшел), ізолюючи будь-які присвоєння, тоді як фігурні дужки групують команди в поточному процесі та зберігають зміни змінних. У функціях же будь-яка оголошена змінна за замовчуванням є глобальною: ключове слово <code>local</code> обов’язкове, інакше функція тихо перезапише значення викликача. Безпечні замовчування для змінних - підстановка <code>${var:-значення}</code> замість порожніх рядків та режим <code>set -u</code>, що негайно перериває виконання при зверненні до неоголошеної змінної.</p>
     <div class="prints"><strong>Що запитують:</strong> «Чим <code>export</code> відрізняється від
     звичайного присвоювання і чому без <code>local</code> функція небезпечна?»</div>
 
@@ -189,10 +189,7 @@ x=1; { x=2; }; echo $x  # 2</code></pre>
 <pre><code>tmp=$(mktemp)
 trap 'rm -f "$tmp"' EXIT
 trap 'echo перервано; exit 130' INT</code></pre>
-    <p>Скрипт, убитий сигналом N, повертає <code>128+N</code>: 130 для Ctrl+C
-    (<code>SIGINT</code>), 143 для <code>SIGTERM</code>. <code>SIGKILL</code> (9) не
-    перехоплюється ніколи - тому «надійне очищення за kill -9» неможливе, і це свідома
-    властивість системи, а не недоробка.</p>
+    <p>У разі перехоплення сигналу переривання <code>INT</code> обробник зобов’язаний явно завершувати роботу командою <code>exit 130</code>, щоб викликаючий процес зафіксував аварійну зупинку. За конвенцією Unix процес, завершений сигналом <code>N</code>, повертає код <code>128 + N</code>: 130 для Ctrl+C (<code>SIGINT</code>, сигнал 2) та 143 для <code>SIGTERM</code> (сигнал 15). Сигнал <code>SIGKILL</code> (9) ядро обробляє безумовно, його неможливо перехопити через <code>trap</code>, тому гарантоване очищення ресурсів при <code>kill -9</code> неможливе за задумом операційної системи.</p>
     <div class="prints"><strong>Що запитують:</strong> «Як гарантувати видалення тимчасового
     файлу при будь-якому завершенні скрипту і чому <code>SIGKILL</code> не можна перехопити?»</div>
 
@@ -223,8 +220,8 @@ trap 'echo перервано; exit 130' INT</code></pre>
 
 </div>
 </div>
-<script src="../assets/swa.js"></script>
-<script src="../assets/terms.js"></script>
-<script src="../assets/cp.js"></script>
+<script src="../assets/swa.js?v=12"></script>
+<script src="../assets/terms.js?v=12"></script>
+<script src="../assets/cp.js?v=12"></script>
 </body>
 </html>

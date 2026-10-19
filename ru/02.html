@@ -4,7 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Написание скриптов на Bash · devops-bash · ai|</title>
-<link rel="stylesheet" href="../assets/style.css?v=1">
+<!-- meta: built by tools/build-meta.py - do not edit by hand -->
+<meta name="description" content="Правила и техники, которые отличают скрипт, работающий на вашей машине, от скрипта, работающего на чужой.">
+<link rel="canonical" href="https://y-kolyada.github.io/bash/ru/02.html">
+<link rel="alternate" hreflang="ru" href="https://y-kolyada.github.io/bash/ru/02.html">
+<link rel="alternate" hreflang="en" href="https://y-kolyada.github.io/bash/en/02.html">
+<link rel="alternate" hreflang="uk" href="https://y-kolyada.github.io/bash/uk/02.html">
+<link rel="alternate" hreflang="de" href="https://y-kolyada.github.io/bash/de/02.html">
+<link rel="alternate" hreflang="x-default" href="https://y-kolyada.github.io/bash/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="devops-bash">
+<meta property="og:title" content="Написание скриптов">
+<meta property="og:description" content="Правила и техники, которые отличают скрипт, работающий на вашей машине, от скрипта, работающего на чужой.">
+<meta property="og:url" content="https://y-kolyada.github.io/bash/ru/02.html">
+<meta property="og:locale" content="ru_RU">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Написание скриптов","description":"Правила и техники, которые отличают скрипт, работающий на вашей машине, от скрипта, работающего на чужой.","url":"https://y-kolyada.github.io/bash/ru/02.html","inLanguage":"ru","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
+<!-- /meta -->
+<link rel="stylesheet" href="../assets/style.css?v=12">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -15,6 +33,7 @@
 </script>
 </head>
 <body>
+<a class="skip" href="#main">К содержанию</a>
 <div class="wrap">
 
 <header class="top">
@@ -26,12 +45,12 @@
     <div class="three" aria-hidden="true">инструменты · <span class="topic">Bash</span> · практика · 150 вопросов</div>
   </div>
   <div class="utility-tray" role="toolbar" aria-label="Настройки отображения и язык">
-    <div class="lang-switcher" aria-label="Выбор языка">
-      <a href="../en/02.html">EN</a>
-      <a href="02.html" class="active" aria-current="page">RU</a>
-      <a href="../uk/02.html">UK</a>
-      <a href="../de/02.html">DE</a>
-    </div>
+    <nav class="lang-switcher" aria-label="Язык страницы">
+      <a href="../en/02.html" lang="en" hreflang="en" aria-label="English">EN</a>
+      <a href="02.html" lang="ru" hreflang="ru" aria-label="Русский" class="active" aria-current="page">RU</a>
+      <a href="../uk/02.html" lang="uk" hreflang="uk" aria-label="Українська">UK</a>
+      <a href="../de/02.html" lang="de" hreflang="de" aria-label="Deutsch">DE</a>
+    </nav>
     <div class="font-scaler" role="group" aria-label="Размер шрифта">
       <button type="button" class="font-btn font-s" data-size="s" title="Мелкий шрифт" aria-label="Мелкий шрифт">A</button>
       <button type="button" class="font-btn font-m active" data-size="m" title="Стандартный шрифт" aria-label="Стандартный шрифт">A</button>
@@ -71,9 +90,9 @@
     </div>
   </nav>
 
-  <main>
+  <main id="main">
     <h1>Написание скриптов</h1>
-    <p class="page-size" data-words="1004">Слов: 1004</p>
+    <p class="page-size" data-words="1082">Слов: 1082</p>
     <p class="lead">Правила и техники, которые отличают скрипт, работающий на вашей машине, от скрипта, работающего на чужой. И граница между двумя режимами Bash, из которой растёт половина багов.</p>
 
     <div class="box key" id="key-idea">
@@ -92,12 +111,7 @@
 
 echo $-            # в скрипте нет i
 # hB  (интерактивная даст himBH)</code></pre>
-    <p>Отсюда три следствия, которые чаще всего и приносят баг. <strong>Псевдонимы в скрипте не
-    работают</strong> - <code>expand_aliases</code> по умолчанию выключен для неинтерактивной
-    оболочки. <strong><code>~/.bashrc</code> скрипт не читает</strong>: он читается только
-    интерактивной не-login-оболочкой, поэтому ваш <code>PATH</code> из <code>.bashrc</code>
-    в cron или в CI не появится. <strong><code>~/.bash_profile</code> читает только login</strong> -
-    вход по ssh, <code>su -</code>, первая консоль.</p>
+    <p>Различия между интерактивной оболочкой и интерпретатором скрипта порождают три классические ошибки. <strong>Псевдонимы (алиасы) в скрипте не работают</strong>: опция <code>expand_aliases</code> по умолчанию выключена для неинтерактивного режима. <strong>Файл <code>~/.bashrc</code> скриптом не читается</strong>, так как он предназначен только для интерактивной оболочки без входа, поэтому переменная <code>PATH</code> из <code>.bashrc</code> не попадёт в cron или шаг CI. <strong>Конфигурацию <code>~/.bash_profile</code> считывает только login-оболочка</strong>: вход по SSH, <code>su -</code> или сессия системной консоли.</p>
     <p>Практический вывод: <strong>скрипт не должен зависеть от настроек вашей оболочки.</strong>
     Всё, что ему нужно, он объявляет сам - путь, переменные, язык вывода.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Почему мой <code>alias</code> или <code>PATH</code> работает в терминале и не работает в скрипте или в cron?»</div>
@@ -134,8 +148,7 @@ usage() { echo "usage: $0 &lt;file&gt;" &gt;&amp;2; exit 2; }
 if out=$(greet "мир"); then
   echo "$out"
 fi</code></pre>
-    <p>Два канала не путают: <strong>stdout - это результат, код возврата - это статус.</strong>
-    Функция, которая печатает «ошибка» и возвращает 0, ломает любой вызывающий код.</p>
+    <p>Два канала взаимодействия функции с вызывающей программой имеют строгое разделение: <strong>стандартный вывод (stdout) передаёт полезный результат, а код возврата (exit status) - статус успеха или ошибки.</strong> Функция, которая при сбое выводит текст ошибки в stdout и завершается с кодом 0, ломает любые проверки вызывающего кода и конвейеры.</p>
     <p><code>"${1:?сообщение}"</code> - обязательный аргумент: если его нет, Bash сам остановит
     скрипт с понятным текстом. Для разбора ключей есть <code>getopts</code>; самодельный цикл с
     <code>case</code> оправдан только для длинных опций, которых <code>getopts</code> не умеет.</p>
@@ -149,9 +162,7 @@ trap 'rm -rf "$tmp"' EXIT
 
 mkdir -p /opt/app/releases
 ln -sfn "$new" /opt/app/current</code></pre>
-    <p><code>mkdir -p</code>, <code>ln -sfn</code>, <code>rsync</code>, <code>install -D</code> -
-    это команды, которым безразлично, был ли результат уже достигнут. <code>mkdir</code> без
-    <code>-p</code> и <code>ln -s</code> без <code>-f</code> - нет.</p>
+    <p>Команды вроде <code>mkdir -p</code>, <code>ln -sfn</code>, <code>rsync</code> и <code>install -D</code> идемпотентны: повторный запуск приводит систему к нужному состоянию без ошибок, даже если целевой каталог или ссылка уже существуют. Напротив, вызов <code>mkdir</code> без флага <code>-p</code> или <code>ln -s</code> без флагов <code>-f</code> и <code>-n</code> при повторном запуске завершается аварийным сбоем из-за уже созданных объектов.</p>
     <p><strong>Ловушка на <code>EXIT</code> - единственная надёжная уборка:</strong> она срабатывает
     и при ошибке, и при <code>Ctrl+C</code>. Имя временного файла придумывает <code>mktemp</code>,
     а не вы: предсказуемое имя в <code>/tmp</code> - это и гонка, и дыра в безопасности.</p>
@@ -183,9 +194,7 @@ shfmt -i 2 -w script.sh
 # в начале файла - осознанное
 # отключение правила:
 # shellcheck disable=SC2086</code></pre>
-    <p><strong>Отключать правило можно, но только строкой выше и с комментарием, почему.</strong>
-    Глобально выключенный <code>SC2086</code> означает «мы решили не закавычивать подстановки»,
-    и это решение стоит принимать вслух.</p>
+    <p><strong>Отключать проверки линтера ShellCheck допустимо только локально над целевой строкой и с обязательным комментарием, объясняющим причину.</strong> Глобальное подавление правила вроде <code>SC2086</code> для всего файла означает отказ от защиты подстановок кавычками, и такое проектное решение должно быть обосновано и явно оформлено.</p>
     <p>Для тестов есть <code>bats</code>. Но первый тест любого скрипта - запуск с
     <code>--dry-run</code>: режим, в котором он печатает, что сделал бы, и ничего не делает.
     Его стоит заложить сразу, а не после первого инцидента.</p>
@@ -214,8 +223,8 @@ shfmt -i 2 -w script.sh
 
 </div>
 </div>
-<script src="../assets/swa.js"></script>
-<script src="../assets/terms.js"></script>
-<script src="../assets/cp.js"></script>
+<script src="../assets/swa.js?v=12"></script>
+<script src="../assets/terms.js?v=12"></script>
+<script src="../assets/cp.js?v=12"></script>
 </body>
 </html>

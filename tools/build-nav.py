@@ -31,7 +31,28 @@ import re
 import sys
 
 LANGS = ('ru', 'en', 'uk', 'de')
+
+# Доступность, которую нельзя сделать стилями: ссылка в начало содержания и
+# язык у ссылок переключателя. Подписи - на языке страницы, имя языка - на
+# самом языке: читалка произносит их по его правилам, а не по правилам текущего.
+SKIP = {'ru': 'К содержанию', 'en': 'Skip to content',
+        'uk': 'До змісту', 'de': 'Zum Inhalt springen'}
+LANG_NAME = {'ru': 'Русский', 'en': 'English', 'uk': 'Українська', 'de': 'Deutsch'}
+LANG_GROUP = {'ru': 'Язык страницы', 'en': 'Page language',
+              'uk': 'Мова сторінки', 'de': 'Seitensprache'}
+SKIP_LINK = re.compile(r'\s*<a class="skip"[^>]*>.*?</a>', re.S)
+SWITCHER = re.compile(r'<(div|nav) class="lang-switcher"[^>]*>(.*?)</\1>', re.S)
+SWITCH_LINK = re.compile(r'<a ([^>]*?)href="([^"]+)"([^>]*)>([A-Z]{2})</a>')
 ASSETS = ('style.css', 'swa.js', 'terms.js', 'cp.js')
+
+# Версия оснастки в ссылке. Браузер кэширует файл по адресу, а адрес без
+# версии не меняется, когда меняется файл: вернувшийся читатель получает
+# старый движок. Номер равен номеру релиза и стоит здесь один раз - в
+# страницах его пишет генератор, а загрузчик индекса поиска берёт его из
+# адреса, по которому пришёл сам swa.js.
+VERSION = 12
+ASSET_LINK = re.compile(r'((?:href|src)="(?:\.\./)?assets/(?:%s))(?:\?v=[0-9]+)?"'
+                        % '|'.join(a.replace('.', r'\.') for a in ASSETS))
 PAGE = re.compile(r'(?P<attr>href=")(?P<name>index|glossary|[0-9]{2})(?:-(?P<lang>en|uk|de))?\.html')
 LESSON = re.compile(r'(href=")((?:zadanie|zapis)-[0-9]+\.md|potom\.md|review-gemini-[0-9]+\.md)"')
 
@@ -72,8 +93,53 @@ def which(svg):
     return 'book' if paths == 2 else None
 
 
+def accessible(text, lang):
+    """Две правки, которые видит только тот, кто ими пользуется."""
+    count = 0
+
+    # 1. Ссылка «к содержанию» - первая в порядке обхода, и у main есть якорь.
+    text = SKIP_LINK.sub('', text)
+    if '<main' in text:
+        if re.search(r'<main(?![^>]*\bid=)', text):
+            text = re.sub(r'<main\b', '<main id="main"', text, count=1)
+            count += 1
+        link = '\n<a class="skip" href="#main">%s</a>' % SKIP[lang]
+        text = text.replace('<body>', '<body>' + link, 1)
+        count += 1
+
+    # 2. Переключатель языков: область с подписью, у ссылок язык и имя языка.
+    def switcher(m):
+        inner = m.group(2)
+
+        def link(one):
+            href = one.group(2)
+            other = re.search(r'\.\./(\w\w)/', href)
+            code = other.group(1) if other else lang
+            keep = (one.group(1) + one.group(3)).replace('\n', ' ')
+            keep = re.sub(r'\s*(lang|hreflang|aria-label)="[^"]*"', '', keep).strip()
+            keep = (' ' + keep) if keep else ''
+            return ('<a href="%s" lang="%s" hreflang="%s" aria-label="%s"%s>%s</a>'
+                    % (href, code, code, LANG_NAME[code], keep, one.group(4)))
+
+        return ('<nav class="lang-switcher" aria-label="%s">%s</nav>'
+                % (LANG_GROUP[lang], SWITCH_LINK.sub(link, inner)))
+
+    text, switched = SWITCHER.subn(switcher, text, count=1)
+    return text, count + switched
+
+
+def version(text, counts):
+    """Номер версии во всех ссылках на оснастку этой страницы."""
+    def stamp(found):
+        link = '%s?v=%d"' % (found.group(1), VERSION)
+        if link != found.group(0):
+            counts['version'] += 1
+        return link
+    return ASSET_LINK.sub(stamp, text)
+
+
 def rewrite(text, lang, migrate=False):
-    counts = {'assets': 0, 'pages': 0, 'lessons': 0, 'icons': 0}
+    counts = {'assets': 0, 'pages': 0, 'lessons': 0, 'icons': 0, 'access': 0, 'version': 0}
     if '../assets/' in text:
         migrate = False  # page already moved, the one-off rule is done
 
@@ -135,6 +201,10 @@ def rewrite(text, lang, migrate=False):
 
     text = REDRAW.sub(redraw, text)
 
+    text, fixed = accessible(text, lang)
+    counts['access'] = fixed
+
+    text = version(text, counts)
     return text, counts
 
 
@@ -186,7 +256,8 @@ def main(argv):
         print('нет папок языков - запускайте из корня репозитория')
         return 2
 
-    total = {'files': 0, 'touched': 0, 'assets': 0, 'pages': 0, 'lessons': 0, 'icons': 0}
+    total = {'files': 0, 'touched': 0, 'assets': 0, 'pages': 0, 'lessons': 0, 'icons': 0,
+             'access': 0, 'version': 0}
     for lang in roots:
         for name in sorted(os.listdir(lang)):
             if not name.endswith('.html'):
@@ -206,6 +277,21 @@ def main(argv):
                 with open(path, 'w', encoding='utf-8') as handle:
                     handle.write(after)
 
+    # Корневая дверь лежит не в папке языка, а в корне. Из всей оболочки ей
+    # нужна одна правка - версия в ссылке на таблицу стилей.
+    door = 'index.html'
+    if os.path.isfile(door):
+        with open(door, encoding='utf-8') as handle:
+            before = handle.read()
+        counts = {'version': 0}
+        after = version(before, counts)
+        total['files'] += 1
+        total['version'] += counts['version']
+        if after != before:
+            total['touched'] += 1
+            with open(door, 'w', encoding='utf-8') as handle:
+                handle.write(after)
+
     print()
     print('  Оболочка страниц')
     print('  ' + '-' * 46)
@@ -215,6 +301,8 @@ def main(argv):
     print('  ссылок между страницами: %d' % total['pages'])
     print('  ссылок на занятия:     %d' % total['lessons'])
     print('  значков заменено:      %d' % total['icons'])
+    print('  правок доступности:    %d' % total['access'])
+    print('  версий оснастки:       %d' % total['version'])
     print('  ' + '-' * 46)
     print()
     return 0

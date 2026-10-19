@@ -4,7 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ключевые компоненты Bash · devops-bash · ai|</title>
-<link rel="stylesheet" href="../assets/style.css?v=1">
+<!-- meta: built by tools/build-meta.py - do not edit by hand -->
+<meta name="description" content="Шесть механизмов, из которых собран любой скрипт.">
+<link rel="canonical" href="https://y-kolyada.github.io/bash/ru/01.html">
+<link rel="alternate" hreflang="ru" href="https://y-kolyada.github.io/bash/ru/01.html">
+<link rel="alternate" hreflang="en" href="https://y-kolyada.github.io/bash/en/01.html">
+<link rel="alternate" hreflang="uk" href="https://y-kolyada.github.io/bash/uk/01.html">
+<link rel="alternate" hreflang="de" href="https://y-kolyada.github.io/bash/de/01.html">
+<link rel="alternate" hreflang="x-default" href="https://y-kolyada.github.io/bash/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="devops-bash">
+<meta property="og:title" content="Ключевые компоненты Bash">
+<meta property="og:description" content="Шесть механизмов, из которых собран любой скрипт.">
+<meta property="og:url" content="https://y-kolyada.github.io/bash/ru/01.html">
+<meta property="og:locale" content="ru_RU">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Ключевые компоненты Bash","description":"Шесть механизмов, из которых собран любой скрипт.","url":"https://y-kolyada.github.io/bash/ru/01.html","inLanguage":"ru","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
+<!-- /meta -->
+<link rel="stylesheet" href="../assets/style.css?v=12">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -15,6 +33,7 @@
 </script>
 </head>
 <body>
+<a class="skip" href="#main">К содержанию</a>
 <div class="wrap">
 
 <header class="top">
@@ -26,12 +45,12 @@
     <div class="three" aria-hidden="true">инструменты · <span class="topic">Bash</span> · практика · 150 вопросов</div>
   </div>
   <div class="utility-tray" role="toolbar" aria-label="Настройки отображения и язык">
-    <div class="lang-switcher" aria-label="Выбор языка">
-      <a href="../en/01.html">EN</a>
-      <a href="01.html" class="active" aria-current="page">RU</a>
-      <a href="../uk/01.html">UK</a>
-      <a href="../de/01.html">DE</a>
-    </div>
+    <nav class="lang-switcher" aria-label="Язык страницы">
+      <a href="../en/01.html" lang="en" hreflang="en" aria-label="English">EN</a>
+      <a href="01.html" lang="ru" hreflang="ru" aria-label="Русский" class="active" aria-current="page">RU</a>
+      <a href="../uk/01.html" lang="uk" hreflang="uk" aria-label="Українська">UK</a>
+      <a href="../de/01.html" lang="de" hreflang="de" aria-label="Deutsch">DE</a>
+    </nav>
     <div class="font-scaler" role="group" aria-label="Размер шрифта">
       <button type="button" class="font-btn font-s" data-size="s" title="Мелкий шрифт" aria-label="Мелкий шрифт">A</button>
       <button type="button" class="font-btn font-m active" data-size="m" title="Стандартный шрифт" aria-label="Стандартный шрифт">A</button>
@@ -71,9 +90,9 @@
     </div>
   </nav>
 
-  <main>
+  <main id="main">
     <h1>Ключевые компоненты Bash</h1>
-    <p class="page-size" data-words="978">Слов: 978</p>
+    <p class="page-size" data-words="1117">Слов: 1117</p>
     <p class="lead">Шесть механизмов, из которых собран любой скрипт. Знание их порядка отличает
     инженера, который чинит скрипт за минуту, от того, кто правит его наугад.</p>
 
@@ -102,12 +121,7 @@
 3. словоделение      по IFS
 4. имена файлов      *.txt
 5. снятие кавычек</code></pre>
-    <p><strong>Вторая стадия - одна, а не пять последовательных.</strong> Тильда, параметры,
-    подстановка команд, арифметика и подстановка процессов раскрываются вместе, слева направо.
-    Это видно одной строкой: <code>x=1; echo $((x=2)) $x</code> печатает <code>2 2</code> -
-    арифметика уже изменила <code>x</code>, когда очередь дошла до второго <code>$x</code>.
-    Если бы параметры раскрывались отдельным шагом раньше арифметики, результат был бы
-    <code>2 1</code>.</p>
+    <p><strong>Вторая стадия порядка раскрытий - один общий проход, а не пять последовательных шагов.</strong> Тильда, параметры переменных, подстановка команд, арифметика и подстановка процессов раскрываются вместе, слева направо в одном цикле. Это доказывает вызов <code>x=1; echo $((x=2)) $x</code>, который печатает <code>2 2</code>: арифметика уже изменила <code>x</code>, когда очередь дошла до подстановки второго <code>$x</code>. Если бы параметры раскрывались отдельным шагом до арифметики, результат был бы <code>2 1</code>.</p>
     <p>Ещё два следствия. Раскрытие имён файлов идёт <em>после</em> подстановки переменных - поэтому
     <code>f="*.txt"; echo $f</code> напечатает список файлов, а <code>echo "$f"</code> - звёздочку.
     И наоборот: <code>{1..3}</code> раскрывается до подстановки, поэтому
@@ -122,9 +136,7 @@
 <pre><code>f="My File.txt"
 rm $f     # две цели: My и File.txt
 rm "$f"   # одна цель, верно</code></pre>
-    <p>Та же разница у списков аргументов: <code>"$@"</code> разворачивается в отдельные
-    аргументы с сохранением границ, а <code>$@</code> и <code>"$*"</code> - нет. Правило простое:
-    подстановка без кавычек должна быть осознанным решением, а не умолчанием.</p>
+    <p>Кавычки защищают границы не только отдельных переменных, но и списков аргументов: <code>"$@"</code> разворачивается в отдельные аргументы с сохранением пробелов внутри каждого элемента, тогда как <code>$@</code> и <code>"$*"</code> склеивают или повторно разбивают слова по <code>IFS</code>. Главное правило: подстановка без двойных кавычек должна быть редким осознанным решением, а не автоматической привычкой.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Чем <code>"$@"</code> отличается от
     <code>$@</code> и <code>"$*"</code>, и что сломается на путях с пробелами?»</div>
 
@@ -140,11 +152,7 @@ rm "$f"   # одна цель, верно</code></pre>
 <pre><code>cmd &gt;log 2&gt;&amp;1   # оба потока в файл
 cmd 2&gt;&amp;1 &gt;log   # ошибки в терминал
 echo &lt;(true)    # /dev/fd/63 (труба)</code></pre>
-    <p>Во втором случае <code>2</code> копирует <em>текущее</em> назначение <code>1</code> -
-    терминал, - и только потом <code>1</code> уходит в файл. А подстановка процесса
-    <code>&lt;(cmd)</code> передаёт команде имя открытого дескриптора трубы вроде
-    <code>/dev/fd/63</code>: читать из него можно один раз, а перемотать назад
-    (<code>lseek</code>) нельзя, потому что на диске этого файла нет.</p>
+    <p>При порядке перенаправления <code>cmd 2&gt;&amp;1 &gt;log</code> дескриптор ошибок <code>2</code> копирует <em>текущее</em> назначение стандартного вывода <code>1</code> (терминал), и только затем вывод <code>1</code> уходит в файл, поэтому ошибки остаются на экране; правильный порядок для записи обоих потоков в файл - <code>&gt;log 2&gt;&amp;1</code>. В свою очередь, подстановка процесса <code>&lt;(cmd)</code> передаёт команде имя открытого файлового дескриптора трубы вроде <code>/dev/fd/63</code>: читать из него можно только один раз в прямом направлении, а перемотка назад (<code>lseek</code>) невозможна, поскольку на диске такого файла нет.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Почему <code>2&gt;&amp;1 &gt;log</code>
     и <code>&gt;log 2&gt;&amp;1</code> дают разный результат и что на самом деле подставляет
     <code>&lt;(cmd)</code>?»</div>
@@ -160,12 +168,7 @@ echo "${PIPESTATUS[@]}"  # 1 0
 set -o pipefail
 yes | head -n 1 &gt;/dev/null
 echo $?                  # 141 (SIGPIPE)</code></pre>
-    <p>Когда правое звено (<code>head -n 1</code> или <code>grep -q</code>) прочитало свою строку и
-    закрыло трубу, пишущий процесс слева при следующей записи получает от ядра сигнал
-    <code>SIGPIPE</code> (13) и завершается с кодом <code>128 + 13 = 141</code>. Под
-    <code>pipefail</code> этот штатный 141 воспринимается как авария. И по той же причине (каждое
-    звено - отдельный подпроцесс) переменная, изменённая в цикле после <code>|</code>, снаружи
-    остаётся пустой.</p>
+    <p>По умолчанию конвейер скрывает сбои левых звеньев и возвращает код завершения последней команды, а массив <code>PIPESTATUS</code> хранит коды возврата каждого этапа; опция <code>set -o pipefail</code> заставляет конвейер вернуть код последней упавшей команды. Однако при закрытии трубы правым звеном (например, <code>head -n 1</code>) пишущий процесс слева получает от ядра сигнал <code>SIGPIPE</code> (13) и завершается с кодом <code>128 + 13 = 141</code>, что под <code>pipefail</code> трактуется как авария. И поскольку каждое звено конвейера выполняется в отдельном сабшелле, переменная, изменённая в цикле после <code>|</code>, снаружи остаётся пустой.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Как получить код возврата конкретного
     звена конвейера и почему <code>yes | head -n 1</code> под <code>pipefail</code> возвращает 141?»</div>
 
@@ -175,10 +178,7 @@ echo $?                  # 141 (SIGPIPE)</code></pre>
     возвращает - фигурные скобки, в отличие от круглых, сабшелл не создают:</p>
 <pre><code>x=1; ( x=2 ); echo $x   # 1
 x=1; { x=2; }; echo $x  # 2</code></pre>
-    <p>В функциях переменная по умолчанию глобальная - <code>local</code> обязателен, иначе
-    функция тихо затрёт чужое значение. Безопасные умолчания:
-    <code>${var:-значение}</code> вместо пустой строки и <code>set -u</code>, чтобы опечатка в
-    имени останавливала скрипт, а не продолжала его с пустотой.</p>
+    <p>Круглые скобки запускают подоболочку (сабшелл), изолируя любые присваивания, тогда как фигурные скобки группируют команды в текущем процессе и сохраняют изменения переменных. В функциях же любая объявленная переменная по умолчанию глобальна: ключевое слово <code>local</code> обязательно, иначе функция тихо перетрёт значение вызывающей стороны. Безопасные умолчания для переменных - подстановка <code>${var:-значение}</code> вместо пустых строк и режим <code>set -u</code>, немедленно прерывающий работу при обращении к необъявленной переменной.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Чем <code>export</code> отличается от
     обычного присваивания и почему без <code>local</code> функция опасна?»</div>
 
@@ -190,10 +190,7 @@ x=1; { x=2; }; echo $x  # 2</code></pre>
 <pre><code>tmp=$(mktemp)
 trap 'rm -f "$tmp"' EXIT
 trap 'echo прервано; exit 130' INT</code></pre>
-    <p>Скрипт, убитый сигналом N, возвращает <code>128+N</code>: 130 для Ctrl+C
-    (<code>SIGINT</code>), 143 для <code>SIGTERM</code>. <code>SIGKILL</code> (9) не
-    перехватывается никогда - поэтому «надёжная очистка по kill -9» невозможна, и это сознательное
-    свойство системы, а не недоработка.</p>
+    <p>При перехвате сигнала прерывания <code>INT</code> обработчик обязан явно завершать работу командой <code>exit 130</code>, чтобы вызывающий процесс увидел аварийный останов. По соглашению Unix процесс, завершённый сигналом <code>N</code>, возвращает код <code>128 + N</code>: 130 для Ctrl+C (<code>SIGINT</code>, сигнал 2) и 143 для <code>SIGTERM</code> (сигнал 15). Сигнал <code>SIGKILL</code> (9) ядро доставляет процессу безусловно, его невозможно перехватить через <code>trap</code>, поэтому гарантированная очистка ресурсов при <code>kill -9</code> невозможна по замыслу операционной системы.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Как гарантировать удаление временного
     файла при любом завершении скрипта и почему <code>SIGKILL</code> нельзя перехватить?»</div>
 
@@ -224,8 +221,8 @@ trap 'echo прервано; exit 130' INT</code></pre>
 
 </div>
 </div>
-<script src="../assets/swa.js"></script>
-<script src="../assets/terms.js"></script>
-<script src="../assets/cp.js"></script>
+<script src="../assets/swa.js?v=12"></script>
+<script src="../assets/terms.js?v=12"></script>
+<script src="../assets/cp.js?v=12"></script>
 </body>
 </html>

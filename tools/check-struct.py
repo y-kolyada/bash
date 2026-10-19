@@ -34,7 +34,10 @@ H2 = re.compile(r'<h2\b[^>]*\bid\s*=\s*"[^"]+"', re.I)
 CODE = re.compile(r'<pre\b[^>]*>\s*<code\b[^>]*>(.*?)</code>\s*</pre>', re.S | re.I)
 QA_ITEM = re.compile(r'<ol class="qa"[^>]*>(.*?)</ol>', re.S | re.I)
 NAV_ITEM = re.compile(r'<nav class="contents".*?</nav>', re.S | re.I)
-LANG_LINK = re.compile(r'<div class="lang-switcher".*?</div>', re.S | re.I)
+# Переключатель стал областью навигации с подписью - читалка игнорирует
+# подпись на div без роли. Принимаем обе формы: старую в детской копии и
+# новую здесь.
+LANG_LINK = re.compile(r'<(div|nav) class="lang-switcher".*?</\1>', re.S | re.I)
 ENTITIES = (('&lt;', '<'), ('&gt;', '>'), ('&quot;', '"'), ('&#39;', "'"), ('&amp;', '&'))
 
 # Characters that mark a word as code rather than prose. A dot is not one of
@@ -185,15 +188,21 @@ def compare(target, source, lang):
     if a['stub']:
         bad.append('осталась карточка «перевод готовится»')
 
+    # Переключатель языков вырезается из проверки алфавита: имя языка там
+    # намеренно написано на самом языке - «Русский», «Українська», - и читалка
+    # произносит его правильным голосом благодаря lang. Это требование
+    # доступности, а не недопереведённый текст.
+    speech = LANG_LINK.sub(' ', a['raw'])
+
     if lang in ('en', 'de'):
-        left = CYRILLIC.findall(a['raw'])
+        left = CYRILLIC.findall(speech)
         left = [c for c in left if c not in '\u0410']  # font-size button label, fixed by the shell generator
         if left:
             bad.append('осталась кириллица: %d символов' % len(left))
     elif lang == 'uk':
-        if not UK_OWN.search(a['raw']):
+        if not UK_OWN.search(speech):
             bad.append('нет украинских букв (і, ї, є, ґ) - страница не переведена')
-        if RU_ONLY.search(a['raw']):
+        if RU_ONLY.search(speech):
             bad.append('остались русские буквы ы, э, ъ')
     return bad
 

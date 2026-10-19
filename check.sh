@@ -12,8 +12,9 @@
 #     tools/check-claims.sh               утверждения сайта выполняются в терминале
 #     tools/check-examples.sh             примеры со страниц 10-12 запускаются
 #     python3 tools/check-links.py        внутренние ссылки и якоря
+#     python3 tools/check-text.py         длинное тире на страницах
 #     python3 tools/build-search.py       пересобрать индекс поиска
-#     python3 tools/build-meta.py         объём страниц в словах и ссылки на соседние темы
+#     python3 tools/build-meta.py         голова страницы, объём в словах, соседние темы, карта сайта
 #     node tools/check-pages.mjs          телефон 390px и липкая панель, все страницы
 #     node tools/shot.mjs ru/01.html       снимок одной страницы, чтобы посмотреть глазами
 #
@@ -45,8 +46,9 @@ run "страница и заголовок" ./tools/check-page.sh ru/index.html
 run "утверждения сайта"    ./tools/check-claims.sh
 run "примеры запускаются"  ./tools/check-examples.sh
 run "ссылки и якоря"       python3 tools/check-links.py
+run "пунктуация"          python3 tools/check-text.py
 run "индекс поиска"        python3 tools/build-search.py --check
-run "объём и соседи"       python3 tools/build-meta.py --check
+run "данные страниц"       python3 tools/build-meta.py --check
 run "телефон и панель"     node tools/check-pages.mjs
 
 echo
