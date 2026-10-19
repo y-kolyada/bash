@@ -32,11 +32,14 @@ LI = re.compile(r'<li>(.*?)</li>', re.S | re.I)
 STRONG = re.compile(r'<strong\b[^>]*>(.*?)</strong>', re.S | re.I)
 TAG = re.compile(r'<[^>]+>')
 ANCHOR_LINK = re.compile(r'<a class="anchor-link".*?</a>', re.S | re.I)
+# Служебные блоки, которые печёт tools/build-meta.py: в поиске они были бы
+# шумом - «Следующая тема» нашлась бы на каждой странице.
+SERVICE = re.compile(r'<nav class="pager".*?</nav>|<p class="page-size".*?</p>', re.S | re.I)
 GAP = re.compile(r'\s+([?!,.:;)])')
 
 
 def text_of(chunk):
-    plain = ' '.join(html.unescape(TAG.sub(' ', ANCHOR_LINK.sub(' ', chunk))).split())
+    plain = ' '.join(html.unescape(TAG.sub(' ', SERVICE.sub(' ', ANCHOR_LINK.sub(' ', chunk)))).split())
     return GAP.sub(r'\1', plain)
 
 

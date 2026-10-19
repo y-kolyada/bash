@@ -13,6 +13,7 @@
 #     tools/check-examples.sh             примеры со страниц 10-12 запускаются
 #     python3 tools/check-links.py        внутренние ссылки и якоря
 #     python3 tools/build-search.py       пересобрать индекс поиска
+#     python3 tools/build-meta.py         объём страниц в словах и ссылки на соседние темы
 #     node tools/check-pages.mjs          телефон 390px и липкая панель, все страницы
 #     node tools/shot.mjs ru/01.html       снимок одной страницы, чтобы посмотреть глазами
 #
@@ -45,6 +46,7 @@ run "утверждения сайта"    ./tools/check-claims.sh
 run "примеры запускаются"  ./tools/check-examples.sh
 run "ссылки и якоря"       python3 tools/check-links.py
 run "индекс поиска"        python3 tools/build-search.py --check
+run "объём и соседи"       python3 tools/build-meta.py --check
 run "телефон и панель"     node tools/check-pages.mjs
 
 echo

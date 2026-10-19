@@ -312,6 +312,25 @@
     document.head.appendChild(tag);
   }
 
+  // Page size in words. The number is baked into the markup by
+  // tools/build-meta.py, and this is only the stand-in: if the line is missing
+  // altogether, it is counted here and written in. It never argues with a
+  // number that is already there and never checks it - a stale number is the
+  // generator's business, and ./check.sh catches it.
+  const SIZE_SAY = { ru: 'Слов:', en: 'Words:', uk: 'Слів:', de: 'Wörter:' };
+  const main = document.querySelector('main');
+  if (main && !document.querySelector('.page-size')) {
+    const copy = main.cloneNode(true);
+    copy.querySelectorAll('.anchor-link, .pager').forEach((el) => el.remove());
+    const words = copy.textContent.split(/\s+/).filter((w) => /[^\W_]/.test(w)).length;
+    const line = document.createElement('p');
+    line.className = 'page-size';
+    line.setAttribute('data-words', String(words));
+    line.textContent = (SIZE_SAY[document.documentElement.lang] || SIZE_SAY.ru) + ' ' + words;
+    const h1 = main.querySelector('h1');
+    if (h1 && h1.parentNode) h1.parentNode.insertBefore(line, h1.nextSibling);
+  }
+
   // Phone: the menu used to hold the whole first screen - the page title began
   // at 901px on an 844px tall screen. It folds into one line that names the
   // current page and opens on a tap. On a wide screen the line does not exist:
