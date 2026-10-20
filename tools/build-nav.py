@@ -54,7 +54,7 @@ VERSION = 13
 ASSET_LINK = re.compile(r'((?:href|src)="(?:\.\./)?assets/(?:%s))(?:\?v=[0-9]+)?"'
                         % '|'.join(a.replace('.', r'\.') for a in ASSETS))
 PAGE = re.compile(r'(?P<attr>href=")(?P<name>index|glossary|[0-9]{2})(?:-(?P<lang>en|uk|de))?\.html')
-LESSON = re.compile(r'(href=")((?:zadanie|zapis)-[0-9]+\.md|potom\.md|review-gemini-[0-9]+\.md)"')
+LESSON = re.compile(r'(href=")((?:step|record|notes)-[0-9]+\.md|backlog\.md|review-gemini-[0-9]+\.md)"')
 
 # Icons live here, not in the pages: each one carries data-icon, so the shape
 # can be redrawn everywhere at once. The drawing fills its box, or the icon
