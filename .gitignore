@@ -1,5 +1,5 @@
-node_modules/
-.DS_Store
-*.log
-phone.png
+# The browser check is run through a symlink to the factory's node_modules.
+node_modules
+# Python leaves these next to the tools.
 __pycache__/
+*.pyc

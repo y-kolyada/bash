@@ -239,11 +239,11 @@ nav.contents li { margin: 0 0 2px; }
    and turned the number into a block, so words overlapped on a phone. */
 nav.contents li > a, nav.contents li > .later {
   display: block; padding: 7px 10px; border-radius: 7px; text-decoration: none;
-  font-size: .95rem; border: 1px solid transparent;
+  font-size: .95rem; border: 1px solid transparent; border-left: 3px solid transparent;
 }
 nav.contents li > a { color: var(--fg); }
 nav.contents li > a:hover { background: var(--code); }
-nav.contents li > a[aria-current="page"] { border-color: var(--line); background: var(--code); font-weight: 600; }
+nav.contents li > a[aria-current="page"] { border-color: var(--line); border-left: 3px solid var(--term-accent); background: var(--code); font-weight: 600; }
 nav.contents li > .later { color: var(--dim); text-wrap: pretty; }
 nav.contents li > .later::after { content: " · будет"; font-size: .85em; }
 html[lang="uk"] nav.contents li > .later::after { content: " · буде"; }
@@ -708,7 +708,8 @@ nav.contents .nav-extra {
   padding-bottom: 12px;
   border-top: 1px solid var(--line);
 }
-nav.contents .nav-extra a {
+nav.contents .nav-extra > a,
+nav.contents .nav-extra > div > a {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -718,12 +719,16 @@ nav.contents .nav-extra a {
   font-size: .95rem;
   color: var(--fg);
   border: 1px solid transparent;
+  border-left: 3px solid transparent;
 }
-nav.contents .nav-extra a:hover {
+nav.contents .nav-extra > a:hover,
+nav.contents .nav-extra > div > a:hover {
   background: var(--code);
 }
-nav.contents .nav-extra a[aria-current="page"] {
+nav.contents .nav-extra > a[aria-current="page"],
+nav.contents .nav-extra > div > a[aria-current="page"] {
   border-color: var(--line);
+  border-left: 3px solid var(--term-accent);
   background: var(--code);
   font-weight: 600;
 }
@@ -850,7 +855,7 @@ nav.contents > .page-toc {
   text-decoration: none;
   padding: 4px 8px;
   border-radius: 5px;
-  border-left: 2px solid transparent;
+  border-left: 3px solid transparent;
   text-wrap: pretty;
   transition: all 0.15s ease;
 }
@@ -861,7 +866,7 @@ nav.contents > .page-toc {
 .toc-list a.active {
   color: var(--fg);
   font-weight: 600;
-  border-left-color: var(--term-accent);
+  border-left: 3px solid var(--term-accent);
   background: var(--term-bg-hover);
 }
 

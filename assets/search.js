@@ -24,6 +24,8 @@
   const lang = document.documentElement.lang || 'ru';
   const say = SAY[lang] || SAY.ru;
   const raw = (window.SEARCH && window.SEARCH.i) || [];
+  const SITE = document.documentElement.dataset.site || 'swa';
+  const key = (name) => 'swa-' + SITE + '-' + name;
 
   // ё and е are one letter for a reader looking for a word.
   const norm = (s) => s.toLowerCase().replace(/ё/g, 'е');
@@ -56,7 +58,7 @@
   let picked = -1;
 
   try {
-    const saved = JSON.parse(sessionStorage.getItem('swa-bash-search') || 'null');
+    const saved = JSON.parse(sessionStorage.getItem(key('search')) || 'null');
     if (saved && saved.q) {
       input.value = saved.q;
       picked = typeof saved.idx === 'number' ? saved.idx : -1;
@@ -66,10 +68,10 @@
   function saveState(idx, url, active) {
     try {
       if (!input.value.trim()) {
-        sessionStorage.removeItem('swa-bash-search');
+        sessionStorage.removeItem(key('search'));
         return;
       }
-      sessionStorage.setItem('swa-bash-search', JSON.stringify({
+      sessionStorage.setItem(key('search'), JSON.stringify({
         q: input.value,
         idx,
         url: url || '',

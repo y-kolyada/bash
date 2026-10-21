@@ -17,7 +17,7 @@
 // Exits 1 if any page is faulty. Output is Russian: it speaks to the person
 // who accepts the work.
 
-import { readdirSync, statSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 const SKIP_DIRS = new Set(['.git', 'node_modules', '.claude', '.agents', '__pycache__']);
@@ -66,14 +66,37 @@ const phone = await browser.newPage({ viewport: PHONE });
 // A reader who picked the largest font: the choice is read from storage by the
 // inline script in <head>, so it has to be there before the page loads.
 const phoneBig = await browser.newPage({ viewport: PHONE });
-await phoneBig.addInitScript(() => {
-  try { localStorage.setItem('swa-bash-font', 'l'); } catch (e) { /* private window */ }
-});
+// The site name lives in the markup (<html data-site>), so this file stays the
+// same on every site of the series. An init script runs before the document
+// exists, so the name is read from the file instead of the DOM.
+const SITE = (/data-site="([^"]+)"/.exec(readFileSync('ru/index.html', 'utf8')) || [, 'swa'])[1];
+// The word the search smoke test types: it must exist in the index of this
+// site, so it lives in site.conf next to the name and the address.
+const WORD = (/^\s*search\s*=\s*(.+)$/m.exec(readFileSync('site.conf', 'utf8'))
+  || [, 'ai'])[1].trim();
+await phone.addInitScript((w) => { window.SMOKE_WORD = w; }, WORD);
+await phoneBig.addInitScript((site) => {
+  try { localStorage.setItem('swa-' + site + '-font', 'l'); } catch (e) { /* private window */ }
+}, SITE);
 const desktops = [];
 for (const viewport of DESKTOPS) desktops.push([viewport, await browser.newPage({ viewport })]);
 const bad = [];
 
+// A file the page asks for and does not get: a stylesheet, the engine, the
+// glossary tooltips. Over file:// a missing file fails the request instead of
+// answering 404, and nothing else in this suite looks at it: the link check
+// reads page links, not script tags. Caught exactly once, on a stamped site
+// whose pages asked for assets/terms.js that the seed did not ship.
+let current = '';
+const lost = [];
+phone.on('requestfailed', (request) => {
+  const url = request.url();
+  if (!url.startsWith('file://')) return;
+  lost.push([current, url.split('/').slice(-2).join('/')]);
+});
+
 for (const file of files) {
+  current = file;
   const url = 'file://' + resolve(file);
 
   await phone.goto(url);
@@ -157,13 +180,14 @@ for (const file of files) {
       // is not, the panel is still expected to open, answer and close.
       const indexed = !!(window.SEARCH && window.SEARCH.i
         .some((entry) => String(entry[0]).startsWith('02.html#')));
-      input.value = 'pipefail';
+      const word = window.SMOKE_WORD || 'ai';
+      input.value = word;
       input.dispatchEvent(new Event('input'));
       await sleep(120);
       const links = [...document.querySelectorAll('.search-results a')];
       const note = document.querySelector('.search-empty');
       if (!indexed && !links.length && !note) return ['пустой ответ поиска не объяснён читателю'];
-      if (indexed && !links.length) return ['поиск по слову pipefail не нашёл ничего'];
+      if (indexed && !links.length) return ['поиск по слову ' + word + ' не нашёл ничего'];
       if (indexed) {
         if (!links[0].getAttribute('href').includes('#')) return ['результат ведёт на страницу без якоря'];
         const samePage = links.find((a) => (a.getAttribute('href') || '').startsWith('02.html#'));
@@ -213,6 +237,16 @@ for (const file of files) {
     }
     const named = switcher.querySelectorAll('a[lang][hreflang][aria-label]').length;
     if (named !== 4) out.push('у ссылок языков нет языка и имени: таких ' + named + ' из 4');
+
+    const isStub = !!document.querySelector('.stub-card');
+    if (!isStub) {
+      const footer = document.querySelector('footer');
+      if (!footer) out.push('на содержательной странице нет footer');
+      else {
+        const pager = footer.querySelector('nav.pager');
+        if (!pager) out.push('в footer нет навигации по соседним темам (nav.pager)');
+      }
+    }
     if (!deep) return out;
 
     // Невидима мышью и появляется при получении фокуса.
@@ -245,11 +279,40 @@ for (const file of files) {
       out.push('текст не виден без прокрутки: он начинается на ' + top + 'px при экране ' + window.innerHeight + 'px');
     }
 
+    const currentFile = window.location.pathname.split('/').pop() || 'index.html';
+    const isLanding = currentFile === 'index.html';
     const here = nav.querySelector('[aria-current="page"]');
+    const hereHref = here ? here.getAttribute('href') : null;
+    if (isLanding) {
+      if (here) out.push('на посадочной странице не должно быть активного пункта в навигаторе: ' + hereHref);
+    } else {
+      if (!here) out.push('в навигаторе нет активного пункта [aria-current="page"]');
+      else if (hereHref !== currentFile) out.push('активный пункт навигатора (' + hereHref + ') не совпадает с текущей страницей (' + currentFile + ')');
+    }
     if (here) {
       const num = here.querySelector('.num');
       const title = here.textContent.replace(num ? num.textContent : '', '').trim();
       if (title && !btn.textContent.includes(title)) out.push('свёрнутая строка не называет текущую страницу');
+    }
+
+    const allItems = [...nav.querySelectorAll('ol > li > a')];
+    const missingNum = allItems.filter((a) => !a.querySelector('.num'));
+    if (missingNum.length > 0) {
+      out.push('в меню у ' + missingNum.length + ' пунктов нет <span class="num">');
+    }
+
+    const isTopic = /\/(0[1-9]|1[0-2])\.html$/.test(window.location.href);
+    if (isTopic) {
+      const h2s = [...document.querySelectorAll('main h2[id]')].filter((h) => {
+        return h.id !== 'key-idea' && h.id !== 'artifacts' && !h.closest('.glossary-term');
+      });
+      for (const h2 of h2s) {
+        const text = h2.textContent.replace('#', '').trim();
+        if (!/^\d+\s*·\s*/.test(text)) {
+          out.push('раздел "' + text.slice(0, 30) + '" не пронумерован (нужен формат "N · Название")');
+          break;
+        }
+      }
     }
 
     // Разворот и касание раздела проверяются на одной странице языка: каждый
@@ -278,15 +341,17 @@ for (const file of files) {
 
   // Storage belongs to the origin, not to the folder: a sibling site published
   // under the same domain would read these keys as its own. Every key carries
-  // the engine and the site - swa-bash-*. The rule is checked as a pattern, not
+  // the engine and the site - swa-<site>-*. The rule is checked as a pattern, not
   // as a list of two names, so a new key cannot slip in unnamed.
   const keys = await phone.evaluate(() => {
     const src = document.documentElement.outerHTML;
     const found = [...src.matchAll(/(?:local|session)Storage\.(?:get|set|remove)Item\('([^']+)'/g)]
       .map((m) => m[1]);
-    return found.filter((k) => !/^swa-bash-/.test(k));
+    // The key is built in one helper now, so what is left to guard is the
+    // prefix: nothing may write a key that does not start with swa-.
+    return found.filter((k) => !/^swa-/.test(k));
   });
-  for (const key of keys) bad.push([file, 'ключ хранилища не по шаблону swa-bash-*: ' + key]);
+  for (const key of keys) bad.push([file, 'ключ хранилища не по шаблону swa-<сайт>-*: ' + key]);
 
   const overflow = await phone.evaluate(() => {
     const viewport = document.documentElement.clientWidth;
@@ -313,7 +378,8 @@ for (const file of files) {
     // The size has to be set in <head>: applied later, the page would first
     // paint at the default size and then jump.
     const head = document.head.innerHTML;
-    out.early = head.includes("'swa-bash-font'") && head.includes('data-font');
+    out.early = head.includes('localStorage') && head.includes('-font')
+      && head.includes('data-font');
     return out;
   });
   if (big.font !== 'l') bad.push([file, 'выбранный размер шрифта не применился: data-font=' + big.font]);
@@ -337,7 +403,8 @@ for (const file of files) {
       for (let i = 0; i < 60 && !document.querySelector('.search-input'); i++) await sleep(50);
       const input = document.querySelector('.search-input');
       if (!input) return ['панель поиска не открылась'];
-      input.value = 'pipefail';
+      const word = window.SMOKE_WORD || 'ai';
+      input.value = word;
       input.dispatchEvent(new Event('input'));
       await sleep(150);
 
@@ -359,7 +426,8 @@ for (const file of files) {
                    + small[part] + ' / ' + medium[part] + ' / ' + large[part]);
         }
       }
-      if (localStorage.getItem('swa-bash-font') !== 'm') bad.push('настройка шрифта не вернулась к средней');
+      const site = document.documentElement.dataset.site || 'swa';
+      if (localStorage.getItem('swa-' + site + '-font') !== 'm') bad.push('настройка шрифта не вернулась к средней');
       return bad;
     });
     for (const why of scale) bad.push([file, why + ' (телефон)']);
@@ -386,9 +454,19 @@ for (const file of files) {
 
       // Разделы страницы живут внутри её пункта меню, а не отдельным блоком под
       // всем списком: иначе навигатор оказывается за кромкой панели.
+      const currentFile = window.location.pathname.split('/').pop() || 'index.html';
+      const isLanding = currentFile === 'index.html';
       const toc = document.getElementById('pageToc');
       const here = nav.querySelector('[aria-current="page"]');
-      const host = here && (here.closest('li') || here.parentElement);
+      const hereHref = here ? here.getAttribute('href') : null;
+      let badCurrent = null;
+      if (isLanding) {
+        if (here) badCurrent = 'на посадочной странице не должно быть активного пункта в навигаторе: ' + hereHref;
+      } else {
+        if (!here) badCurrent = 'в навигаторе нет активного пункта [aria-current="page"]';
+        else if (hereHref !== currentFile) badCurrent = 'активный пункт навигатора (' + hereHref + ') не совпадает с текущей страницей (' + currentFile + ')';
+      }
+      const host = here && hereHref === currentFile && (here.closest('li') || here.parentElement);
       // Два случая, и они требуют разного. У страницы со своим пунктом меню
       // разделы лежат внутри этого пункта. У лендинга своего пункта нет - его
       // разделы стоят первыми в панели, над картой сайта. Заглушке вкладывать
@@ -399,7 +477,9 @@ for (const file of files) {
       const list = nav.querySelector('ol');
       const placed = host
         ? !!(toc && host.contains(toc))
-        : !!(toc && list && (toc.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING));
+        : !host && !isLanding
+          ? false
+          : !!(toc && list && (toc.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING));
       const nested = links.length === 0 || placed;
       const ownItem = !!host;
       const firstTop = links.length
@@ -447,14 +527,20 @@ for (const file of files) {
 
       return { hidden, spyOk, below: Math.max(0, below), carried, clean,
                nested, ownItem, firstVisible, firstTop: Math.round(firstTop),
-               navVisible: nav.clientHeight, navScrollKept };
+               navVisible: nav.clientHeight, navScrollKept, badCurrent,
+               // A page that does not scroll has no current section, so the
+               // spy and the carried anchor have nothing to say about it. A
+               // freshly stamped skeleton is exactly such a page.
+               scrollable: document.scrollingElement.scrollHeight
+                 - document.scrollingElement.clientHeight > 40 };
     }, STICKY_TOP);
 
     if (!seen) continue;
     const where = ' (окно ' + viewport.height + 'px)';
+    if (seen.badCurrent && viewport === desktops[0][0]) bad.push([file, seen.badCurrent]);
     if (seen.hidden) bad.push([file, 'на дне страницы панель спрятана над окном на ' + seen.hidden + 'px' + where]);
-    if (!seen.spyOk) bad.push([file, 'на дне страницы последний раздел не подсвечен в навигаторе' + where]);
-    if (!seen.carried) bad.push([file, 'переключатель языков не уносит текущий раздел' + where]);
+    if (seen.scrollable && !seen.spyOk) bad.push([file, 'на дне страницы последний раздел не подсвечен в навигаторе' + where]);
+    if (seen.scrollable && !seen.carried) bad.push([file, 'переключатель языков не уносит текущий раздел' + where]);
     if (!seen.clean) bad.push([file, 'в начале страницы в ссылках языков остался якорь' + where]);
     if (seen.below > 1) bad.push([file, 'панель не помещается в окно: её низ ниже края на ' + seen.below + 'px' + where]);
     if (!seen.nested) {
@@ -470,6 +556,8 @@ for (const file of files) {
 }
 
 await browser.close();
+
+for (const [file, what] of lost) bad.push([file, 'страница просит файл, которого нет: ' + what]);
 
 console.log();
 console.log('  Проверка страниц: телефон 390px и липкая панель');
