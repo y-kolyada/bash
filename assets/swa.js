@@ -125,13 +125,13 @@
 
       tocContainer.hidden = false;
 
-      // Computed from position, not from IntersectionObserver: the last section
-      // never reaches the top third on a tall window, so it was never active.
+      // Computed from position, not from IntersectionObserver: section is active
+      // when its heading reaches the reading line just below the sticky header.
       // At the bottom of a page the last section is active by definition.
-      const LINE = 0.35;
-
       markActive = function () {
-        const line = window.innerHeight * LINE;
+        const stuck = header && getComputedStyle(header).position === 'sticky';
+        const topOffset = stuck ? header.getBoundingClientRect().bottom : 0;
+        const line = topOffset + 30;
         let current = items[0];
         for (const item of items) {
           if (item.getBoundingClientRect().top <= line) current = item;
