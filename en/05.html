@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-site="bash">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,7 +22,7 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Interconnections","description":"Where Bash interfaces with Git, CI, Docker, systemd, Make, and Ansible - and what breaks most often at each seam.","url":"https://y-kolyada.github.io/bash/en/05.html","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
 <!-- /meta -->
-<link rel="stylesheet" href="../assets/style.css?v=13">
+<link rel="stylesheet" href="../assets/style.css?v=14">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -83,7 +83,8 @@
       <li><a href="15.html"><span class="num">15</span>Questions · IGL</a></li>
     </ol>
     <div class="nav-extra">
-      <a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Glossary</a>
+      <div><a href="navigator.html"><svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> Navigator</a></div>
+      <div><a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Glossary</a></div>
     </div>
     <div class="page-toc" id="pageToc" aria-label="Sections on this page" hidden>
       <ul class="toc-list" id="tocList"></ul>
@@ -92,7 +93,7 @@
 
   <main id="main">
     <h1>Interconnections</h1>
-    <p class="page-size" data-words="1164">Words: 1164</p>
+    <p class="page-size" data-words="1186">Words: 1186</p>
     <p class="lead">Where Bash interfaces with Git, CI, Docker, systemd, Make, and Ansible - and what breaks most often at each seam.</p>
 
     <div class="box key" id="key-idea">
@@ -110,7 +111,7 @@ files=$(git diff --cached --name-only \
         --diff-filter=ACM | grep '\.sh$' || true)
 [ -z "$files" ] &amp;&amp; exit 0
 shellcheck $files</code></pre>
-        <p>Automating Git hooks in Bash faces two classic pitfalls. First: <code>grep</code> without matches exits with 1, which under <code>set -e</code> aborts the hook, requiring <code>|| true</code> on filtering pipelines. Second: <strong>the <code>.git/hooks</code> directory is unversioned by Git</strong>; team hooks must live in a dedicated repository directory enabled via <code>git config core.hooksPath</code>, otherwise teammates will never execute them.</p>
+            <p>When you automate Git hooks in Bash, remember two classic pitfalls. First: <code>grep</code> without matches exits with 1 and crashes your hook under <code>set -e</code>, so protect your pipeline using <code>|| true</code>. Second: <strong>the <code>.git/hooks</code> directory is unversioned by Git</strong> - store your team hooks in a dedicated repository directory and enable them via <code>git config core.hooksPath</code>, otherwise your teammates will never execute them.</p>
     <div class="prints"><strong>What gets asked:</strong> “How do you make a hook reject a commit, and why do hooks not propagate to other developers automatically?”</div>
 
     <h2 id="ci">2 · CI and GitHub Actions: default shell <a class="anchor-link" href="#ci">#</a></h2>
@@ -125,7 +126,7 @@ shellcheck $files</code></pre>
 # export in one step is invisible
 # to the next
 echo "VER=1.2" &gt;&gt; "$GITHUB_ENV"</code></pre>
-        <p>In CI pipelines, <strong>every step executes in a separate shell process</strong>, meaning environment variables cannot persist via <code>export</code> and must be passed across steps using files such as <code>$GITHUB_ENV</code> and <code>$GITHUB_OUTPUT</code>. Tracing requires extreme caution: <code>set -x</code> inside a step expands variables and <strong>leaks secrets into build logs</strong>, where automated masking is never foolproof.</p>
+            <p>In CI pipelines, <strong>every step executes in a separate shell process</strong>, meaning you cannot persist environment variables via <code>export</code> - write them to files like <code>$GITHUB_ENV</code> and <code>$GITHUB_OUTPUT</code>. Exercise extreme caution with debugging: enabling <code>set -x</code> inside a step expands parameters and leaks your secrets into public build logs, where automated masking will not always protect you.</p>
     <div class="prints"><strong>What gets asked:</strong> “What flags does CI use to execute <code>run:</code> steps, and how do you persist values across steps?”</div>
 
     <h2 id="docker">3 · Docker: PID 1, signals, and syntax form <a class="anchor-link" href="#docker">#</a></h2>
@@ -138,7 +139,7 @@ ENTRYPOINT ["/app/run.sh"]
 
 # and in the script itself, at the end:
 exec /app/server "$@"</code></pre>
-        <p>In container entrypoints, invoking <code>exec</code> replaces the shell process with the application binary: PID 1 belongs to the application and OS shutdown signals arrive intact. Because containers <strong>lack an init system</strong>, zombie processes spawned by helper tasks are never reaped without the <code>--init</code> flag or <code>tini</code>. In Alpine images, <code>/bin/sh</code> is provided by BusyBox <code>ash</code>, and <code>bash</code> is absent altogether.</p>
+            <p>In container entrypoints, always invoke <code>exec</code>: it replaces the shell process with the application binary, grants PID 1 to your service, and ensures termination signals arrive intact. Remember that containers <strong>lack an init system</strong>: if your script spawns background tasks, use the <code>--init</code> flag or <code>tini</code> so zombie processes do not overwhelm your kernel table. In Alpine images, note that <code>/bin/sh</code> is BusyBox <code>ash</code>, and your familiar <code>bash</code> is completely absent.</p>
     <div class="prints"><strong>What gets asked:</strong> “Why does a container fail to stop on <code>docker stop</code>, and how does <code>ENTRYPOINT</code> syntax cause it?”</div>
 
     <h2 id="systemd">4 · systemd: when a script is redundant <a class="anchor-link" href="#systemd">#</a></h2>
@@ -168,7 +169,7 @@ build:
 
 # or a single shell for the entire recipe:
 .ONESHELL:</code></pre>
-        <p>In Ansible playbooks, the <code>shell</code> module spins up a fresh subshell for every task without persisting shell state. The key architectural distinction: the <code>command</code> module executes binaries directly via syscalls without a shell, disabling pipelines, substitutions, and file globs, whereas <code>shell</code> invokes an actual command interpreter with all its features and injection risks. <strong>The rule: stick to <code>command</code> until a shell is proven strictly necessary.</strong></p>
+            <p>When you execute commands in Ansible, remember that the <code>shell</code> module spins up a fresh subshell for every task without preserving your variables. The <code>command</code> module executes binaries directly via syscalls without a shell, shielding you from unintended expansions and injections, whereas <code>shell</code> invokes a full shell interpreter with all its security risks. Follow the rule: <strong>stick to <code>command</code> until you have proven a shell is strictly necessary.</strong></p>
     <div class="prints"><strong>What gets asked:</strong> “Why does <code>cd</code> in a Makefile not persist into the next line, and how does <code>command</code> differ from <code>shell</code> in Ansible?”</div>
 
     <h2 id="boundaries">6 · Where Bash ends: jq, awk, Python <a class="anchor-link" href="#boundaries">#</a></h2>
@@ -198,19 +199,21 @@ python3 -c 'import json, sys; ...'</code></pre>
       <li><strong>Make and Ansible:</strong> each line runs in an isolated shell; <code>command</code> versus <code>shell</code>.</li>
       <li><strong>The boundary with jq, awk, and Python</strong> defined by data structure rather than habit.</li>
     </ol>
+  
 
     <footer>
       <nav class="pager" aria-label="Neighbouring topics">
         <p class="pager-next">Next topic: <a href="06.html">Practices in an AI context</a></p>
         <p class="pager-prev">Previous topic: <a href="04.html">Weaknesses and limits</a></p>
       </nav>
+      <p class="footer-note">An AI Factory series site. Built with the same harness: plain HTML and CSS, checked with bash, published via GitHub Pages.</p>
     </footer>
   </main>
 
 </div>
 </div>
-<script src="../assets/swa.js?v=13"></script>
-<script src="../assets/terms.js?v=13"></script>
-<script src="../assets/cp.js?v=13"></script>
+<script src="../assets/swa.js?v=14"></script>
+<script src="../assets/terms.js?v=14"></script>
+<script src="../assets/cp.js?v=14"></script>
 </body>
 </html>

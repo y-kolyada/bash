@@ -30,6 +30,8 @@ import os
 import re
 import sys
 
+import siteconf
+
 LANGS = ('ru', 'en', 'uk', 'de')
 
 # Доступность, которую нельзя сделать стилями: ссылка в начало содержания и
@@ -42,19 +44,26 @@ LANG_GROUP = {'ru': 'Язык страницы', 'en': 'Page language',
               'uk': 'Мова сторінки', 'de': 'Seitensprache'}
 SKIP_LINK = re.compile(r'\s*<a class="skip"[^>]*>.*?</a>', re.S)
 SWITCHER = re.compile(r'<(div|nav) class="lang-switcher"[^>]*>(.*?)</\1>', re.S)
-SWITCH_LINK = re.compile(r'<a ([^>]*?)href="([^"]+)"([^>]*)>([A-Z]{2})</a>')
+SWITCH_LINK = re.compile(r'<a ([^>]*?)href="([^"]+)"([^>]*)>(.*?)</a>', re.S)
 ASSETS = ('style.css', 'swa.js', 'terms.js', 'cp.js')
+NAV_ITEM = re.compile(r'(<nav class="contents"[^>]*>.*?</nav>)', re.S | re.I)
+NAV_LINK = re.compile(r'(<a\b[^>]*href="(?:\.\./\w\w/)?(\d\d)\.html"[^>]*>)(.*?)(</a>)', re.S | re.I)
 
 # Версия оснастки в ссылке. Браузер кэширует файл по адресу, а адрес без
 # версии не меняется, когда меняется файл: вернувшийся читатель получает
 # старый движок. Номер равен номеру релиза и стоит здесь один раз - в
 # страницах его пишет генератор, а загрузчик индекса поиска берёт его из
 # адреса, по которому пришёл сам swa.js.
-VERSION = 13
+CONF = siteconf.conf()
+VERSION = int(CONF['version'])
+# Имя сайта стоит в разметке, а не в движке: тогда assets/swa.js одинаков на
+# всех сайтах серии, а ключи хранилища всё равно остаются своими -
+# swa-<сайт>-*. Ставит его генератор, поэтому потеряться оно не может.
+HTML_TAG = re.compile(r'<html lang="(\w+)"[^>]*>')
 ASSET_LINK = re.compile(r'((?:href|src)="(?:\.\./)?assets/(?:%s))(?:\?v=[0-9]+)?"'
                         % '|'.join(a.replace('.', r'\.') for a in ASSETS))
-PAGE = re.compile(r'(?P<attr>href=")(?P<name>index|glossary|[0-9]{2})(?:-(?P<lang>en|uk|de))?\.html')
-LESSON = re.compile(r'(href=")((?:zadanie|zapis)-[0-9]+\.md|potom\.md|review-gemini-[0-9]+\.md)"')
+PAGE = re.compile(r'(?P<attr>href=")(?P<name>index|glossary|navigator|[0-9]{2})(?:-(?P<lang>en|uk|de))?\.html')
+LESSON = re.compile(r'(href=")((?:step|record|notes)-[0-9]+\.md|backlog\.md)"')
 
 # Icons live here, not in the pages: each one carries data-icon, so the shape
 # can be redrawn everywhere at once. The drawing fills its box, or the icon
@@ -116,10 +125,13 @@ def accessible(text, lang):
             other = re.search(r'\.\./(\w\w)/', href)
             code = other.group(1) if other else lang
             keep = (one.group(1) + one.group(3)).replace('\n', ' ')
-            keep = re.sub(r'\s*(lang|hreflang|aria-label)="[^"]*"', '', keep).strip()
+            keep = re.sub(r'\s*(lang|hreflang|aria-label|aria-current)="[^"]*"', '', keep)
+            keep = re.sub(r'\s*class="[^"]*"', '', keep).strip()
+            if code == lang:
+                keep = ('class="active" aria-current="page" ' + keep).strip()
             keep = (' ' + keep) if keep else ''
             return ('<a href="%s" lang="%s" hreflang="%s" aria-label="%s"%s>%s</a>'
-                    % (href, code, code, LANG_NAME[code], keep, one.group(4)))
+                    % (href, code, code, LANG_NAME[code], keep, code.upper()))
 
         return ('<nav class="lang-switcher" aria-label="%s">%s</nav>'
                 % (LANG_GROUP[lang], SWITCH_LINK.sub(link, inner)))
@@ -138,8 +150,62 @@ def version(text, counts):
     return ASSET_LINK.sub(stamp, text)
 
 
-def rewrite(text, lang, migrate=False):
-    counts = {'assets': 0, 'pages': 0, 'lessons': 0, 'icons': 0, 'access': 0, 'version': 0}
+def number_nav(text, counts):
+    """Каждый из 15 разделов в навигаторе несёт <span class="num">N</span>.
+
+    Стили отключают стандартную нумерацию списка ol, чтобы номер стоял
+    приглушённым и фиксированной ширины. Если номер потерялся при правке,
+    генератор возвращает его на место."""
+    def fix_nav(nav_match):
+        nav_block = nav_match.group(1)
+
+        def fix_link(m):
+            num = int(m.group(2))
+            open_tag = m.group(1)
+            inner = m.group(3)
+            close_tag = m.group(4)
+            clean = re.sub(r'^\s*<span class="num">\d+</span>\s*', '', inner)
+            new_inner = '<span class="num">%d</span>%s' % (num, clean)
+            if new_inner != inner:
+                counts['nav_num'] = counts.get('nav_num', 0) + 1
+            return open_tag + new_inner + close_tag
+
+        return NAV_LINK.sub(fix_link, nav_block)
+
+    return NAV_ITEM.sub(fix_nav, text)
+
+
+def current_nav(text, page_name, counts):
+    """Активная ссылка текущей страницы в навигаторе несёт aria-current="page".
+
+    Движок swa.js опирается на этот атрибут для размещения вложенного оглавления
+    #pageToc. На посадочной странице активного пункта в навигаторе нет.
+    """
+    def fix_nav(nav_match):
+        nav_block = nav_match.group(1)
+        cleaned = re.sub(r'\s+aria-current="page"', '', nav_block)
+
+        if page_name and page_name != 'index.html':
+            pattern = re.compile(r'(<a\b[^>]*\bhref="%s"[^>]*)>' % re.escape(page_name))
+            cleaned = pattern.sub(r'\1 aria-current="page">', cleaned, count=1)
+
+        if cleaned != nav_block:
+            counts['nav_current'] = counts.get('nav_current', 0) + 1
+        return cleaned
+
+    return NAV_ITEM.sub(fix_nav, text)
+
+
+def rewrite(text, lang, migrate=False, page_name=''):
+    counts = {'assets': 0, 'pages': 0, 'lessons': 0, 'icons': 0, 'access': 0, 'version': 0,
+              'site': 0, 'nav_num': 0, 'nav_current': 0}
+
+    def house(found):
+        tag = '<html lang="%s" data-site="%s">' % (found.group(1), CONF['key'])
+        if tag != found.group(0):
+            counts['site'] += 1
+        return tag
+    text = HTML_TAG.sub(house, text, count=1)
     if '../assets/' in text:
         migrate = False  # page already moved, the one-off rule is done
 
@@ -204,11 +270,15 @@ def rewrite(text, lang, migrate=False):
     text, fixed = accessible(text, lang)
     counts['access'] = fixed
 
+    text = number_nav(text, counts)
+
+    text = current_nav(text, page_name, counts)
+
     text = version(text, counts)
     return text, counts
 
 
-ANCHOR_LINK = re.compile(r'href="(?:\.\./ru/)?(index|glossary|[0-9]{2})\.html#([A-Za-z0-9_-]+)"')
+ANCHOR_LINK = re.compile(r'href="(?:\.\./ru/)?(index|glossary|navigator|[0-9]{2})\.html#([A-Za-z0-9_-]+)"')
 
 
 def anchors_of(path):
@@ -251,13 +321,14 @@ def main(argv):
     args = [a for a in argv[1:] if not a.startswith('--')]
     migrate = '--migrate' in argv[1:]
     relink = '--relink' in argv[1:]
+    check_only = '--check' in argv[1:]
     roots = [d for d in (args or LANGS) if os.path.isdir(d)]
     if not roots:
         print('нет папок языков - запускайте из корня репозитория')
         return 2
 
     total = {'files': 0, 'touched': 0, 'assets': 0, 'pages': 0, 'lessons': 0, 'icons': 0,
-             'access': 0, 'version': 0}
+             'access': 0, 'version': 0, 'site': 0, 'nav_num': 0, 'nav_current': 0}
     for lang in roots:
         for name in sorted(os.listdir(lang)):
             if not name.endswith('.html'):
@@ -265,7 +336,7 @@ def main(argv):
             path = os.path.join(lang, name)
             with open(path, encoding='utf-8') as handle:
                 before = handle.read()
-            after, counts = rewrite(before, lang, migrate)
+            after, counts = rewrite(before, lang, migrate, name)
             if relink and lang != 'ru':
                 after, moved = cross_links(after, lang)
                 counts['pages'] += moved
@@ -274,8 +345,9 @@ def main(argv):
                 total[key] += counts[key]
             if after != before:
                 total['touched'] += 1
-                with open(path, 'w', encoding='utf-8') as handle:
-                    handle.write(after)
+                if not check_only:
+                    with open(path, 'w', encoding='utf-8') as handle:
+                        handle.write(after)
 
     # Корневая дверь лежит не в папке языка, а в корне. Из всей оболочки ей
     # нужна одна правка - версия в ссылке на таблицу стилей.
@@ -283,26 +355,52 @@ def main(argv):
     if os.path.isfile(door):
         with open(door, encoding='utf-8') as handle:
             before = handle.read()
-        counts = {'version': 0}
+        counts = {'version': 0, 'site': 0}
         after = version(before, counts)
+        after = HTML_TAG.sub(
+            lambda m: '<html lang="%s" data-site="%s">' % (m.group(1), CONF['key']), after, count=1)
         total['files'] += 1
         total['version'] += counts['version']
         if after != before:
             total['touched'] += 1
-            with open(door, 'w', encoding='utf-8') as handle:
-                handle.write(after)
+            if not check_only:
+                with open(door, 'w', encoding='utf-8') as handle:
+                    handle.write(after)
+
+    if check_only:
+        print()
+        print('  Оболочка страниц (--check)')
+        print('  ' + '-' * 46)
+        print('  страниц просмотрено:   %d' % total['files'])
+        if total['touched'] > 0:
+            print('  страниц устарело:      %d' % total['touched'])
+            if total['nav_num'] > 0:
+                print('  номеров разделов:      %d' % total['nav_num'])
+            if total['nav_current'] > 0:
+                print('  активных пунктов:      %d' % total['nav_current'])
+            print('  ' + '-' * 46)
+            print('  \033[31mКРАСНОЕ\033[0m  - запустите python3 tools/build-nav.py')
+            print()
+            return 1
+        print('  ' + '-' * 46)
+        print('  \033[32mЗЕЛЁНОЕ\033[0m')
+        print()
+        return 0
 
     print()
     print('  Оболочка страниц')
     print('  ' + '-' * 46)
     print('  страниц просмотрено:   %d' % total['files'])
     print('  страниц изменено:      %d' % total['touched'])
+    print('  номеров разделов:      %d' % total['nav_num'])
+    print('  активных пунктов:      %d' % total['nav_current'])
     print('  путей к оснастке:      %d' % total['assets'])
     print('  ссылок между страницами: %d' % total['pages'])
     print('  ссылок на занятия:     %d' % total['lessons'])
     print('  значков заменено:      %d' % total['icons'])
     print('  правок доступности:    %d' % total['access'])
     print('  версий оснастки:       %d' % total['version'])
+    print('  имён сайта в разметке: %d' % total['site'])
     print('  ' + '-' * 46)
     print()
     return 0

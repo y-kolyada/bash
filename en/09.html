@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-site="bash">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,7 +22,7 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Practices SRE","description":"Sixty-second incident triage, hidden disk and memory failures, safe log parsing, shielding production from scripts, and monitoring metrics.","url":"https://y-kolyada.github.io/bash/en/09.html","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
 <!-- /meta -->
-<link rel="stylesheet" href="../assets/style.css?v=13">
+<link rel="stylesheet" href="../assets/style.css?v=14">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -83,7 +83,8 @@
       <li><a href="15.html"><span class="num">15</span>Questions · IGL</a></li>
     </ol>
     <div class="nav-extra">
-      <a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Glossary</a>
+      <div><a href="navigator.html"><svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> Navigator</a></div>
+      <div><a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Glossary</a></div>
     </div>
     <div class="page-toc" id="pageToc" aria-label="Sections on this page" hidden>
       <ul class="toc-list" id="tocList"></ul>
@@ -92,7 +93,7 @@
 
   <main id="main">
     <h1>Practices SRE</h1>
-    <p class="page-size" data-words="1380">Words: 1380</p>
+    <p class="page-size" data-words="1454">Words: 1454</p>
     <p class="lead">Sixty-second incident triage, hidden disk and memory failures, safe log parsing, shielding production from scripts, and monitoring metrics.</p>
 
     <div class="box key" id="key-idea">
@@ -109,7 +110,7 @@ systemctl is-active app  # is unit alive
 journalctl -u app -n 50 --no-pager
 ps -eo pid,stat,rss,cmd \
   --sort=-rss | head -6</code></pre>
-    <p>The sequence is intentional: <strong>disk space and inodes → RAM and swap → load queue and ports → service unit status and logs → heaviest processes.</strong> In most incidents, the root cause is uncovered in the first two lines, making diving into application code or restarting services before inspecting system resources a critical mistake.</p>
+        <p>Conduct incident triage in strict priority order: disk space and inodes → memory and swap → CPU load and open ports → service statuses. Your objective in the first sixty seconds is not to fix a specific bug, but to localize the blast radius: the first three commands rule out 80% of common production incidents. And remember the primary rule of live incident response: <strong>inspect state, do not mutate</strong>. Never run <code>rm</code>, <code>kill -9</code>, or service restarts until you have gathered a complete diagnostic picture.</p>
     <div class="prints"><strong>What gets asked:</strong> “Which commands and in what order do you execute when triaging an incident on an unfamiliar server?”</div>
 
     <h2 id="hidden-failures">2 · Hidden failures: why <code>df</code> contradicts <code>du</code>, zombies, and OOM <a class="anchor-link" href="#hidden-failures">#</a></h2>
@@ -125,7 +126,7 @@ dmesg -T | grep -i 'killed process'
 # 3. zombie (Z) cannot be killed with kill -9
 ps -eo pid,ppid,stat,cmd \
   | awk '$3 ~ /^Z/'</code></pre>
-    <p>If a log file is removed via <code>rm</code> while an active process holds its file descriptor open, the directory entry vanishes (<code>du</code> ignores it), but disk blocks remain allocated until the descriptor is closed. If restarting the process is not an option, truncate the file via its open descriptor: <code>: &gt; /proc/PID/fd/N</code>. <strong><code>truncate -s 0</code> on the old filename will not help:</strong> the name no longer exists, and the command creates a new empty file alongside without freeing a single byte. A zombie process (<code>Z</code>) is already dead and consumes no memory - it is merely a process table entry retaining an exit code until its parent (<code>PPID</code>) invokes <code>wait()</code>; sending signals to a zombie is entirely ineffective.</p>
+        <p>When you delete an active log file with <code>rm</code> while a process holds its file descriptor open, its directory entry vanishes (and <code>du</code> stops reporting it), but disk blocks remain allocated until the descriptor closes. If you cannot restart the service, truncate the file directly via the process descriptor: <code>: &gt; /proc/PID/fd/N</code>. <strong>Remember that running <code>truncate -s 0</code> on the old path will not help:</strong> the name is gone, and you will merely create a fresh zero-byte file without freeing a single block. When you encounter zombie processes (<code>Z</code>), never bother signaling them: zombies are already dead and consume no memory; find their parent process (<code>PPID</code>) and trigger it to call <code>wait()</code>.</p>
     <div class="prints"><strong>What gets asked:</strong> “Why does <code>df -h</code> show 100% when <code>du -sh</code> shows free space, and why can't <code>kill -9</code> terminate a zombie?”</div>
 
     <h2 id="logs">3 · Logs on a live node: root cause analysis without exhausting disk <a class="anchor-link" href="#logs">#</a></h2>
@@ -142,7 +143,7 @@ zgrep -h '502 Bad' /var/log/nginx/*.gz
 # live stream without pipe buffer delay
 tail -f app.log \
   | grep --line-buffered ' 5[0-9][0-9] '</code></pre>
-    <p>Three details decide the outcome: <code>grep -h</code> suppresses filename prefixes so <code>awk</code> column positions stay stable; <code>--line-buffered</code> forces <code>grep</code> to flush each matching line immediately rather than filling a 4 KB buffer; <code>zgrep</code> and <code>zcat</code> stream compressed archives directly through memory without staging temporary files on a full disk partition.</p>
+        <p>Safe log parsing in production environments relies on three critical habits. Always pass <code>grep -h</code> to suppress filename prefixes so you do not offset column indexes in <code>awk</code>. Use <code>--line-buffered</code> to force <code>grep</code> to flush each matching line immediately rather than buffering 4 KB of output. For compressed logs, invoke <code>zgrep</code> and <code>zcat</code>: they stream compressed data directly in memory without writing temporary files to your already exhausted disk partition.</p>
     <div class="prints"><strong>What gets asked:</strong> “How do you search rotated compressed logs on a full disk, and why does <code>tail -f | grep</code> often produce no immediate output?”</div>
 
     <h2 id="node-protection">4 · Scripts must not crash production: <code>flock</code>, <code>nice</code>, and <code>ionice</code> <a class="anchor-link" href="#node-protection">#</a></h2>
@@ -155,7 +156,7 @@ flock -n 9 || exit 0   # second instance exits
 
 nice -n 19 ionice -c3 \
   tar -czf /backup/app.tgz /var/lib/app</code></pre>
-    <p>Two safeguards are mandatory for any periodic task on a node. First: <code>flock -n</code> - if a previous run hangs on a slow disk, the next <code>cron</code> trigger will not pile up into a thundering herd of twenty concurrent processes. Second: <code>nice -n 19 ionice -c3</code> - the <code>Idle</code> class (<code>-c3</code>) submits I/O requests to disk only when no production workload needs the disk.</p>
+        <p>Shield production nodes from your own background automation with two mandatory guardrails. First: non-blocking locks via <code>flock -n</code> ensure that if your prior run hangs on slow I/O, the next <code>cron</code> execution will not stack into a cascade of runaway processes. Second: throttle execution using <code>nice -n 19 ionice -c3</code> so the <code>Idle</code> class (<code>-c3</code>) restricts your script to disk I/O slices when no critical production service demands the bus.</p>
     <p><strong>The essential caveat:</strong> <code>ionice</code> priority classes are honored only by the BFQ I/O scheduler (and legacy CFQ). Under <code>none</code> or <code>mq-deadline</code> - typical for NVMe and cloud volumes - <code>ionice</code> is silently ignored. Verify via <code>cat /sys/block/&lt;disk&gt;/queue/scheduler</code>. When BFQ is absent, throttle bandwidth instead: <code>--bwlimit</code> in <code>rsync</code> or <code>IOWriteBandwidthMax=</code> via <code>systemd-run</code> - which works under any I/O scheduler.</p>
     <div class="prints"><strong>What gets asked:</strong> “How do you protect a production node from degradation during heavy cron jobs?”</div>
 
@@ -176,7 +177,7 @@ retry() {
   return 1
 }
 retry || exit 1</code></pre>
-    <p>Two fleet rules: <strong>scheduled jobs must never trigger simultaneously at second <code>00</code></strong> (use <code>RandomizedDelaySec</code> in systemd timers or initial delay via <code>RANDOM</code>), and intervals between retries must increase exponentially with random jitter (<code>jitter</code>) to desynchronize request waves after an outage. <strong>The loop must terminate with an honest exit code:</strong> without an explicit <code>return 1</code> after the final failed attempt, it returns the exit status of the loop test, disguising complete upstream failure as success.</p>
+        <p>When managing fleets of instances, enforce two rules against thundering herds and flapping. <strong>Never schedule recurring jobs to trigger precisely at second <code>00</code> simultaneously:</strong> introduce staggered jitter using <code>RandomizedDelaySec</code> in systemd timers or initial delays seeded by <code>RANDOM</code>. In retry loops, scale backoff exponentially with random <code>jitter</code> to de-synchronize request spikes after an outage. <strong>And always terminate exhausted loops with an explicit failure:</strong> without a concluding <code>return 1</code>, your script exits with code 0 from the final test, masking an outage as a success.</p>
     <div class="prints"><strong>What gets asked:</strong> “Why does a naive retry loop on a fleet turn a transient hiccup into a prolonged outage?”</div>
 
     <h2 id="metrics">6 · Script observability and the self-healing anti-pattern <a class="anchor-link" href="#metrics">#</a></h2>
@@ -192,7 +193,7 @@ backup_duration_seconds $dur
 backup_last_run_timestamp $(date +%s)
 EOF
 mv "$prom.$$" "$prom"   # atomic cutover</code></pre>
-    <p>Writing three numbers atomically into the Prometheus <code>textfile collector</code> via a temporary file and <code>mv</code> enables two critical alerts: non-zero exit codes and stale timestamps (<code>time() - backup_last_run_timestamp &gt; 90000</code>). And the counter-rule of SRE: <strong>a script that silently restarts a failing service without recording metrics or raising alerts is harmful</strong> - it masks memory leaks and progressive degradation until restarts no longer recover the service.</p>
+        <p>For reliable monitoring of periodic cron jobs, export metrics to the Prometheus <code>textfile collector</code> atomically using temporary files and <code>mv</code>. This enables your alerting infrastructure to configure two essential monitors: non-zero exit statuses and stale execution timestamps (<code>time() - backup_last_run_timestamp &gt; 90000</code>). And remember a fundamental SRE principle: <strong>scripts that silently restart failing services without metrics or alerts actively harm reliability</strong> - you simply mask leaks and gradual degradation until restarts stop recovering the node.</p>
     <div class="prints"><strong>What gets asked:</strong> “How do you monitor background shell script execution, and why is silent service auto-restarting dangerous?”</div>
 
     <h2 id="artifacts">Artifacts: what you take away from this page <a class="anchor-link" href="#artifacts">#</a></h2>
@@ -208,19 +209,21 @@ mv "$prom.$$" "$prom"   # atomic cutover</code></pre>
       <li><strong>Storm prevention:</strong> randomized startup jitter and <code>exponential backoff + jitter</code>.</li>
       <li><strong>Script metrics:</strong> atomic emission of exit code, duration, and timestamp via <code>mv</code>.</li>
     </ol>
+  
 
     <footer>
       <nav class="pager" aria-label="Neighbouring topics">
         <p class="pager-next">Next topic: <a href="10.html">Examples · Noob</a></p>
         <p class="pager-prev">Previous topic: <a href="08.html">DevOps practices</a></p>
       </nav>
+      <p class="footer-note">An AI Factory series site. Built with the same harness: plain HTML and CSS, checked with bash, published via GitHub Pages.</p>
     </footer>
   </main>
 
 </div>
 </div>
-<script src="../assets/swa.js?v=13"></script>
-<script src="../assets/terms.js?v=13"></script>
-<script src="../assets/cp.js?v=13"></script>
+<script src="../assets/swa.js?v=14"></script>
+<script src="../assets/terms.js?v=14"></script>
+<script src="../assets/cp.js?v=14"></script>
 </body>
 </html>

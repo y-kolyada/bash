@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-site="bash">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,7 +22,7 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Взаимосвязи","description":"Где Bash стыкуется с Git, CI, Docker, systemd, Make и Ansible - и что в каждом из этих швов ломается чаще всего.","url":"https://y-kolyada.github.io/bash/ru/05.html","inLanguage":"ru","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
 <!-- /meta -->
-<link rel="stylesheet" href="../assets/style.css?v=13">
+<link rel="stylesheet" href="../assets/style.css?v=14">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -83,7 +83,8 @@
       <li><a href="15.html"><span class="num">15</span>Вопросы · IGL</a></li>
     </ol>
     <div class="nav-extra">
-      <a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словарь понятий</a>
+      <div><a href="navigator.html"><svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> Навигатор</a></div>
+      <div><a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словарь понятий</a></div>
     </div>
     <div class="page-toc" id="pageToc" aria-label="Разделы этой страницы" hidden>
       <ul class="toc-list" id="tocList"></ul>
@@ -92,7 +93,7 @@
 
   <main id="main">
     <h1>Взаимосвязи</h1>
-    <p class="page-size" data-words="1046">Слов: 1046</p>
+    <p class="page-size" data-words="1059">Слов: 1059</p>
     <p class="lead">Где Bash стыкуется с Git, CI, Docker, systemd, Make и Ansible - и что в каждом из этих швов ломается чаще всего.</p>
 
     <div class="box key" id="key-idea">
@@ -112,7 +113,7 @@ files=$(git diff --cached --name-only \
         --diff-filter=ACM | grep '\.sh$' || true)
 [ -z "$files" ] &amp;&amp; exit 0
 shellcheck $files</code></pre>
-        <p>Автоматизация Git-хуков на Bash сталкивается с двумя ловушками. Первая: утилита <code>grep</code> при отсутствии совпадений возвращает код 1 и под <code>set -e</code> аварийно роняет хук, поэтому фильтрацию завершают через <code>|| true</code>. Вторая: <strong>каталог <code>.git/hooks</code> не версионируется Git'ом</strong>, поэтому командные хуки кладут в отдельную папку репозитория и подключают командой <code>git config core.hooksPath</code>, иначе у коллег проверки не запустятся.</p>
+            <p>Когда вы пишете Git-хуки на Bash, помните о двух классических ловушках. Первая: утилита <code>grep</code> при отсутствии совпадений возвращает код 1 и под <code>set -e</code> роняет ваш хук, поэтому защищайте конвейер конструкцией <code>|| true</code>. Вторая: <strong>каталог <code>.git/hooks</code> не версионируется Git'ом</strong> - храните командные хуки в отдельной папке репозитория и подключайте их через <code>git config core.hooksPath</code>, иначе ваши коллеги их просто не получат.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Как заставить хук отменить коммит и почему хуки не попадают к другим разработчикам сами?»</div>
 
     <h2 id="ci">2 · CI и GitHub Actions: shell по умолчанию <a class="anchor-link" href="#ci">#</a></h2>
@@ -132,7 +133,7 @@ shellcheck $files</code></pre>
 # export в одном шаге не виден
 # в следующем
 echo "VER=1.2" &gt;&gt; "$GITHUB_ENV"</code></pre>
-        <p>В конвейерах CI <strong>каждый шаг выполняется в отдельном процессе оболочки</strong>, поэтому переменные окружения не сохраняются через <code>export</code>, а передаются между шагами через файлы вроде <code>$GITHUB_ENV</code> и <code>$GITHUB_OUTPUT</code>. Особая осторожность требуется с отладкой: режим <code>set -x</code> в шаге сборки раскрывает аргументы и <strong>выводит секреты в журнал</strong>, где встроенное маскирование спасает далеко не всегда.</p>
+            <p>В конвейерах CI <strong>каждый шаг запускается в свежем процессе оболочки</strong>, поэтому вы не можете передать переменные через <code>export</code> - записывайте их в файлы вроде <code>$GITHUB_ENV</code> и <code>$GITHUB_OUTPUT</code>. Будьте предельно осторожны с отладкой: команда <code>set -x</code> в шаге сборки раскрывает аргументы и выводит ваши секреты в открытый журнал, где встроенное маскирование спасает далеко не всегда.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «С какими ключами CI запускает ваш <code>run:</code> и как передать значение между шагами?»</div>
 
     <h2 id="docker">3 · Docker: PID 1, сигналы и форма записи <a class="anchor-link" href="#docker">#</a></h2>
@@ -148,7 +149,7 @@ ENTRYPOINT ["/app/run.sh"]
 
 # и в самом скрипте, в конце:
 exec /app/server "$@"</code></pre>
-        <p>В точке входа контейнера вызов <code>exec</code> заменяет процесс оболочки процессом приложения: PID 1 достаётся бинарнику сервиса, и сигналы завершения ОС доходят без потерь. Поскольку в контейнере <strong>нет системы init</strong>, зомби-процессы от дочерних задач скрипта некому собирать без флага <code>--init</code> или утилиты <code>tini</code>. А в образах Alpine командная оболочка <code>/bin/sh</code> представлена утилитой <code>ash</code> из BusyBox, и интерпретатор <code>bash</code> там отсутствует вовсе.</p>
+            <p>В точке входа контейнера всегда вызывайте <code>exec</code>: он заменяет процесс оболочки процессом приложения, передаёт сервису PID 1 и гарантирует, что сигналы остановки дойдут вовремя. Помните, что в контейнере <strong>нет системы init</strong>: если ваш скрипт порождает фоновые задачи, используйте флаг <code>--init</code> или утилиту <code>tini</code>, иначе зомби-процессы заполнят таблицу ядра. А для образов на базе Alpine учитывайте, что <code>/bin/sh</code> там - это <code>ash</code> из BusyBox, и привычного вам <code>bash</code> просто нет.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Почему контейнер не останавливается по <code>docker stop</code> и причём тут форма записи <code>ENTRYPOINT</code>?»</div>
 
     <h2 id="systemd">4 · systemd: когда скрипт не нужен <a class="anchor-link" href="#systemd">#</a></h2>
@@ -186,7 +187,7 @@ build:
 
 # или один shell на весь рецепт:
 .ONESHELL:</code></pre>
-        <p>При вызове команд из Ansible модуль <code>shell</code> запускает отдельную подоболочку для каждой задачи, не сохраняя состояние между ними. Главное проектное различие модулей автоматизации: <code>command</code> запускает программу напрямую системным вызовом без участия оболочки, исключая конвейеры, подстановки и раскрытие шаблонов, тогда как <code>shell</code> выполняет строку через командный интерпретатор со всеми рисками инъекций. <strong>Правило: использовать <code>command</code>, пока не доказано, что необходим <code>shell</code>.</strong></p>
+            <p>Когда вы запускаете команды в Ansible, учитывайте, что модуль <code>shell</code> создаёт новую подоболочку для каждой задачи и не сохраняет ваши переменные. Модуль <code>command</code> вызывает бинарник напрямую без оболочки, защищая вас от непреднамеренных подстановок и инъекций, тогда как <code>shell</code> подключает полный командный интерпретатор со всеми его рисками. Держитесь правила: <strong>выбирайте <code>command</code>, пока вы явно не доказали, что вам необходим <code>shell</code>.</strong></p>
     <div class="prints"><strong>Что спрашивают:</strong> «Почему <code>cd</code> в Makefile не действует на следующую строку и чем <code>command</code> отличается от <code>shell</code> в Ansible?»</div>
 
     <h2 id="boundaries">6 · Где Bash заканчивается: jq, awk, Python <a class="anchor-link" href="#boundaries">#</a></h2>
@@ -221,19 +222,21 @@ python3 -c 'import json, sys; ...'</code></pre>
       <li><strong>Make и Ansible:</strong> каждая строка в своей оболочке; <code>command</code> против <code>shell</code>.</li>
       <li><strong>Граница с jq, awk и Python</strong> по типу данных, а не по привычке.</li>
     </ol>
+  
 
     <footer>
       <nav class="pager" aria-label="Соседние темы">
         <p class="pager-next">Следующая тема: <a href="06.html">Практики в контексте AI</a></p>
         <p class="pager-prev">Предыдущая тема: <a href="04.html">Слабости и границы</a></p>
       </nav>
+      <p class="footer-note">Сайт серии AI Factory. Сделан той же оснасткой, что и остальные: обычный HTML и CSS, проверка на bash, публикация через GitHub Pages.</p>
     </footer>
   </main>
 
 </div>
 </div>
-<script src="../assets/swa.js?v=13"></script>
-<script src="../assets/terms.js?v=13"></script>
-<script src="../assets/cp.js?v=13"></script>
+<script src="../assets/swa.js?v=14"></script>
+<script src="../assets/terms.js?v=14"></script>
+<script src="../assets/cp.js?v=14"></script>
 </body>
 </html>

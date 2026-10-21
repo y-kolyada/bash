@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-site="bash">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,7 +22,7 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Практики в Clouds","description":"CLI облака, ожидание готовности, доступы без ключей, лимиты API, защита от чужого аккаунта и уборка по тегам - и где проходит граница с Terraform.","url":"https://y-kolyada.github.io/bash/ru/07.html","inLanguage":"ru","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
 <!-- /meta -->
-<link rel="stylesheet" href="../assets/style.css?v=13">
+<link rel="stylesheet" href="../assets/style.css?v=14">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -83,7 +83,8 @@
       <li><a href="15.html"><span class="num">15</span>Вопросы · IGL</a></li>
     </ol>
     <div class="nav-extra">
-      <a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словарь понятий</a>
+      <div><a href="navigator.html"><svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> Навигатор</a></div>
+      <div><a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словарь понятий</a></div>
     </div>
     <div class="page-toc" id="pageToc" aria-label="Разделы этой страницы" hidden>
       <ul class="toc-list" id="tocList"></ul>
@@ -92,7 +93,7 @@
 
   <main id="main">
     <h1>Практики в Clouds</h1>
-    <p class="page-size" data-words="1081">Слов: 1081</p>
+    <p class="page-size" data-words="1088">Слов: 1088</p>
     <p class="lead">CLI облака, ожидание готовности, доступы без ключей, лимиты API, защита от чужого аккаунта и уборка по тегам - и где проходит граница с Terraform.</p>
 
     <div class="box key" id="key-idea">
@@ -111,7 +112,7 @@
 
 aws s3api head-object … &gt;/dev/null 2&gt;&amp;1 \
   &amp;&amp; echo есть || echo нет</code></pre>
-        <p>При автоматизации облачных CLI наибольшую производительность дают два правила. <strong>Параметр <code>--query</code> фильтрует данные на стороне CLI</strong> до их передачи в <code>jq</code>, экономя сетевой трафик и процессорное время разбора. Второе правило: <strong>отсутствие объекта в облаке возвращает ненулевой код статуса</strong>, а не пустую строку, поэтому проверять нужно код возврата, а не вывод. А чтобы скрипты в CI не зависали в ожидании нажатия клавиши <code>q</code>, встроенный пейджер отключают через <code>AWS_PAGER=""</code>.</p>
+            <p>При автоматизации облачных CLI экономьте время и трафик двумя приёмами. <strong>Фильтруйте вывод параметром <code>--query</code> прямо на стороне CLI</strong>, не заставляя <code>jq</code> разбирать мегабайты лишнего текста. Помните, что <strong>отсутствие объекта в облаке возвращает ненулевой код статуса</strong>, а не пустую строку: проверяйте код возврата команды, а не пустоту её вывода. И всегда отключайте встроенный пейджер через <code>AWS_PAGER=""</code>, чтобы ваш скрипт не завис в ожидании нажатия клавиши <code>q</code>.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Чем <code>--query</code> отличается от <code>jq</code> и как в скрипте проверить, существует ли ресурс?»</div>
 
     <h2 id="provisioning">2 · Создание ресурсов: ожидание - часть работы <a class="anchor-link" href="#provisioning">#</a></h2>
@@ -129,7 +130,7 @@ for i in {1..30}; do
   ready &amp;&amp; break
   sleep 5
 done</code></pre>
-        <p>Для ожидания готовности облачных ресурсов используют встроенные команды CLI (<code>wait</code>). Там, где готовых ожиданий нет, проверку статуса организуют в цикле <strong>с обязательным лимитом попыток и таймаутом</strong>, иначе сбойная операция заблокирует раннер CI на часы. Любые создаваемые скриптом облачные ресурсы обязательно помечают тегами, чтобы автоматическая уборка могла гарантированно найти и удалить временную инфраструктуру.</p>
+            <p>Для ожидания готовности инфраструктуры <strong>берите встроенные команды CLI (<code>wait</code>) везде, где они есть</strong>. Там, где готового ожидания нет, пишите цикл опроса с обязательным пределом попыток и таймаутом, чтобы зависшая операция не сожгла лимит времени вашего раннера в CI. И сразу помечайте всё созданное тегами: по ним вы позже надёжно найдёте и удалите временные ресурсы.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Как в скрипте дождаться готовности облачного ресурса и что будет без ожидания?»</div>
 
     <h2 id="credentials">3 · Доступы: чего в скрипте быть не должно <a class="anchor-link" href="#credentials">#</a></h2>
@@ -146,7 +147,7 @@ aws --profile prod s3 ls
 token=$(aws secretsmanager \
   get-secret-value --secret-id t \
   --query SecretString --output text)</code></pre>
-        <p>Аутентификация скриптов в облачных провайдерах строится по строгому приоритету: <strong>роль инстанса или OIDC</strong> исключают необходимость хранить статические ключи вовсе; <strong>именованные профили</strong> держат токены в конфигурации пользователя, а не в репозитории; <strong>переменные окружения</strong> допустимы лишь как крайняя мера. Критическое правило: режим <code>set -x</code> выводит значения секретов в открытый журнал CI, поэтому трассировка в шагах с авторизацией запрещена.</p>
+            <p>Настраивайте аутентификацию в облаке по строгому приоритету: <strong>роли инстансов или OIDC</strong> избавляют вас от необходимости хранить статические ключи, а <strong>именованные профили</strong> держат токены в вашей пользовательской конфигурации вне кода. Переменные окружения оставляйте только как крайнее средство. И никогда не включайте трассировку <code>set -x</code> в шагах с авторизацией: она напечатает значения аргументов и выставит ваши секреты напоказ в логах CI.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Как скрипт получает доступ к облаку без хранения ключей и почему <code>set -x</code> там опасен?»</div>
 
     <h2 id="throttling">4 · Пагинация, троттлинг API и запрет на вызовы в цикле <a class="anchor-link" href="#throttling">#</a></h2>
@@ -201,7 +202,7 @@ got_acc=$(aws sts get-caller-identity \
   --query '…[].InstanceId' --output text \
   | xargs -r aws ec2 terminate-instances \
       --instance-ids</code></pre>
-        <p>При передаче списков облачных ресурсов на удаление через конвейер утилита <code>xargs -r</code> предотвращает запуск команды при пустом вводе. Без ключа <code>-r</code> удаление ресурсов превращается в вызов команды без аргументов, что в облачных CLI может привести к попытке применить действие ко всем ресурсам окружения.</p>
+            <p>Когда вы передаёте список облачных ресурсов на удаление через конвейер, всегда добавляйте ключ <code>xargs -r</code>. Без флага <code>-r</code> пустой входной поток приведёт к вызову команды удаления вовсе без аргументов, и в зависимости от утилиты вы рискуете либо уронить скрипт, либо случайно зачистить все ресурсы в своём аккаунте.</p>
     <div class="box">
       <p><strong>Где проходит граница.</strong> Bash хорош там, где задача про
       <em>действие</em>: создать на час, собрать срез по аккаунту, мигрировать бакет, удалить по тегу.
@@ -225,19 +226,21 @@ got_acc=$(aws sts get-caller-identity \
       <li><strong>Проверка аккаунта и региона</strong> в первой строке скрипта до любых изменений.</li>
       <li><strong>Уборка по тегам</strong>, <code>xargs -r</code> и граница: действие - Bash, состояние - Terraform.</li>
     </ol>
+  
 
     <footer>
       <nav class="pager" aria-label="Соседние темы">
         <p class="pager-next">Следующая тема: <a href="08.html">Практики DevOps</a></p>
         <p class="pager-prev">Предыдущая тема: <a href="06.html">Практики в контексте AI</a></p>
       </nav>
+      <p class="footer-note">Сайт серии AI Factory. Сделан той же оснасткой, что и остальные: обычный HTML и CSS, проверка на bash, публикация через GitHub Pages.</p>
     </footer>
   </main>
 
 </div>
 </div>
-<script src="../assets/swa.js?v=13"></script>
-<script src="../assets/terms.js?v=13"></script>
-<script src="../assets/cp.js?v=13"></script>
+<script src="../assets/swa.js?v=14"></script>
+<script src="../assets/terms.js?v=14"></script>
+<script src="../assets/cp.js?v=14"></script>
 </body>
 </html>

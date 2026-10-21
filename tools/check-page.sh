@@ -59,6 +59,14 @@ else
   [ -n "$TITLE" ] && ok "заголовок свой, не из шаблона"
 fi
 
+# 5. The navigator holds 15 numbered topics
+NUMS=$(grep -o '<span class="num">' "$PAGE" 2>/dev/null | wc -l || true)
+if [ "$NUMS" -eq 15 ]; then
+  ok "в навигаторе 15 пронумерованных тем"
+else
+  bad "в навигаторе нет нумерации тем: $NUMS из 15" "запустите python3 tools/build-nav.py для восстановления"
+fi
+
 echo "  ----------------------------------------------"
 if [ "$FAIL" -eq 0 ]; then
   printf '  %s\n\n' "$(g 'ЗЕЛЁНОЕ')"

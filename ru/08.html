@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-site="bash">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,7 +22,7 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Практики DevOps","description":"Bash в конвейере поставки: сборка, среды, деплой и откат, проверки до слияния и работа с секретами.","url":"https://y-kolyada.github.io/bash/ru/08.html","inLanguage":"ru","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
 <!-- /meta -->
-<link rel="stylesheet" href="../assets/style.css?v=13">
+<link rel="stylesheet" href="../assets/style.css?v=14">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -83,7 +83,8 @@
       <li><a href="15.html"><span class="num">15</span>Вопросы · IGL</a></li>
     </ol>
     <div class="nav-extra">
-      <a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словарь понятий</a>
+      <div><a href="navigator.html"><svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> Навигатор</a></div>
+      <div><a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словарь понятий</a></div>
     </div>
     <div class="page-toc" id="pageToc" aria-label="Разделы этой страницы" hidden>
       <ul class="toc-list" id="tocList"></ul>
@@ -92,7 +93,7 @@
 
   <main id="main">
     <h1>Практики DevOps</h1>
-    <p class="page-size" data-words="1085">Слов: 1085</p>
+    <p class="page-size" data-words="1100">Слов: 1100</p>
     <p class="lead">Bash в конвейере поставки: сборка, среды, деплой и откат, проверки до слияния и работа с секретами. И признаки, по которым видно, что конвейер перерос скрипт.</p>
 
     <div class="box key" id="key-idea">
@@ -113,7 +114,7 @@ echo "VER=$v" &gt;&gt; "$GITHUB_ENV"
 
 # 3. рабочий каталог сбрасывается
 cd "$GITHUB_WORKSPACE"</code></pre>
-        <p><strong>Каждый шаг конвейера в CI обязан быть самодостаточным:</strong> он не полагается на <code>export</code> из предыдущего шага, не рассчитывает на текущий каталог и объявляет собственный строгий режим сам. Сложную логику выносят в исполняемый файл <code>.sh</code> в репозитории: его можно запустить локально, проверить через <code>shellcheck</code> и прочитать в diff при ревью - в отличие от десятков строк внутри файла YAML.</p>
+            <p><strong>Проектируйте каждый шаг конвейера в CI самодостаточным:</strong> не полагайтесь на <code>export</code> из соседних шагов, объявляйте строгий режим заново и проверяйте рабочий каталог. Сложную логику выносите в отдельный <code>.sh</code>-файл в репозитории: вы сможете запустить его на своей машине, проверить линтером <code>shellcheck</code> и спокойно прочитать в diff, в отличие от десятков строк кода внутри чужого YAML.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Почему переменная из одного шага CI не видна в следующем и как её передать?»</div>
 
     <h2 id="build">2 · Сборка: воспроизводимость важнее скорости <a class="anchor-link" href="#build">#</a></h2>
@@ -128,7 +129,7 @@ docker build \
 
 # артефакт называется версией,
 # а не latest</code></pre>
-        <p>Воспроизводимость сборки релизных артефактов опирается на три правила. <strong>Версия вычисляется напрямую из Git</strong>, а не из переменной - её нельзя забыть обновить. <strong>Тег <code>latest</code> не является версией:</strong> по нему невозможно восстановить состояние кода и выполнить откат. <strong>Суффикс <code>--dirty</code></strong> сигнализирует о сборке из незакоммиченного дерева, результат которой невозможно воспроизвести по истории репозитория.</p>
+            <p>Держитесь трёх правил для воспроизводимой сборки артефактов. <strong>Всегда берите версию напрямую из Git</strong>, а не из переменной, которую вы можете забыть обновить. Помните, что <strong>тег <code>latest</code> не является версией:</strong> по нему вы никогда не сможете гарантированно откатиться. А <strong>суффикс <code>--dirty</code></strong> сразу предупредит вас, что сборка сделана из незакоммиченного дерева и повторить её по истории репозитория вы не сумеете.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Откуда берётся номер версии артефакта и почему нельзя деплоить <code>latest</code>?»</div>
 
     <h2 id="environments">3 · Среды Dev → QA → Prod: один скрипт, разные параметры <a class="anchor-link" href="#environments">#</a></h2>
@@ -175,7 +176,7 @@ systemctl reload app
     shellcheck **/*.sh
 - run: shfmt -d -i 2 .
 - run: bats tests/</code></pre>
-        <p>Набор проверок качества скриптов запускают локально через хуки <code>pre-commit</code>, чтобы ошибки не доезжали до конвейера CI. <strong>Локальная проверка разработчика и проверка в CI обязаны выполняться одной и той же командой</strong> - иначе появляется класс расхождений «у меня проходит, а в CI падает», и доверие к проверкам теряется.</p>
+            <p>Запускайте проверки качества скриптов локально через хуки <code>pre-commit</code>, чтобы не тратить время на сбои в общем конвейере CI. Следите, чтобы на вашей рабочей станции и в шаге CI отрабатывала <strong>абсолютно одна и та же команда</strong>: иначе вы неизбежно столкнётесь с ситуацией «у меня локально проходит, а в CI падает», и ваша команда перестанет доверять автоматическим проверкам.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Какие проверки shell-кода вы ставите в конвейер и почему они должны совпадать с локальными?»</div>
 
     <h2 id="secrets">6 · Секреты и журналы <a class="anchor-link" href="#secrets">#</a></h2>
@@ -189,7 +190,7 @@ curl -u "u:$PASS" …  # видно в ps
 # да:
 curl --netrc-file "$f" …
 printf '%s' "$TOKEN" | cmd --token-stdin</code></pre>
-        <p>Безопасная работа с секретами в скриптах и CI опирается на три правила. <strong>Секрет не передаётся аргументом командной строки</strong> - аргументы видны в выводе <code>ps</code> всем пользователям системы; его передают через stdin, файл или переменную окружения. <strong>Режим трассировки <code>set -x</code> запрещён в шагах с секретами.</strong> <strong>Маскирование логов в CI не даёт гарантий:</strong> оно ищет точное совпадение, и секрет, попавший в журнал по частям или в другой кодировке, в маску не попадёт.</p>
+            <p>Защищайте секреты в скриптах и CI тремя железными правилами. <strong>Никогда не передавайте токены аргументами командной строки:</strong> их увидит любой пользователь вашей системы в выводе <code>ps</code>; передавайте секрет через stdin, файл или переменную окружения. <strong>Режим трассировки <code>set -x</code> категорически запрещён в шагах с секретами.</strong> И помните, что маскирование в CI ищет только точные совпадения: токен, разбитый переносом строки или закодированный в base64, попадёт в открытый журнал на ваших глазах.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Почему нельзя передавать пароль аргументом команды и что делает маскирование секретов в CI?»</div>
 
     <h2 id="beyond-scripts">7 · Когда конвейер перерос скрипт <a class="anchor-link" href="#beyond-scripts">#</a></h2>
@@ -224,19 +225,21 @@ printf '%s' "$TOKEN" | cmd --token-stdin</code></pre>
       <li><strong>Правила секретов:</strong> не аргументом, без трассировки, маскирование не гарантия.</li>
       <li><strong>Признаки, что конвейер перерос скрипт</strong>, и чем каждый из них лечится.</li>
     </ol>
+  
 
     <footer>
       <nav class="pager" aria-label="Соседние темы">
         <p class="pager-next">Следующая тема: <a href="09.html">Практики SRE</a></p>
         <p class="pager-prev">Предыдущая тема: <a href="07.html">Практики в Clouds</a></p>
       </nav>
+      <p class="footer-note">Сайт серии AI Factory. Сделан той же оснасткой, что и остальные: обычный HTML и CSS, проверка на bash, публикация через GitHub Pages.</p>
     </footer>
   </main>
 
 </div>
 </div>
-<script src="../assets/swa.js?v=13"></script>
-<script src="../assets/terms.js?v=13"></script>
-<script src="../assets/cp.js?v=13"></script>
+<script src="../assets/swa.js?v=14"></script>
+<script src="../assets/terms.js?v=14"></script>
+<script src="../assets/cp.js?v=14"></script>
 </body>
 </html>

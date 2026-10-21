@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-site="bash">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,7 +22,7 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"DefinedTermSet","name":"Словарь понятий","url":"https://y-kolyada.github.io/bash/ru/glossary.html","inLanguage":"ru","hasDefinedTerm":[{"@type":"DefinedTerm","name":"Shebang","description":"Первая строка скрипта, указывающая ядру, каким интерпретатором его запускать.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#shebang"},{"@type":"DefinedTerm","name":"Режимы оболочки","description":"Одна программа Bash в двух ролях: оболочка, с которой работает человек, и интерпретатор, который выполняет файл.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#shell-modes"},{"@type":"DefinedTerm","name":"PATH","description":"Список каталогов через двоеточие, в которых оболочка ищет программу по имени.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#path"},{"@type":"DefinedTerm","name":"Переменная окружения","description":"Переменная, которую оболочка передаёт дочерним процессам.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#environment-variable"},{"@type":"DefinedTerm","name":"Шаблон имён","description":"Выражение, которое оболочка раскрывает в список подходящих имён файлов до запуска команды.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#glob"},{"@type":"DefinedTerm","name":"Словоделение","description":"Разбиение результата подстановки на отдельные слова по пробелам и переводам строк.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#word-splitting"},{"@type":"DefinedTerm","name":"IFS","description":"Набор символов, по которым оболочка режет текст на слова.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#ifs"},{"@type":"DefinedTerm","name":"Поток и дескриптор","description":"Пронумерованный канал ввода или вывода процесса: 0 - ввод, 1 - результат, 2 - ошибки и всё остальное.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#stream-fd"},{"@type":"DefinedTerm","name":"Перенаправление","description":"Указание оболочке, куда направить поток процесса вместо терминала.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#redirection"},{"@type":"DefinedTerm","name":"Конвейер","description":"Цепочка команд, где вывод одной становится вводом следующей.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#pipeline"},{"@type":"DefinedTerm","name":"Код возврата","description":"Число от 0 до 255, которым команда сообщает об успехе (0) или об ошибке (не 0).","url":"https://y-kolyada.github.io/bash/ru/glossary.html#exit-code"},{"@type":"DefinedTerm","name":"Сабшелл","description":"Дочерний процесс оболочки: он наследует окружение, но его изменения наружу не возвращаются.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#subshell"},{"@type":"DefinedTerm","name":"Сигнал","description":"Асинхронное сообщение процессу от ядра, другого процесса или терминала.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#signal"},{"@type":"DefinedTerm","name":"Ловушка","description":"Обработчик, который оболочка выполняет при сигнале или при наступлении события.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#trap"},{"@type":"DefinedTerm","name":"POSIX и bashism","description":"POSIX - стандарт, общий для всех оболочек; bashism - возможность, которая есть только в Bash.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#posix"},{"@type":"DefinedTerm","name":"Строгий режим","description":"Три предохранителя: падать на ошибке, падать на необъявленной переменной, не терять ошибку в конвейере.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#strict-mode"},{"@type":"DefinedTerm","name":"Режим проверки","description":"Запуск, при котором скрипт печатает, что сделал бы, и ничего не делает.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#dry-run"},{"@type":"DefinedTerm","name":"Идемпотентность","description":"Свойство операции: повторный запуск не меняет результат и не ломает состояние.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#idempotence"},{"@type":"DefinedTerm","name":"Атомарность","description":"Свойство операции: она либо выполнена целиком, либо не выполнена вовсе, без видимого промежуточного состояния.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#atomicity"},{"@type":"DefinedTerm","name":"Блокировка","description":"Механизм, не дающий двум экземплярам одной задачи работать одновременно.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#locking"},{"@type":"DefinedTerm","name":"Контракт инструмента","description":"Объявленное поведение скрипта, на которое опираются вызывающие его программы.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#tool-contract"},{"@type":"DefinedTerm","name":"Радиус поражения","description":"Максимальный ущерб, который скрипт нанесёт, если ошибётся.","url":"https://y-kolyada.github.io/bash/ru/glossary.html#blast-radius"}]}</script>
 <!-- /meta -->
-<link rel="stylesheet" href="../assets/style.css?v=13">
+<link rel="stylesheet" href="../assets/style.css?v=14">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -83,7 +83,8 @@
       <li><a href="15.html"><span class="num">15</span>Вопросы · IGL</a></li>
     </ol>
     <div class="nav-extra">
-      <a href="glossary.html" aria-current="page"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словарь понятий</a>
+      <div><a href="glossary.html" aria-current="page"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словарь понятий</a></div>
+      <div><a href="navigator.html"><svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> Навигатор</a></div>
     </div>
     <div class="page-toc" id="pageToc" aria-label="Разделы этой страницы" hidden>
       <ul class="toc-list" id="tocList"></ul>
@@ -92,7 +93,7 @@
 
   <main id="main">
     <h1>Словарь понятий</h1>
-    <p class="page-size" data-words="1723">Слов: 1723</p>
+    <p class="page-size" data-words="1711">Слов: 1711</p>
     <p class="lead">Двадцать два понятия, которые на страницах сайта уже не объясняются. Каждое - не определение для экзамена, а механика, незнание которой стоит инцидента.</p>
 
     <div class="box key" id="key-idea">
@@ -412,19 +413,21 @@
       <li><strong>Пять понятий практики</strong> - строгий режим, режим проверки, идемпотентность, атомарность, блокировка.</li>
       <li><strong>Два понятия решений</strong> - контракт инструмента и радиус поражения, которых нет в <code>man bash</code>.</li>
     </ol>
+  
 
     <footer>
       <nav class="pager" aria-label="Соседние темы">
+        <p class="pager-next">Следующая тема: <a href="navigator.html">Навигатор инженера</a></p>
         <p class="pager-prev">Предыдущая тема: <a href="15.html">Вопросы · IGL</a></p>
       </nav>
-      Словарь пополняется вместе с разделами сайта. Полное описание механик - в <code>man bash</code>.
+      <p class="footer-note">Сайт серии AI Factory. Сделан той же оснасткой, что и остальные: обычный HTML и CSS, проверка на bash, публикация через GitHub Pages.</p>
     </footer>
   </main>
 
 </div>
 </div>
-<script src="../assets/swa.js?v=13"></script>
-<script src="../assets/terms.js?v=13"></script>
-<script src="../assets/cp.js?v=13"></script>
+<script src="../assets/swa.js?v=14"></script>
+<script src="../assets/terms.js?v=14"></script>
+<script src="../assets/cp.js?v=14"></script>
 </body>
 </html>

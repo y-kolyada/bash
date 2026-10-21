@@ -1,7 +1,13 @@
 // swa.js - Simple Web Architecture utilities: theme, font scale & dynamic in-page TOC
 (function () {
   // 1. Theme: restore and toggle
-  const savedTheme = localStorage.getItem('swa-bash-theme');
+  // Storage belongs to the origin, not to the folder, so every key carries the
+  // site: swa-<site>-<key>. The site name is read from the markup, which keeps
+  // this file byte-identical across every site of the series.
+  const SITE = document.documentElement.dataset.site || 'swa';
+  const key = (name) => 'swa-' + SITE + '-' + name;
+
+  const savedTheme = localStorage.getItem(key('theme'));
   if (savedTheme) {
     document.documentElement.setAttribute('data-theme', savedTheme);
   }
@@ -37,13 +43,13 @@
         (!currentTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
       const nextTheme = isDark ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', nextTheme);
-      localStorage.setItem('swa-bash-theme', nextTheme);
+      localStorage.setItem(key('theme'), nextTheme);
       updateThemeUI();
     });
   }
 
   // 2. Font size: S / M / L
-  const savedFont = localStorage.getItem('swa-bash-font') || 'm';
+  const savedFont = localStorage.getItem(key('font')) || 'm';
   document.documentElement.setAttribute('data-font', savedFont);
 
   const fontBtns = document.querySelectorAll('.font-btn');
@@ -59,7 +65,7 @@
       const size = btn.getAttribute('data-size');
       if (!size) return;
       document.documentElement.setAttribute('data-font', size);
-      localStorage.setItem('swa-bash-font', size);
+      localStorage.setItem(key('font'), size);
       updateFontUI(size);
     });
   });
@@ -216,11 +222,11 @@
       clearBtn.hidden = true;
       if (!keepState) {
         try {
-          const raw = sessionStorage.getItem('swa-bash-search');
+          const raw = sessionStorage.getItem(key('search'));
           if (raw) {
             const state = JSON.parse(raw);
             state.active = false;
-            sessionStorage.setItem('swa-bash-search', JSON.stringify(state));
+            sessionStorage.setItem(key('search'), JSON.stringify(state));
           }
         } catch (_) {}
       }
@@ -281,7 +287,7 @@
     window.clearSearchHighlight = clearSearchHighlight;
 
     try {
-      const saved = JSON.parse(sessionStorage.getItem('swa-bash-search') || 'null');
+      const saved = JSON.parse(sessionStorage.getItem(key('search')) || 'null');
       if (saved && saved.active && saved.q) {
         const hashAnchor = location.hash ? decodeURIComponent(location.hash.slice(1)) : '';
         const savedAnchor = (saved.url && saved.url.includes('#')) ? saved.url.split('#')[1] : '';

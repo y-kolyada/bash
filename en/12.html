@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-site="bash">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,7 +22,7 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Examples · IGL","description":"Six decisions for the “I decide whether a script should exist at all” level.","url":"https://y-kolyada.github.io/bash/en/12.html","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
 <!-- /meta -->
-<link rel="stylesheet" href="../assets/style.css?v=13">
+<link rel="stylesheet" href="../assets/style.css?v=14">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -83,7 +83,8 @@
       <li><a href="15.html"><span class="num">15</span>Questions · IGL</a></li>
     </ol>
     <div class="nav-extra">
-      <a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Glossary</a>
+      <div><a href="navigator.html"><svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> Navigator</a></div>
+      <div><a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Glossary</a></div>
     </div>
     <div class="page-toc" id="pageToc" aria-label="Sections on this page" hidden>
       <ul class="toc-list" id="tocList"></ul>
@@ -92,7 +93,7 @@
 
   <main id="main">
     <h1>Examples · IGL</h1>
-    <p class="page-size" data-words="1307">Words: 1307</p>
+    <p class="page-size" data-words="1355">Words: 1355</p>
     <p class="lead">Six decisions for the “I decide whether a script should exist at all” level. Here code illustrates the decision rather than the reverse: the task of this level is forecasting the total cost of ownership one year out.</p>
 
     <div class="box key" id="key-idea">
@@ -109,7 +110,7 @@
 # - record actions taken
 
 # this describes Terraform,
-# not a shell script</code></pre>    <div class="prints"><strong>Why this matters:</strong> The four requirements above define a state management tool. Any shell script implementing them will inevitably accumulate custom state storage, bespoke diff algorithms, and distinct failure modes. <strong>The IGL decision here is not writing a cleaner script, but calling the task by its true name</strong> and delegating it to an established tool where reconciliation logic is already hardened. The costliest script is the one that successfully solves the wrong problem.</div>
+# not a shell script</code></pre>        <div class="prints"><strong>Why so:</strong> State convergence, declarative idempotence, and resource diffing live beyond the proper boundaries of Bash. If you attempt to solve them in shell scripts, you will inevitably invent your own state files, custom object diffing, and buggy partial failure handling. The mature engineering decision is to step back from shell scripting and adopt purpose-built tools like Ansible or Terraform where this orchestration is fully solved. Remember: the most expensive script you can write is one that successfully solves the wrong problem.</div>
     <div class="prints"><strong>Decision cost:</strong> Declining costs a single conversation and perhaps a week evaluating a dedicated tool. Agreeing commits to indefinite maintenance of an in-house state management engine - with costs scaling directly with managed resource count.</div>
 
     <h2 id="tool-contract">2 · Tool contract: scripts for machines <a class="anchor-link" href="#tool-contract">#</a></h2>
@@ -123,7 +124,7 @@
 # 3-63     - custom codes, documented in --help
 # 126, 127, 128+N - reserved by shell
 # --json   - machine-readable output
-# --dry-run - non-destructive execution</code></pre>    <div class="prints"><strong>Why this matters:</strong> For a machine-facing tool, interface contracts supersede internal implementation: implementations can be refactored freely, but breaking an established contract breaks dependent automation. <strong>Exit codes must distinguish “not found” from “crashed”</strong>: callers can handle the former cleanly, while the latter must halt pipelines. Providing a dedicated <code>--json</code> flag allows iterating on human-readable text without disrupting parsers; without it, any formatting polish is a breaking API change. For standardized exit code conventions, reference <code>sysexits.h</code>: 64 for command line syntax errors, 70 for internal software bugs, 75 for transient failures suitable for retries. <strong>Never assign custom meanings to 126, 127, or 128+N:</strong> these are emitted by the shell itself, and callers will be unable to distinguish your error code from “permission denied”, “command not found”, or “terminated by signal”.</div>
+# --dry-run - non-destructive execution</code></pre>        <div class="prints"><strong>Why so:</strong> When you build command-line tools for other software to consume, contract stability matters far more than implementation details: you can always refactor internal code, but external programs depend strictly on your interface. Differentiate between routine negative outcomes ("resource not found") and fatal crashes: callers should handle the former gracefully while the latter must stop pipelines. Support an explicit <code>--json</code> flag so you can refine human-readable terminal output without breaking automated machine parsers. When selecting exit codes, align with <code>sysexits.h</code> (64 for invalid usage, 70 for internal software failure, 75 for temporary outages). <strong>Never occupy codes 126, 127, or 128+N:</strong> the shell reserves these, and callers will be unable to distinguish your tool failure from "command not executable", "command not found", or fatal OS signal crashes.</div>
     <div class="prints"><strong>Decision cost:</strong> Formalizing the contract costs thirty minutes and a dozen lines in <code>--help</code>. Omitting it turns every future output edit into an outage for callers you may not even know exist.</div>
 
     <h2 id="retry-safety">3 · Idempotence and retry resilience in distributed environments <a class="anchor-link" href="#retry-safety">#</a></h2>
@@ -137,7 +138,7 @@ key="run-$(date +%F)-$id"
 grep -q "^$key" done.log || {
   work "$id"
   echo "$key" &gt;&gt; done.log
-}</code></pre>    <div class="prints"><strong>Why this matters:</strong> In distributed environments, <strong>retries are expected operational reality, not edge cases</strong>: network timeouts, node rescheduling, and duplicate webhook events occur constantly. Resilience means ensuring duplicate invocations do not corrupt state. The architectural decision is <strong>introducing an idempotency key</strong> and conditioning mutations upon it. Note the architectural boundary: <code>grep</code> followed by <code>echo</code> is not atomic; true concurrency requires filesystem locking or external transactional storage - signaling that the task has outgrown plain shell scripts.</div>
+}</code></pre>        <div class="prints"><strong>Why so:</strong> In distributed architectures, re-running your automation is a normal operational reality: network timeouts, container evictions, and duplicate queue deliveries happen constantly. Design idempotence so repeated executions converge on desired state without side effects. Assign a unique operation identifier and execute state mutations only when that key has not been processed. Pay close attention to concurrency limits: testing with <code>grep</code> followed by <code>echo</code> is not atomic; if your system experiences parallel access, introduce file locking or an external datastore - a clear signal that your problem has outgrown shell scripting.</div>
     <div class="prints"><strong>Decision cost:</strong> An idempotency key and completion log require ten lines. Without them, scheduler retries produce duplicate billings, duplicate notification blasts, or destructive repeated deletions.</div>
 
     <h2 id="observability">4 · Observability: what scripts must emit <a class="anchor-link" href="#observability">#</a></h2>
@@ -150,7 +151,7 @@ report() {
   printf 'result=%s rc=%s sec=%s items=%s\n' \
     "$([ "$rc" = 0 ] &amp;&amp; echo ok || echo fail)" \
     "$rc" "$t" "$count" &gt;&amp;2
-}</code></pre>    <div class="prints"><strong>Why this matters:</strong> An uninstrumented script is only noticeable when it crashes outright - and only if someone is watching. <strong>A minimum telemetry payload of four metrics - outcome, exit code, elapsed duration, and processed volume - turns it into an observable component:</strong> metrics can be trended, revealing performance degradation long before catastrophic outage. Structured key=value lines parse natively across log aggregators without complex regular expressions. Emitting telemetry from an <code>EXIT</code> trap guarantees reports even during unhandled script crashes.</div>
+}</code></pre>        <div class="prints"><strong>Why so:</strong> Without telemetry, you will only detect that your script has degraded when it catastrophically crashes in production. <strong>Emit at least four core metrics - outcome status, exit code, execution duration, and items processed:</strong> with these, you can graph trends and catch resource starvation before it becomes an outage. Simple key-value log formats are easily ingested by metrics collectors without complex regexes. And emitting metrics via an <code>EXIT</code> trap guarantees your observability pipeline receives telemetry even when your script terminates abnormally.</div>
     <div class="prints"><strong>Decision cost:</strong> One structured line emitted per execution. Without it, performance degradation remains hidden until complete failure occurs - usually discovered by customers first.</div>
 
     <h2 id="blast-radius">5 · Blast radius: bounding worst-case failure modes <a class="anchor-link" href="#blast-radius">#</a></h2>
@@ -165,7 +166,7 @@ esac
 if (( ${#list[@]} &gt; 20 )); then
   echo "too many items" &gt;&amp;2
   exit 2
-fi</code></pre>    <div class="prints"><strong>Why this matters:</strong> Two safety guards outweigh any amount of careful coding. <strong>Scope whitelisting</strong> prevents mutations outside designated filesystem trees - even under empty variables or regex evaluation bugs. <strong>Per-run batch limits</strong> downgrade potential catastrophes into routine operational tickets: a script that resolves three thousand purge candidates instead of five aborts immediately and demands human review. This is designing for the worst-case scenario rather than the happy path.</div>
+fi</code></pre>        <div class="prints"><strong>Why so:</strong> Constrain blast radius in your automation with two defensive boundaries. <strong>A strict path whitelist</strong> prevents accidental deletions outside targeted directories, even if your environment variable expands empty or a search filter misbehaves. <strong>A hard batch limit on modified resources per run</strong> turns catastrophic outages into contained incidents: a script that resolves a thousand resources for deletion instead of five should halt immediately and alert you. Design your shell scripts against the absolute worst-case failure rather than the happy path.</div>
     <div class="prints"><strong>Decision cost:</strong> Two validation checks at script initialization. Without them, a single filtering typo risks destroying everything within the script's ambient IAM permissions.</div>
 
     <h2 id="decommission">6 · Decommissioning scripts gracefully <a class="anchor-link" href="#decommission">#</a></h2>
@@ -174,7 +175,7 @@ fi</code></pre>    <div class="prints"><strong>Why this matters:</strong> Two sa
 echo "DEPRECATED: use 'app deploy'" &gt;&amp;2
 echo "this script will be decommissioned 2026-12-01" &gt;&amp;2
 
-exec app deploy "$@"   # proxying for now</code></pre>    <div class="prints"><strong>Why this matters:</strong> You cannot delete a shared script overnight: dependent CI jobs, external cron schedules, and muscle memory remain active across teams. <strong>A proxying deprecation phase with a definitive sunset date</strong> affords calling teams time to migrate while surfacing remaining consumers in audit logs. Specific sunset dates are essential: open-ended “deprecated” warnings are ignored indefinitely. This operational discipline is what elevates software engineering above raw scripting.</div>
+exec app deploy "$@"   # proxying for now</code></pre>        <div class="prints"><strong>Why so:</strong> You can never deprecate a production script overnight: team pipelines, cross-department cron jobs, and ingrained engineer habits depend on it. <strong>Implement a proxying deprecation phase with an explicit sunset date:</strong> this affords your consumers runway to migrate and leaves audit trails in logs so you can trace remaining traffic. Always specify a deadline in deprecation warnings: open-ended obsolescence notices are ignored for years. Thorough retirement workflows distinguish mature engineering from quick hacks.</div>
     <div class="prints"><strong>Decision cost:</strong> A month of proxying and reviewing invocation logs. Skipping this step guarantees breaking uncataloged dependencies on the day of removal.</div>
 
     <h2 id="artifacts">Artifacts: what you take away from this page <a class="anchor-link" href="#artifacts">#</a></h2>
@@ -190,19 +191,21 @@ exec app deploy "$@"   # proxying for now</code></pre>    <div class="prints"><s
       <li><strong>Scope whitelists and batch caps:</strong> bounding failure blast radius.</li>
       <li><strong>Dated proxying phases</strong> when deprecating and retiring scripts.</li>
     </ol>
+  
 
     <footer>
       <nav class="pager" aria-label="Neighbouring topics">
         <p class="pager-next">Next topic: <a href="13.html">Questions · Noob</a></p>
         <p class="pager-prev">Previous topic: <a href="11.html">Examples · Pro</a></p>
       </nav>
+      <p class="footer-note">An AI Factory series site. Built with the same harness: plain HTML and CSS, checked with bash, published via GitHub Pages.</p>
     </footer>
   </main>
 
 </div>
 </div>
-<script src="../assets/swa.js?v=13"></script>
-<script src="../assets/terms.js?v=13"></script>
-<script src="../assets/cp.js?v=13"></script>
+<script src="../assets/swa.js?v=14"></script>
+<script src="../assets/terms.js?v=14"></script>
+<script src="../assets/cp.js?v=14"></script>
 </body>
 </html>

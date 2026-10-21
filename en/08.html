@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-site="bash">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,7 +22,7 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"DevOps practices","description":"Bash in delivery pipelines: builds, environments, deployments and rollbacks, pre-merge checks, and secret handling.","url":"https://y-kolyada.github.io/bash/en/08.html","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
 <!-- /meta -->
-<link rel="stylesheet" href="../assets/style.css?v=13">
+<link rel="stylesheet" href="../assets/style.css?v=14">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -83,7 +83,8 @@
       <li><a href="15.html"><span class="num">15</span>Questions · IGL</a></li>
     </ol>
     <div class="nav-extra">
-      <a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Glossary</a>
+      <div><a href="navigator.html"><svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> Navigator</a></div>
+      <div><a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Glossary</a></div>
     </div>
     <div class="page-toc" id="pageToc" aria-label="Sections on this page" hidden>
       <ul class="toc-list" id="tocList"></ul>
@@ -92,7 +93,7 @@
 
   <main id="main">
     <h1>DevOps practices</h1>
-    <p class="page-size" data-words="1249">Words: 1249</p>
+    <p class="page-size" data-words="1275">Words: 1275</p>
     <p class="lead">Bash in delivery pipelines: builds, environments, deployments and rollbacks, pre-merge checks, and secret handling. Plus the warning signs that a pipeline has outgrown shell scripts.</p>
 
     <div class="box key" id="key-idea">
@@ -112,7 +113,7 @@ echo "VER=$v" &gt;&gt; "$GITHUB_ENV"
 
 # 3. working directory is reset
 cd "$GITHUB_WORKSPACE"</code></pre>
-        <p><strong>Every CI pipeline step must be self-contained:</strong> it never relies on <code>export</code> from prior steps, never assumes a default directory, and declares its own strict mode explicitly. Extract complex logic into a dedicated <code>.sh</code> script in the repository: it can be executed locally, validated with <code>shellcheck</code>, and clearly reviewed in diffs - unlike dozens of lines embedded inside YAML.</p>
+            <p><strong>Design every CI pipeline step to be self-contained:</strong> never rely on <code>export</code> from adjacent steps, declare strict mode explicitly, and verify your working directory. Extract complex logic into a dedicated <code>.sh</code> file in your repository: you can execute it locally on your machine, validate it with <code>shellcheck</code>, and review it cleanly in diffs - unlike dozens of lines embedded inside YAML.</p>
     <div class="prints"><strong>What gets asked:</strong> “Why is a variable set in one CI step invisible in the next, and how do you pass data between steps?”</div>
 
     <h2 id="build">2 · Building artifacts: reproducibility over speed <a class="anchor-link" href="#build">#</a></h2>
@@ -126,7 +127,7 @@ docker build \
 
 # artifact is named by version,
 # never latest</code></pre>
-        <p>Reproducibility of build artifacts rests on three fundamental rules. <strong>Version strings must come directly from Git</strong> rather than manual variables that can be forgotten. <strong>The <code>latest</code> tag is not a version:</strong> rolling back to it reliably is impossible. <strong>The <code>--dirty</code> suffix</strong> immediately warns of an uncommitted working tree whose build artifact cannot be reproduced from Git history.</p>
+            <p>Follow three rules for reproducible artifact builds. <strong>Always compute version strings directly from Git</strong> rather than manual variables that you might forget to bump. Remember that <strong>the <code>latest</code> tag is not a version:</strong> rolling back to it reliably is impossible for you and your team. And <strong>the <code>--dirty</code> suffix</strong> immediately warns you that a build was produced from an uncommitted working tree and cannot be reproduced from Git history.</p>
     <div class="prints"><strong>What gets asked:</strong> “Where should artifact versions originate, and why is deploying <code>latest</code> prohibited?”</div>
 
     <h2 id="environments">3 · Environments Dev → QA → Prod: one script, distinct parameters <a class="anchor-link" href="#environments">#</a></h2>
@@ -162,7 +163,7 @@ systemctl reload app
     shellcheck **/*.sh
 - run: shfmt -d -i 2 .
 - run: bats tests/</code></pre>
-        <p>Run the script quality verification suite locally via <code>pre-commit</code> hooks so defect-laden code never reaches CI. <strong>Local developer checks and CI gate steps must execute the exact same command</strong> - otherwise teams suffer from “works on my machine, fails in CI” syndrome, destroying trust in the automated checks.</p>
+            <p>Run script quality checks locally via <code>pre-commit</code> hooks so you never waste time on avoidable failures in CI. Ensure your local machine and your CI pipeline execute <strong>the exact same command</strong>: otherwise you will inevitably hit “works on my machine, fails in CI” syndrome, and your team will lose trust in the automated test suite.</p>
     <div class="prints"><strong>What gets asked:</strong> “Which shell code checks do you include in CI pipelines, and why must they match local hooks?”</div>
 
     <h2 id="secrets">6 · Secrets and CI logs <a class="anchor-link" href="#secrets">#</a></h2>
@@ -175,7 +176,7 @@ curl -u "u:$PASS" …  # visible in ps
 # yes:
 curl --netrc-file "$f" …
 printf '%s' "$TOKEN" | cmd --token-stdin</code></pre>
-        <p>Handling secrets securely in scripts and CI pipelines rests on three rules. <strong>Never pass secrets as command-line arguments</strong> - process arguments are visible in <code>ps</code> to any local user; transmit them via stdin, files, or environment variables. <strong>Shell execution tracing via <code>set -x</code> is strictly forbidden in steps handling secrets.</strong> <strong>CI log masking provides no absolute guarantee:</strong> it matches exact strings only, so multi-line or re-encoded secrets will leak into build logs unmasked.</p>
+            <p>Protect secrets in scripts and CI pipelines with three unbreakable rules. <strong>Never pass tokens as command-line arguments:</strong> process arguments are visible to any user on your system in <code>ps</code>; transmit them via stdin, credentials files, or environment variables. <strong>Shell execution tracing via <code>set -x</code> is strictly forbidden in steps handling secrets.</strong> And remember that CI log masking matches exact strings only: any token split across lines or re-encoded will leak into build logs before your eyes.</p>
     <div class="prints"><strong>What gets asked:</strong> “Why must passwords never be passed as command-line arguments, and what are the limits of CI secret masking?”</div>
 
     <h2 id="beyond-scripts">7 · When a pipeline outgrows shell scripts <a class="anchor-link" href="#beyond-scripts">#</a></h2>
@@ -206,19 +207,21 @@ printf '%s' "$TOKEN" | cmd --token-stdin</code></pre>
       <li><strong>Secret security rules:</strong> never in arguments, no execution tracing, masking is not infallible.</li>
       <li><strong>Indicators that a pipeline has outgrown shell</strong>, and the appropriate remedy for each.</li>
     </ol>
+  
 
     <footer>
       <nav class="pager" aria-label="Neighbouring topics">
         <p class="pager-next">Next topic: <a href="09.html">Practices SRE</a></p>
         <p class="pager-prev">Previous topic: <a href="07.html">Practices in the cloud</a></p>
       </nav>
+      <p class="footer-note">An AI Factory series site. Built with the same harness: plain HTML and CSS, checked with bash, published via GitHub Pages.</p>
     </footer>
   </main>
 
 </div>
 </div>
-<script src="../assets/swa.js?v=13"></script>
-<script src="../assets/terms.js?v=13"></script>
-<script src="../assets/cp.js?v=13"></script>
+<script src="../assets/swa.js?v=14"></script>
+<script src="../assets/terms.js?v=14"></script>
+<script src="../assets/cp.js?v=14"></script>
 </body>
 </html>

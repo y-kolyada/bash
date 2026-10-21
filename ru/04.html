@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-site="bash">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,7 +22,7 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Слабости и границы","description":"Честный список того, что в Bash устроено плохо, и признаки, по которым видно: задача уже не его.","url":"https://y-kolyada.github.io/bash/ru/04.html","inLanguage":"ru","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
 <!-- /meta -->
-<link rel="stylesheet" href="../assets/style.css?v=13">
+<link rel="stylesheet" href="../assets/style.css?v=14">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -83,7 +83,8 @@
       <li><a href="15.html"><span class="num">15</span>Вопросы · IGL</a></li>
     </ol>
     <div class="nav-extra">
-      <a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словарь понятий</a>
+      <div><a href="navigator.html"><svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> Навигатор</a></div>
+      <div><a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словарь понятий</a></div>
     </div>
     <div class="page-toc" id="pageToc" aria-label="Разделы этой страницы" hidden>
       <ul class="toc-list" id="tocList"></ul>
@@ -92,7 +93,7 @@
 
   <main id="main">
     <h1>Слабости и границы</h1>
-    <p class="page-size" data-words="1118">Слов: 1118</p>
+    <p class="page-size" data-words="1114">Слов: 1114</p>
     <p class="lead">Честный список того, что в Bash устроено плохо, и признаки, по которым видно: задача уже не его. Без этого раздела предыдущий был бы рекламой.</p>
 
     <div class="box key" id="key-idea">
@@ -177,7 +178,7 @@ printf '%s\0' *.log \
 
 # условие, действие и обработка
 # ошибки - в одной строке</code></pre>
-        <p>При росте скрипта свыше трёхсот строк сказываются фундаментальные ограничения Bash: отсутствие модулей и пространств имён, глобальные по умолчанию переменные и опечатки в именах, которые без <code>set -u</code> остаются незамеченными. <strong>Практический порог - около трёхсот строк:</strong> дальше код начинает требовать от читателя тех же неочевидных знаний контекста, что и от автора, а это ровно то, чего избегает поддерживаемый проект.</p>
+            <p>Когда ваш скрипт вырастает свыше трёхсот строк, дают о себе знать фундаментальные ограничения Bash: отсутствие модулей, глобальные переменные и опечатки, которые без <code>set -u</code> вы не заметите. <strong>Практический порог - около трёхсот строк:</strong> дальше ваш код начинает требовать от читателя тех же неочевидных знаний контекста, что и от вас, а это противоположность поддерживаемой инженерии.</p>
     <div class="prints"><strong>Что спрашивают:</strong> «Где граница, после которой скрипт пора переписывать на другом языке?»</div>
 
     <h2 id="portability">6 · Переносимость: два разных мира <a class="anchor-link" href="#portability">#</a></h2>
@@ -238,19 +239,21 @@ date -d @0       # GNU; BSD: -r 0</code></pre>
       <li><strong>Две причины непереносимости:</strong> другая оболочка и другие утилиты.</li>
       <li><strong>Список признаков ухода</strong> и куда уходить: Python, Go, Make, Ansible.</li>
     </ol>
+  
 
     <footer>
       <nav class="pager" aria-label="Соседние темы">
         <p class="pager-next">Следующая тема: <a href="05.html">Взаимосвязи</a></p>
         <p class="pager-prev">Предыдущая тема: <a href="03.html">Сила Bash</a></p>
       </nav>
+      <p class="footer-note">Сайт серии AI Factory. Сделан той же оснасткой, что и остальные: обычный HTML и CSS, проверка на bash, публикация через GitHub Pages.</p>
     </footer>
   </main>
 
 </div>
 </div>
-<script src="../assets/swa.js?v=13"></script>
-<script src="../assets/terms.js?v=13"></script>
-<script src="../assets/cp.js?v=13"></script>
+<script src="../assets/swa.js?v=14"></script>
+<script src="../assets/terms.js?v=14"></script>
+<script src="../assets/cp.js?v=14"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-site="bash">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,7 +22,7 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/","inLanguage":"ru","description":"Справочник-ассессмент по Bash для инженера, который готовится к сертификации, техническому интервью или просто хочет перестать гадать."}</script>
 <!-- /meta -->
-<link rel="stylesheet" href="../assets/style.css?v=13">
+<link rel="stylesheet" href="../assets/style.css?v=14">
 <script>
   (function() {
     var t = localStorage.getItem('swa-bash-theme');
@@ -83,7 +83,8 @@
       <li><a href="15.html"><span class="num">15</span>Вопросы · IGL</a></li>
     </ol>
     <div class="nav-extra">
-      <a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словарь понятий</a>
+      <div><a href="navigator.html"><svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> Навигатор</a></div>
+      <div><a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словарь понятий</a></div>
     </div>
     <div class="page-toc" id="pageToc" aria-label="Разделы этой страницы" hidden>
       <ul class="toc-list" id="tocList"></ul>
@@ -92,7 +93,7 @@
 
   <main id="main">
     <h1>Bash: то, что спросят на ассессменте, и то, что понадобится в проде</h1>
-    <p class="page-size" data-words="1128">Слов: 1128</p>
+    <p class="page-size" data-words="1185">Слов: 1185</p>
     <p class="lead">Справочник-ассессмент по Bash для инженера, который готовится к сертификации,
     техническому интервью или просто хочет перестать гадать. Шесть разделов, три уровня зрелости,
     150 вопросов с ответами.</p>
@@ -172,6 +173,14 @@
       фразами - почему это спрашивают.</li>
     </ol>
 
+    <h3>Сквозные инструменты инженера (навигатор и словарь)</h3>
+    <ul>
+      <li><strong><a href="navigator.html">Навигатор инженера</a></strong><br>
+      Сквозная аналитическая матрица по девяти каноническим инженерным линзам: Компоненты, Код и скрипты, Сила и преимущества, Слабости и границы, Связи в экосистеме, В контексте AI, В контексте Cloud, Практики DevOps и Практики SRE, объединяющая содержание всех пятнадцати глав курса в целостную карту инженерной зрелости.</li>
+      <li><strong><a href="glossary.html">Словарь понятий</a></strong><br>
+      Двадцать два ключевых термина с моментальными карточками определений и ссылками: от словоделения, конвейеров, сигналов и trap до strict mode, идемпотентности, блокировок flock и радиуса поражения.</li>
+    </ul>
+
     <p><strong>Седьмая цель - предельная лаконичность</strong> - не раздел, а правило изложения,
     действующее на всех страницах: абзац, который не меняет ваше решение, удаляется.</p>
 
@@ -209,8 +218,8 @@
       разделе.</li>
       <li><strong>Размер шрифта и тема</strong> - «А А А» и день / ночь, на всю страницу.</li>
       <li><strong>Копирование кода</strong> - кнопка в каждом блоке.</li>
-      <li><strong>Навигатор и быстрая прокрутка</strong> - подсвечен раздел, который вы
-      читаете; на длинных страницах кнопки в начало и в конец.</li>
+      <li><strong>Навигатор инженера и словарь</strong> - сквозная матрица из 9 инженерных линз
+      со связанными главами и алфавитный глоссарий терминов с карточками.</li>
       <li><strong>Примеры проверены запуском</strong> - код со страниц «Примеры» исполняется
       перед публикацией.</li>
     </ul>
@@ -238,20 +247,20 @@
       <li><strong>Привычка проверять запуском:</strong> любое утверждение о Bash проверяется
       в терминале за секунды - и этот сайт проверяет свои примеры так же.</li>
     </ol>
+  
 
     <footer>
       <nav class="pager" aria-label="Соседние темы">
         <p class="pager-next">Следующая тема: <a href="01.html">Ключевые компоненты Bash</a></p>
       </nav>
-      Сайт серии AI Factory. Сделан той же оснасткой, что и остальные: обычный HTML и CSS,
-      проверка на bash, публикация через GitHub Pages.
+      <p class="footer-note">Сайт серии AI Factory. Сделан той же оснасткой, что и остальные: обычный HTML и CSS, проверка на bash, публикация через GitHub Pages.</p>
     </footer>
   </main>
 
 </div>
 </div>
-<script src="../assets/swa.js?v=13"></script>
-<script src="../assets/terms.js?v=13"></script>
-<script src="../assets/cp.js?v=13"></script>
+<script src="../assets/swa.js?v=14"></script>
+<script src="../assets/terms.js?v=14"></script>
+<script src="../assets/cp.js?v=14"></script>
 </body>
 </html>
