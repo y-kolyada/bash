@@ -185,4 +185,4 @@ c5f422c chore(engine): sync from seed/swa and adopt site.conf
 
 | Кто | Вердикт |
 | :-- | :-- |
-| Архитектор (`ik`) | |
+| Архитектор (`ik`) | Принято (шаг 34 принят) |
