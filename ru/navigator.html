@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ru" data-site="bash">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Навигатор инженера · devops-bash · ai|</title>
+<!-- meta: built by tools/build-meta.py - do not edit by hand -->
+<meta name="description" content="Сквозная матрица инженерных линз: компоненты, код, сила, слабости, экосистема, AI, облака, DevOps и SRE.">
+<link rel="canonical" href="https://y-kolyada.github.io/bash/ru/navigator.html">
+<link rel="alternate" hreflang="ru" href="https://y-kolyada.github.io/bash/ru/navigator.html">
+<link rel="alternate" hreflang="en" href="https://y-kolyada.github.io/bash/en/navigator.html">
+<link rel="alternate" hreflang="uk" href="https://y-kolyada.github.io/bash/uk/navigator.html">
+<link rel="alternate" hreflang="de" href="https://y-kolyada.github.io/bash/de/navigator.html">
+<link rel="alternate" hreflang="x-default" href="https://y-kolyada.github.io/bash/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="devops-bash">
+<meta property="og:title" content="Навигатор инженера">
+<meta property="og:description" content="Сквозная матрица инженерных линз: компоненты, код, сила, слабости, экосистема, AI, облака, DevOps и SRE.">
+<meta property="og:url" content="https://y-kolyada.github.io/bash/ru/navigator.html">
+<meta property="og:locale" content="ru_RU">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Навигатор инженера","description":"Сквозная матрица инженерных линз: компоненты, код, сила, слабости, экосистема, AI, облака, DevOps и SRE.","url":"https://y-kolyada.github.io/bash/ru/navigator.html","inLanguage":"ru","isPartOf":{"@type":"WebSite","name":"devops-bash","url":"https://y-kolyada.github.io/bash/"}}</script>
+<!-- /meta -->
+<link rel="stylesheet" href="../assets/style.css?v=13">
+<script>
+  (function() {
+    var s = document.documentElement.dataset.site || 'swa';
+    var t = localStorage.getItem('swa-' + s + '-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+    var f = localStorage.getItem('swa-' + s + '-font');
+    if (f) document.documentElement.setAttribute('data-font', f);
+  })();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">К содержанию</a>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand-group">
+    <a class="home" href="index.html">
+      <span class="badge-ai">ai|</span>
+      <span class="sub-brand">devops-bash</span>
+    </a>
+    <div class="three" aria-hidden="true">компоненты · <span class="topic">Bash</span> · практика · 150 вопросов</div>
+  </div>
+  <div class="utility-tray" role="toolbar" aria-label="Настройки отображения и язык">
+    <nav class="lang-switcher" aria-label="Язык страницы">
+      <a href="../en/navigator.html" lang="en" hreflang="en" aria-label="English">EN</a>
+      <a href="navigator.html" lang="ru" hreflang="ru" aria-label="Русский" class="active" aria-current="page">RU</a>
+      <a href="../uk/navigator.html" lang="uk" hreflang="uk" aria-label="Українська">UK</a>
+      <a href="../de/navigator.html" lang="de" hreflang="de" aria-label="Deutsch">DE</a>
+    </nav>
+    <div class="font-scaler" role="group" aria-label="Размер шрифта">
+      <button type="button" class="font-btn font-s" data-size="s" title="Мелкий шрифт" aria-label="Мелкий шрифт">A</button>
+      <button type="button" class="font-btn font-m active" data-size="m" title="Стандартный шрифт" aria-label="Стандартный шрифт">A</button>
+      <button type="button" class="font-btn font-l" data-size="l" title="Крупный шрифт" aria-label="Крупный шрифт">A</button>
+    </div>
+    <button type="button" class="theme-toggle" id="themeToggle" title="Сменить тему (День/Ночь)" aria-label="Сменить тему день/ночь">
+      <span class="theme-icon" aria-hidden="true"><svg class="icon" data-icon="sun" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="3.8"/><path d="M10 1.2v2.2M10 16.6v2.2M1.2 10h2.2M16.6 10h2.2M3.7 3.7l1.6 1.6M14.7 14.7l1.6 1.6M16.3 3.7l-1.6 1.6M5.3 14.7l-1.6 1.6"/></svg></span>
+    </button>
+  </div>
+</header>
+
+<div class="cols">
+
+  <nav class="contents" aria-label="Разделы сайта">
+    <ol>
+      <li><a href="01.html"><span class="num">1</span>Ключевые компоненты</a></li>
+      <li><a href="02.html"><span class="num">2</span>Написание скриптов</a></li>
+      <li><a href="03.html"><span class="num">3</span>Сила Bash</a></li>
+      <li><a href="04.html"><span class="num">4</span>Слабости и границы</a></li>
+      <li><a href="05.html"><span class="num">5</span>Взаимосвязи</a></li>
+      <li><a href="06.html"><span class="num">6</span>В контексте AI</a></li>
+      <li><a href="07.html"><span class="num">7</span>В контексте Cloud</a></li>
+      <li><a href="08.html"><span class="num">8</span>Практики DevOps</a></li>
+      <li><a href="09.html"><span class="num">9</span>Практики SRE</a></li>
+      <li><a href="10.html"><span class="num">10</span>Примеры · Noob</a></li>
+      <li><a href="11.html"><span class="num">11</span>Примеры · Pro</a></li>
+      <li><a href="12.html"><span class="num">12</span>Примеры · IGL</a></li>
+      <li><a href="13.html"><span class="num">13</span>Вопросы · Noob</a></li>
+      <li><a href="14.html"><span class="num">14</span>Вопросы · Pro</a></li>
+      <li><a href="15.html"><span class="num">15</span>Вопросы · IGL</a></li>
+    </ol>
+    <div class="nav-extra">
+      <div><a href="navigator.html" aria-current="page"><svg class="icon" data-icon="target" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.4"/><circle cx="10" cy="10" r="3.6"/><circle cx="10" cy="10" r="0.7" fill="currentColor"/></svg> Навигатор</a></div>
+      <div><a href="glossary.html"><svg class="icon" data-icon="book" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.8h4.8a2.6 2.6 0 0 1 2.6 2.6v10a2.2 2.2 0 0 0-2.2-1.8H2.6z"/><path d="M17.4 3.8h-4.8a2.6 2.6 0 0 0-2.6 2.6v10a2.2 2.2 0 0 1 2.2-1.8h5.2z"/></svg> Словарь понятий</a></div>
+    </div>
+    <div class="page-toc" id="pageToc" aria-label="Разделы этой страницы" hidden>
+      <ul class="toc-list" id="tocList"></ul>
+    </div>
+  </nav>
+
+  <main id="main">
+    <h1>Навигатор инженера</h1>
+    <p class="page-size" data-words="1276">Слов: 1276</p>
+    <p class="lead">Сквозная матрица инженерных линз: компоненты, код, сила, слабости, экосистема, AI, облака, DevOps и SRE.</p>
+
+    <div class="box key" id="key-idea">
+      <h2>Главная мысль навигатора <a class="anchor-link" href="#key-idea" aria-label="ссылка на этот блок">#</a></h2>
+      <p>Навигатор инженера систематизирует фундаментальные знания о командной оболочке через девять профессиональных инженерных линз. Каждая линза рассматривает Bash под отдельным аналитическим углом: от низкоуровневой механики синтаксического анализа и файловых дескрипторов до архитектурных компромиссов, надежных облачных сценариев, работы с ИИ-агентами и боевого выживания инфраструктуры при авариях.</p>
+    </div>
+
+    <h2 id="lens-components">1 · Компоненты (Components) <a class="anchor-link" href="#lens-components">#</a></h2>
+    <p>Архитектура Bash строится на строгой последовательности этапов синтаксического разбора командной строки: лексическое разбиение на токены, раскрытие фигурных скобок, раскрытие тильды, подстановка параметров и переменных, подстановка команд и арифметики, словоделение по разделителям <code>IFS</code>, раскрытие шаблонов путей (globbing) и финальное удаление экранирующих кавычек. Понимание этой цепочки защищает инженера от фатальных ошибок с пробелами в путях и непредсказуемой подстановки аргументов.</p>
+    <p>На уровне операционной системы Bash является диспетчером процессов и потоков ввода-вывода. Файловые дескрипторы стандартных потоков (0 для stdin, 1 для stdout, 2 для stderr) связываются через системные вызовы <code>pipe</code> и <code>dup2</code> в непрерывные конвейеры данных, где звенья исполняются параллельно в изолированных субшеллах. Управление жизненным циклом дочерних процессов опирается на генерацию и перехват сигналов ядра (SIGINT, SIGTERM, SIGHUP, SIGPIPE), а также гарантированную зачистку разделяемых ресурсов через псевдосигнал <code>EXIT</code> в обработчике <code>trap</code>.</p>
+    <p><strong>Связанные главы курса:</strong> <a href="01.html">01 · Ключевые компоненты</a>, <a href="10.html">10 · Примеры Noob</a>, <a href="13.html">13 · Вопросы Noob</a>, <a href="glossary.html#word-splitting">Словарь · Словоделение</a>, <a href="glossary.html#pipeline">Словарь · Конвейер</a>, <a href="glossary.html#subshell">Словарь · Сабшелл</a>, <a href="glossary.html#trap">Словарь · Ловушка trap</a>.</p>
+
+    <h2 id="lens-code">2 · Код и скрипты (Code / Scripts) <a class="anchor-link" href="#lens-code">#</a></h2>
+    <p>Надежный сценарий на Bash обязан быть декларативным, детерминированным и защищенным от скрытых отказов. Фундаментом каждого production-скрипта выступает канонический шебанг <code>#!/usr/bin/env bash</code>, гарантирующий запуск интерпретатора из окружения пользователя, и обязательный строгий режим <code>set -euo pipefail</code>, превращающий неинициализированные переменные и ошибки в промежуточных звеньях конвейера в немедленную остановку с ненулевым кодом возврата.</p>
+    <p>Дисциплина написания кода требует обязательного экранирования всех строковых подстановок двойными кавычками <code>"$var"</code>, явного объявления локальных переменных с модификатором <code>local</code> внутри функций, разделения логики на компактные функции с единой ответственностью и обеспечения идемпотентности каждой операции над файловой системой. Автоматическая статическая валидация через <code>shellcheck</code> встраивается в цикл разработки как непреложный стандарт проверки типичных ошибок цитирования и условий.</p>
+    <p><strong>Связанные главы курса:</strong> <a href="02.html">02 · Написание скриптов</a>, <a href="10.html">10 · Примеры Noob</a>, <a href="11.html">11 · Примеры Pro</a>, <a href="14.html">14 · Вопросы Pro</a>, <a href="glossary.html#shebang">Словарь · Shebang</a>, <a href="glossary.html#strict-mode">Словарь · Строгий режим</a>, <a href="glossary.html#idempotence">Словарь · Идемпотентность</a>.</p>
+
+    <h2 id="lens-strength">3 · Сила и преимущества (Strength) <a class="anchor-link" href="#lens-strength">#</a></h2>
+    <p>Главная сила Bash заключается в его повсеместном присутствии (ubiquity) и нулевой стоимости внедрения. Оболочка предустановлена практически в каждом дистрибутиве Linux, сервере, базовом образе контейнера и облачной виртуальной машине, обеспечивая мгновенный запуск скриптов без предварительной сборки, установки сред исполнения, компиляторов или сторонних пакетов.</p>
+    <p>В задачах склейки системных утилит (glue code), манипуляции потоками байтов и оркестрации нативных бинарных процессов Bash не имеет равных по лаконичности: запуск фоновой команды, перенаправление вывода в сокет или связывание нескольких фильтров через анонимный пайплайн выражаются буквально одним спецсимволом, не требуя создания сокетов и буферизации данных в памяти приложения.</p>
+    <p><strong>Связанные главы курса:</strong> <a href="03.html">03 · Сила Bash</a>, <a href="05.html">05 · Взаимосвязи</a>, <a href="10.html">10 · Примеры Noob</a>, <a href="13.html">13 · Вопросы Noob</a>, <a href="glossary.html#posix">Словарь · Стандарт POSIX</a>, <a href="glossary.html#stream-fd">Словарь · Потоки и дескрипторы</a>.</p>
+
+    <h2 id="lens-weaknesses">4 · Слабости и ограничения (Weaknesses and Limits) <a class="anchor-link" href="#lens-weaknesses">#</a></h2>
+    <p>Слабости Bash проистекают из его происхождения как интерактивной оболочки, а не языка общего назначения. В нем отсутствуют нативные типизированные структуры данных, многомерные массивы, поддержка чисел с плавающей точкой и полноценный механизм обработки исключений <code>try/catch</code>. Ошибки в подстановках маскируются, а перехват возврата команд в субшеллах часто приводит к проглатыванию аварийных статусов.</p>
+    <p>При росте кодовой базы свыше 200-300 строк читаемость и поддерживаемость скриптов лавинообразно деградируют. В таких масштабах возрастает вероятность трудноуловимых побочных эффектов с переменными окружения, гонок при параллельном доступе и падений производительности из-за накладных расходов на постоянный <code>fork/exec</code> подпроцессов. Инженерное лидерство заключается в своевременном переносе разросшейся логики на Python или Go.</p>
+    <p><strong>Связанные главы курса:</strong> <a href="04.html">04 · Слабости и границы</a>, <a href="12.html">12 · Примеры IGL</a>, <a href="15.html">15 · Вопросы IGL</a>, <a href="glossary.html#tool-contract">Словарь · Контракт инструмента</a>, <a href="glossary.html#blast-radius">Словарь · Радиус поражения</a>.</p>
+
+    <h2 id="lens-ecosystem">5 · Связи в экосистеме (Ecosystem Interconnections) <a class="anchor-link" href="#lens-ecosystem">#</a></h2>
+    <p>Bash выступает универсальным соединительным звеном всей современной инфраструктурной экосистемы. Он связывает воедино модули ядра Linux, системные юниты systemd, планировщик задач cron, скрипты сборки Makefile и автоматизацию Git-хуков (pre-commit, prepare-commit-msg).</p>
+    <p>В контейнерной среде Docker скрипты на Bash служат стандартным решением для <code>ENTRYPOINT</code>, выполняя подготовку конфигурационных файлов, проверку доступности баз данных и финальную передачу управления основному процессу через системный вызов <code>exec</code>, сохраняющий PID 1 для корректной маршрутизации сигналов остановки. В инструментах инфраструктуры как кода (Terraform, Ansible) Bash используется в провизионерах <code>local-exec</code> и <code>command</code> для закрытия задач, не покрытых нативными провайдерами.</p>
+    <p><strong>Связанные главы курса:</strong> <a href="05.html">05 · Взаимосвязи</a>, <a href="11.html">11 · Примеры Pro</a>, <a href="12.html">12 · Примеры IGL</a>, <a href="14.html">14 · Вопросы Pro</a>, <a href="glossary.html#environment-variable">Словарь · Переменные окружения</a>, <a href="glossary.html#atomicity">Словарь · Атомарность</a>.</p>
+
+    <h2 id="lens-ai">6 · В контексте AI (In AI Context) <a class="anchor-link" href="#lens-ai">#</a></h2>
+    <p>В эпоху генеративного искусственного интеллекта и автономных сред разработки (Claude Code, Gemini, Copilot) роль инженера трансформируется из автора синтаксиса в строгого валидатора и архитектора ограничений. Нейросети генерируют код Bash с высокой беглостью, однако регулярно допускают критические уязвимости: пропускают экранирование переменных, забывают <code>set -euo pipefail</code>, путают синтаксис <code>[</code> и <code>[[</code> и создают уязвимости внедрения команд.</p>
+    <p>Эффективное партнерство с ИИ требует построения автоматизированных контуров верификации: вывод языковой модели должен проходить обязательную проверку утилитой <code>shellcheck</code> непосредственно в цикле генерации агента до исполнения скрипта. Для автономных агентов определяются жесткие границы песочницы (sandbox), запуск команд через явные списки аргументов и превентивная проверка радиуса поражения операций удаления и модификации данных.</p>
+    <p><strong>Связанные главы курса:</strong> <a href="06.html">06 · В контексте AI</a>, <a href="11.html">11 · Примеры Pro</a>, <a href="12.html">12 · Примеры IGL</a>, <a href="14.html">14 · Вопросы Pro</a>, <a href="15.html">15 · Вопросы IGL</a>, <a href="glossary.html#dry-run">Словарь · Режим холостого хода</a>, <a href="glossary.html#blast-radius">Словарь · Радиус поражения</a>.</p>
+
+    <h2 id="lens-cloud">7 · В контексте облака (In Cloud Context) <a class="anchor-link" href="#lens-cloud">#</a></h2>
+    <p>В облачных платформах (AWS, Google Cloud, Azure) командная оболочка управляет сложными топологиями ресурсов через облачные CLI-утилиты, трактуемые как самостоятельные скриптовые API. Сценарии автоматизации в облаке строятся вокруг бесключевого доступа через роли инстансов (IAM Instance Profiles, Workload Identity), исключая хранение статических секретов в кодовой базе.</p>
+    <p>Облачные скрипты обязаны учитывать специфику распределенных сред: вероятностные сетевые сбои, троттлинг запросов по лимитам API, постраничную выдачу результатов (pagination через маркеры токенов) и асинхронный характер создания сущностей. Для обеспечения надежности применяются явные циклы ожидания готовности ресурсов (wait-loops с таймаутами), экспоненциальный откат с рандомизацией (backoff with jitter) и пакетная зачистка неиспользуемых ресурсов по метаданным меток (tags).</p>
+    <p><strong>Связанные главы курса:</strong> <a href="07.html">07 · В контексте Cloud</a>, <a href="10.html">10 · Примеры Noob</a>, <a href="11.html">11 · Примеры Pro</a>, <a href="14.html">14 · Вопросы Pro</a>, <a href="glossary.html#idempotence">Словарь · Идемпотентность</a>, <a href="glossary.html#exit-code">Словарь · Код возврата</a>.</p>
+
+    <h2 id="lens-devops">8 · Практики DevOps (DevOps Practices) <a class="anchor-link" href="#lens-devops">#</a></h2>
+    <p>В инженерной практике DevOps Bash служит основным клеем пайплайнов непрерывной интеграции и доставки (CI/CD: GitHub Actions, GitLab CI, Jenkins). Конвейер сборки использует скрипты для поэтапного управления жизненным циклом артефакта: валидация, запуск юнит-тестов, мультистейдж-сборка контейнеров и доставка в целевые окружения.</p>
+    <p>Зрелый подход требует применения инженерных практик разработки и к самим shell-скриптам: контроль версий, форматирование через <code>shfmt</code>, статическое тестирование уязвимостей, автоматизированные модульные тесты на фреймворке <code>bats-core</code>, безопасное маскирование конфиденциальных переменных в CI-логах и разделение конфигурации по средам выполнения (Dev, Staging, Prod) через внешние переменные окружения.</p>
+    <p><strong>Связанные главы курса:</strong> <a href="08.html">08 · Практики DevOps</a>, <a href="11.html">11 · Примеры Pro</a>, <a href="12.html">12 · Примеры IGL</a>, <a href="14.html">14 · Вопросы Pro</a>, <a href="glossary.html#strict-mode">Словарь · Строгий режим</a>, <a href="glossary.html#locking">Словарь · Блокировка locking</a>.</p>
+
+    <h2 id="lens-sre">9 · Практики SRE (SRE Practices) <a class="anchor-link" href="#lens-sre">#</a></h2>
+    <p>В дисциплине Site Reliability Engineering командная оболочка выступает главным инструментом локализации и устранения боевых инцидентов непосредственно на работающих серверах. Протокол первых минут аварии опирается на быстрый срез базовых метрик узла (load average через <code>uptime</code>, системные аномалии ядра в <code>dmesg</code>, заполнение дисков через <code>df -h</code> и открытые сетевые порты в <code>ss -tulpn</code>).</p>
+    <p>Для предотвращения каскадных сбоев при исполнении периодических фоновых задач скрипты используют механизм эксклюзивных файловых блокировок <code>flock</code>, предотвращающий параллельное накопление процессов. Управление приоритетами через <code>nice</code> и <code>ionice</code> гарантирует сохранность ресурсов для критических сервисов, а безопасная работа с логами через дескрипторы <code>/proc/PID/fd</code> исключает скрытое зависание дискового пространства удаленными, но удерживаемыми файлами.</p>
+    <p><strong>Связанные главы курса:</strong> <a href="09.html">09 · Практики SRE</a>, <a href="11.html">11 · Примеры Pro</a>, <a href="12.html">12 · Примеры IGL</a>, <a href="14.html">14 · Вопросы Pro</a>, <a href="15.html">15 · Вопросы IGL</a>, <a href="glossary.html#locking">Словарь · Блокировка locking</a>, <a href="glossary.html#signal">Словарь · Сигналы</a>, <a href="glossary.html#blast-radius">Словарь · Радиус поражения</a>.</p>
+
+    <div class="box key" id="artifacts">
+      <h2>Артефакты: что у вас есть после навигатора <a class="anchor-link" href="#artifacts">#</a></h2>
+      <p class="artifacts-slogan">Девять инженерных линз связывают отдельные команды и синтаксические конструкции в целостную ментальную модель архитектуры и эксплуатации.</p>
+      <ul>
+        <li><b>Многомерное понимание оболочки:</b> видение связей между лексическим анализом, системными вызовами ядра, процессами и дескрипторами ввода-вывода.</li>
+        <li><b>Архитектурная зрелость:</b> четкое знание границ применимости Bash и критериев перехода на компилируемые языки без накопления технического долга.</li>
+        <li><b>Практическая устойчивость:</b> владение паттернами бескомпромиссной надежности для облачных инфраструктур, CI/CD-пайплайнов, дежурств SRE и взаимодействия с ИИ-агентами.</li>
+      </ul>
+    </div>
+  
+
+    <footer>
+      <nav class="pager" aria-label="Соседние темы">
+        <p class="pager-prev">Предыдущая тема: <a href="glossary.html">Словарь понятий</a></p>
+      </nav>
+      <p class="footer-note">Сайт серии AI Factory. Сделан той же оснасткой, что и остальные: обычный HTML и CSS, проверка на bash, публикация через GitHub Pages.</p>
+    </footer>
+  </main>
+
+</div>
+</div>
+<script src="../assets/swa.js?v=13"></script>
+<script src="../assets/terms.js?v=13"></script>
+<script src="../assets/cp.js?v=13"></script>
+</body>
+</html>
