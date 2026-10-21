@@ -745,7 +745,7 @@ nav.contents .nav-extra > div > a[aria-current="page"] {
 .glossary-term:target {
   border-color: var(--term-accent);
   box-shadow: 0 0 0 1px var(--term-accent), 0 4px 16px rgba(252, 189, 74, 0.2);
-  scroll-margin-top: 24px;
+  scroll-margin-top: 28px;
 }
 .glossary-term h2,
 .glossary-term h3 {
@@ -1017,11 +1017,11 @@ nav.contents > .page-toc {
   header.top { padding-top: 16px; }
 }
 
-/* An anchor must not land under the header. The variable is 0 while the header
-   is not pinned, so a phone keeps the old offset. */
+/* An anchor must not land under the header or its fading dissolve strip (23px).
+   The variable is 0 while the header is not pinned, so a phone keeps a clean margin. */
 :target,
 .glossary-term:target {
-  scroll-margin-top: calc(var(--header-h, 0px) + 14px);
+  scroll-margin-top: calc(var(--header-h, 0px) + 28px);
 }
 
 /* --- объём страницы и соседние темы --- */

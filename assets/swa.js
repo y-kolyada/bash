@@ -131,7 +131,7 @@
       markActive = function () {
         const stuck = header && getComputedStyle(header).position === 'sticky';
         const topOffset = stuck ? header.getBoundingClientRect().bottom : 0;
-        const line = topOffset + 30;
+        const line = topOffset + 34;
         let current = items[0];
         for (const item of items) {
           if (item.getBoundingClientRect().top <= line) current = item;
